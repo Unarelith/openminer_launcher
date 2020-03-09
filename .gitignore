@@ -1,0 +1,52 @@
+# Temporary editor files
+\#*#
+.#*
+*~
+.ycm_extra_conf.py
+.vscode
+
+# Compiled files
+*.o
+*.a
+*.d
+*.so
+a.out
+
+# Debug stuff
+vgcore.*
+.gdb_history
+.valgrind_suppressions
+gmon.out
+gprof.txt
+
+# CMake temporary files
+CMakeFiles
+CMakeCache.txt
+CTestTestfile.cmake
+cmake_install.cmake
+compile_commands.json
+Makefile
+openminer_launcher_autogen
+
+# CMake temporary files on Windows
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+openminer_launcher.dir
+Win32
+Debug
+Release
+RelWithDebInfo
+
+# Visual Studio
+.vs
+
+# Binaries
+openminer_launcher
+*.exe
+*.dll
+
+# Misc
+*.zip
+

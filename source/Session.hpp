@@ -23,21 +23,38 @@
  *
  * =====================================================================================
  */
-#ifndef MODTABWIDGET_HPP_
-#define MODTABWIDGET_HPP_
+#ifndef SESSION_HPP_
+#define SESSION_HPP_
 
-#include <QTreeWidget>
+#include <QJsonDocument>
+#include <QNetworkAccessManager>
 
-class ContentData;
+class Session : public QObject {
+	Q_OBJECT
 
-class ModTabWidget : public QWidget {
 	public:
-		ModTabWidget(QWidget *parent = nullptr);
+		Session();
 
-		void update(ContentData &data);
+		using ParameterList = std::map<QString, QString>;
+		QJsonDocument get(const QString &apiEndpoint, const ParameterList &parameters = {}) const;
+
+		bool isLoggedIn() const { return m_isLoggedIn; }
+
+		static constexpr const char *baseUrl = "https://openminer.app/";
+
+	signals:
+		void httpError(int errorCode) const;
+		void userLoginRequired() const;
+
+		void userLoggedIn();
+		void userLoggedOut();
+
+		void stateChanged(const QString &state, int timeout = 0) const;
 
 	private:
-		QTreeWidget m_modListWidget;
+		bool m_isLoggedIn = false;
+
+		QNetworkAccessManager *m_network = nullptr;
 };
 
-#endif // MODTABWIDGET_HPP_
+#endif // SESSION_HPP_

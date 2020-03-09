@@ -23,21 +23,32 @@
  *
  * =====================================================================================
  */
-#ifndef MODTABWIDGET_HPP_
-#define MODTABWIDGET_HPP_
+#ifndef CONTENTITEM_HPP_
+#define CONTENTITEM_HPP_
 
-#include <QTreeWidget>
+#include <QSqlQuery>
+#include <QVariant>
 
-class ContentData;
-
-class ModTabWidget : public QWidget {
+class ContentItem {
 	public:
-		ModTabWidget(QWidget *parent = nullptr);
+		ContentItem(const QString &sqlTable);
+		ContentItem(const QString &sqlTable, const QSqlQuery &sqlQuery);
 
-		void update(ContentData &data);
+		void updateDatabaseTable() const;
+		void writeToDatabase();
+
+		void set(const QString &fieldName, const QVariant &value);
+		QVariant get(const QString &fieldName) const;
+
+		unsigned int id() const { return m_id; }
+
+	protected:
+		unsigned int m_id;
 
 	private:
-		QTreeWidget m_modListWidget;
+		QString m_sqlTable;
+
+		std::map<QString, QVariant> m_data;
 };
 
-#endif // MODTABWIDGET_HPP_
+#endif // CONTENTITEM_HPP_

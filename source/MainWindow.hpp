@@ -29,14 +29,33 @@
 #include <QMainWindow>
 #include <QTabWidget>
 
+#include "ContentData.hpp"
+#include "Session.hpp"
+
+#include "InstanceTabWidget.hpp"
+#include "ModTabWidget.hpp"
+
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 
 	public:
 		MainWindow();
 
+		void closeEvent(QCloseEvent *event) override;
+		void keyPressEvent(QKeyEvent *event) override;
+
 	private:
+		void openDatabase();
+
+		void connectObjects();
+		void updateWidgets();
+
+		ContentData m_contentData;
+
 		QTabWidget m_tabWidget{this};
+
+		InstanceTabWidget m_instanceTab;
+		ModTabWidget m_modTab;
 };
 
 #endif // MAINWINDOW_HPP_

@@ -23,21 +23,30 @@
  *
  * =====================================================================================
  */
-#ifndef MODTABWIDGET_HPP_
-#define MODTABWIDGET_HPP_
+#ifndef DATABASELOADER_HPP_
+#define DATABASELOADER_HPP_
 
-#include <QTreeWidget>
+#include <QObject>
 
 class ContentData;
 
-class ModTabWidget : public QWidget {
-	public:
-		ModTabWidget(QWidget *parent = nullptr);
+class DatabaseLoader : public QObject {
+	Q_OBJECT
 
-		void update(ContentData &data);
+	public:
+		DatabaseLoader(ContentData &data) : m_data(data) {}
+
+		void update() const;
+
+	signals:
+		void updateStarted() const;
+		void updateProgressed(int value) const;
+		void updateFinished() const;
 
 	private:
-		QTreeWidget m_modListWidget;
+		void updateMods() const;
+
+		ContentData &m_data;
 };
 
-#endif // MODTABWIDGET_HPP_
+#endif // DATABASELOADER_HPP_

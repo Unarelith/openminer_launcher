@@ -23,21 +23,43 @@
  *
  * =====================================================================================
  */
-#ifndef MODTABWIDGET_HPP_
-#define MODTABWIDGET_HPP_
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QThread>
 
-#include <QTreeWidget>
+#include "ContentData.hpp"
+#include "DatabaseLoader.hpp"
+#include "Session.hpp"
 
-class ContentData;
+void DatabaseLoader::update() const {
+	emit updateStarted();
 
-class ModTabWidget : public QWidget {
-	public:
-		ModTabWidget(QWidget *parent = nullptr);
+	updateMods();
 
-		void update(ContentData &data);
+	emit updateFinished();
+}
 
-	private:
-		QTreeWidget m_modListWidget;
-};
+void DatabaseLoader::updateMods() const {
+	if (QThread::currentThread()->isInterruptionRequested())
+		return;
 
-#endif // MODTABWIDGET_HPP_
+	Session session;
+	QJsonDocument json = session.get("/api/mod");
+	QJsonArray array = json.array();
+	if (array.isEmpty())
+		return;
+
+	for (const QJsonValue &value : array) {
+		if (QThread::currentThread()->isInterruptionRequested())
+			return;
+
+		ContentMod mod(value.toObject());
+		mod.updateDatabaseTable();
+		mod.writeToDatabase();
+
+		m_data.setMod(mod.id(), mod);
+	}
+
+	emit updateProgressed(25);
+}
+

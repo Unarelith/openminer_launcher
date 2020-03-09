@@ -23,21 +23,19 @@
  *
  * =====================================================================================
  */
-#ifndef MODTABWIDGET_HPP_
-#define MODTABWIDGET_HPP_
+#ifndef CONTENTMOD_HPP_
+#define CONTENTMOD_HPP_
 
-#include <QTreeWidget>
+#include <QJsonObject>
 
-class ContentData;
+#include "ContentItem.hpp"
 
-class ModTabWidget : public QWidget {
+class ContentMod : public ContentItem {
 	public:
-		ModTabWidget(QWidget *parent = nullptr);
+		explicit ContentMod(const QJsonObject &jsonObject);
+		explicit ContentMod(const QSqlQuery &sqlQuery) : ContentItem("mods", sqlQuery) {}
 
-		void update(ContentData &data);
-
-	private:
-		QTreeWidget m_modListWidget;
+		QString name() const { return get("name").toString(); }
 };
 
-#endif // MODTABWIDGET_HPP_
+#endif // CONTENTMOD_HPP_

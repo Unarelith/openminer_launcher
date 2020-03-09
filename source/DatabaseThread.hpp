@@ -23,21 +23,25 @@
  *
  * =====================================================================================
  */
-#ifndef MODTABWIDGET_HPP_
-#define MODTABWIDGET_HPP_
+#ifndef DATABASETHREAD_HPP_
+#define DATABASETHREAD_HPP_
 
-#include <QTreeWidget>
+#include <QThread>
 
-class ContentData;
+#include "Database.hpp"
 
-class ModTabWidget : public QWidget {
+class DatabaseThread : public QThread {
 	public:
-		ModTabWidget(QWidget *parent = nullptr);
+		DatabaseThread(Database *database) : QThread(database), m_database(database) {}
+		~DatabaseThread() override {
+			requestInterruption();
+			wait();
+		}
 
-		void update(ContentData &data);
+		void run() override { m_database->loader().update(); }
 
 	private:
-		QTreeWidget m_modListWidget;
+		Database *m_database;
 };
 
-#endif // MODTABWIDGET_HPP_
+#endif // DATABASETHREAD_HPP_

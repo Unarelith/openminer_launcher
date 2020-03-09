@@ -23,21 +23,34 @@
  *
  * =====================================================================================
  */
-#ifndef MODTABWIDGET_HPP_
-#define MODTABWIDGET_HPP_
+#ifndef DATABASE_HPP_
+#define DATABASE_HPP_
 
-#include <QTreeWidget>
+#include <QObject>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
 
-class ContentData;
+#include "DatabaseLoader.hpp"
 
-class ModTabWidget : public QWidget {
+class Database : public QObject {
 	public:
-		ModTabWidget(QWidget *parent = nullptr);
+		Database(ContentData &data) : m_loader(data) {}
 
-		void update(ContentData &data);
+		void open(const QString &path);
+		void clear() const;
+
+		static void addTable(const QString &name, const std::map<QString, QVariant> &fields);
+		static void removeTable(const QString &name);
+
+		static QSqlDatabase getDatabase();
+
+		const DatabaseLoader &loader() const { return m_loader; }
 
 	private:
-		QTreeWidget m_modListWidget;
+		static QString s_path;
+
+		DatabaseLoader m_loader;
 };
 
-#endif // MODTABWIDGET_HPP_
+#endif // DATABASE_HPP_

@@ -23,9 +23,13 @@
  *
  * =====================================================================================
  */
-#include "InstanceTabWidget.hpp"
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QKeyEvent>
+#include <QStandardPaths>
+
 #include "MainWindow.hpp"
-#include "ModTabWidget.hpp"
 #include "NewsWidget.hpp"
 
 MainWindow::MainWindow() : QMainWindow(nullptr, Qt::Dialog) {
@@ -33,15 +37,58 @@ MainWindow::MainWindow() : QMainWindow(nullptr, Qt::Dialog) {
 	setFocusPolicy(Qt::ClickFocus);
 	resize(1280, 720);
 
-	m_tabWidget.addTab(new InstanceTabWidget, "Instances");
+	m_tabWidget.addTab(&m_instanceTab, "Instances");
 	// m_tabWidget.addTab(new NewsWidget, "News");
 	// m_tabWidget.addTab(new QWidget, "Versions");
 	// m_tabWidget.addTab(new QWidget, "Games");
-	m_tabWidget.addTab(new ModTabWidget, "Mods");
+	m_tabWidget.addTab(&m_modTab, "Mods");
 	// m_tabWidget.addTab(new QWidget, "Textures");
 
 	setCentralWidget(&m_tabWidget);
 
+	openDatabase();
+	updateWidgets();
+
+	m_contentData.updateDatabase();
+
 	show();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+	m_contentData.stopDatabaseUpdate();
+
+	QMainWindow::closeEvent(event);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event) {
+	QMainWindow::keyPressEvent(event);
+
+	if (event->key() == Qt::Key_Escape)
+		close();
+}
+
+void MainWindow::openDatabase() {
+	QString dirPath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+	QString path = dirPath + "/openminer.sqlite";
+	QFileInfo databaseInfo(path);
+	if (databaseInfo.exists() && databaseInfo.isFile()) {
+		m_contentData.openDatabase(path);
+		m_contentData.update();
+	}
+	else {
+		QDir dir(dirPath);
+		if (!dir.mkpath(dirPath))
+			qWarning() << "Error: Failed to create directory: " + dirPath;
+
+		m_contentData.openDatabase(path);
+	}
+}
+
+void MainWindow::connectObjects() {
+	connect(&m_contentData, &ContentData::windowRefeshRequested, this, &MainWindow::updateWidgets);
+}
+
+void MainWindow::updateWidgets() {
+	m_modTab.update(m_contentData);
 }
 

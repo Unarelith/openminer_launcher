@@ -30,7 +30,6 @@
 #include <QStandardPaths>
 
 #include "MainWindow.hpp"
-#include "NewsWidget.hpp"
 
 MainWindow::MainWindow() : QMainWindow(nullptr, Qt::Dialog) {
 	setWindowTitle("OpenMiner Launcher");
@@ -38,7 +37,7 @@ MainWindow::MainWindow() : QMainWindow(nullptr, Qt::Dialog) {
 	resize(1280, 720);
 
 	m_tabWidget.addTab(&m_instanceTab, "Instances");
-	// m_tabWidget.addTab(new NewsWidget, "News");
+	// m_tabWidget.addTab(new QWidget, "News");
 	// m_tabWidget.addTab(new QWidget, "Versions");
 	// m_tabWidget.addTab(new QWidget, "Games");
 	m_tabWidget.addTab(&m_modTab, "Mods");

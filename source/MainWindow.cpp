@@ -25,6 +25,7 @@
  */
 #include "InstanceTabWidget.hpp"
 #include "MainWindow.hpp"
+#include "ModTabWidget.hpp"
 #include "NewsWidget.hpp"
 
 MainWindow::MainWindow() : QMainWindow(nullptr, Qt::Dialog) {
@@ -33,11 +34,11 @@ MainWindow::MainWindow() : QMainWindow(nullptr, Qt::Dialog) {
 	resize(1280, 720);
 
 	m_tabWidget.addTab(new InstanceTabWidget, "Instances");
-	m_tabWidget.addTab(new NewsWidget, "News");
-	m_tabWidget.addTab(new QWidget, "Versions");
-	m_tabWidget.addTab(new QWidget, "Games");
-	m_tabWidget.addTab(new QWidget, "Mods");
-	m_tabWidget.addTab(new QWidget, "Textures");
+	// m_tabWidget.addTab(new NewsWidget, "News");
+	// m_tabWidget.addTab(new QWidget, "Versions");
+	// m_tabWidget.addTab(new QWidget, "Games");
+	m_tabWidget.addTab(new ModTabWidget, "Mods");
+	// m_tabWidget.addTab(new QWidget, "Textures");
 
 	setCentralWidget(&m_tabWidget);
 

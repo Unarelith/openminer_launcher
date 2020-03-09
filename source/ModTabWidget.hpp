@@ -23,12 +23,17 @@
  *
  * =====================================================================================
  */
-#include "InstanceListWidget.hpp"
+#ifndef MODTABWIDGET_HPP_
+#define MODTABWIDGET_HPP_
 
-InstanceListWidget::InstanceListWidget(QWidget *parent) : QTreeWidget(parent) {
-	setHeaderLabels({tr("Name"), tr("Version"), tr("Game")});
-	setRootIsDecorated(false);
-	setSortingEnabled(true);
-	// sortItems(0, Qt::AscendingOrder);
-}
+#include <QTreeWidget>
 
+class ModTabWidget : public QWidget {
+	public:
+		ModTabWidget(QWidget *parent = nullptr);
+
+	private:
+		QTreeWidget m_modListWidget;
+};
+
+#endif // MODTABWIDGET_HPP_

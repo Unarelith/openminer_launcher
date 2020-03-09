@@ -23,12 +23,16 @@
  *
  * =====================================================================================
  */
-#include "InstanceListWidget.hpp"
+#include <QVBoxLayout>
 
-InstanceListWidget::InstanceListWidget(QWidget *parent) : QTreeWidget(parent) {
-	setHeaderLabels({tr("Name"), tr("Version"), tr("Game")});
-	setRootIsDecorated(false);
-	setSortingEnabled(true);
-	// sortItems(0, Qt::AscendingOrder);
+#include "ModTabWidget.hpp"
+
+ModTabWidget::ModTabWidget(QWidget *parent) : QWidget(parent) {
+	m_modListWidget.setHeaderLabels({tr("Name"), tr("Author"), tr("Latest version"), tr("Creation date")});
+	m_modListWidget.setRootIsDecorated(false);
+	m_modListWidget.setSortingEnabled(true);
+
+	QVBoxLayout *layout = new QVBoxLayout{this};
+	layout->addWidget(&m_modListWidget);
 }
 

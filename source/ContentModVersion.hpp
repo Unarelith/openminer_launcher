@@ -23,30 +23,30 @@
  *
  * =====================================================================================
  */
-#ifndef CONTENTMOD_HPP_
-#define CONTENTMOD_HPP_
+#ifndef CONTENTMODVERSION_HPP_
+#define CONTENTMODVERSION_HPP_
 
 #include <QJsonObject>
 
 #include "ContentItem.hpp"
 
 class ContentData;
-class ContentModVersion;
+class ContentMod;
 
-class ContentMod : public ContentItem {
+class ContentModVersion : public ContentItem {
 	public:
-		explicit ContentMod(const QJsonObject &jsonObject, ContentData &data);
-		explicit ContentMod(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("mods", sqlQuery) {}
+		explicit ContentModVersion(const QJsonObject &jsonObject, ContentData &data);
+		explicit ContentModVersion(const QSqlQuery &sqlQuery, ContentData &data);
 
 		QString name() const { return get("name").toString(); }
 		QString date() const { return get("date").toString(); }
-		unsigned int user() const { return get("user").toUInt(); }
+		QString doc() const { return get("doc").toString(); }
+		unsigned int modID() const { return get("mod").toUInt(); }
 
-		void addVersion(unsigned int id) { m_versions.emplace_back(id); }
-		const std::vector<unsigned int> &versions() const { return m_versions; }
+		const ContentMod &mod() const { return *m_mod; }
 
 	private:
-		std::vector<unsigned int> m_versions;
+		ContentMod *m_mod = nullptr;
 };
 
-#endif // CONTENTMOD_HPP_
+#endif // CONTENTMODVERSION_HPP_

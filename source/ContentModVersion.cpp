@@ -23,30 +23,28 @@
  *
  * =====================================================================================
  */
-#ifndef CONTENTMOD_HPP_
-#define CONTENTMOD_HPP_
+#include "ContentData.hpp"
+#include "ContentModVersion.hpp"
 
-#include <QJsonObject>
+#include <QDebug>
 
-#include "ContentItem.hpp"
+ContentModVersion::ContentModVersion(const QSqlQuery &sqlQuery, ContentData &data)
+	: ContentItem("mod_versions", sqlQuery)
+{
+	m_mod = data.getMod(modID());
+	m_mod->addVersion(m_id);
+}
 
-class ContentData;
-class ContentModVersion;
+ContentModVersion::ContentModVersion(const QJsonObject &jsonObject, ContentData &data)
+	: ContentItem("mod_versions")
+{
+	m_id = jsonObject.value("id").toInt();
 
-class ContentMod : public ContentItem {
-	public:
-		explicit ContentMod(const QJsonObject &jsonObject, ContentData &data);
-		explicit ContentMod(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("mods", sqlQuery) {}
+	set("name", jsonObject.value("name").toString());
+	set("date", jsonObject.value("date").toString());
+	set("doc", jsonObject.value("doc").toString());
+	set("mod", jsonObject.value("mod").toInt());
 
-		QString name() const { return get("name").toString(); }
-		QString date() const { return get("date").toString(); }
-		unsigned int user() const { return get("user").toUInt(); }
+	m_mod = data.getMod(modID());
+}
 
-		void addVersion(unsigned int id) { m_versions.emplace_back(id); }
-		const std::vector<unsigned int> &versions() const { return m_versions; }
-
-	private:
-		std::vector<unsigned int> m_versions;
-};
-
-#endif // CONTENTMOD_HPP_

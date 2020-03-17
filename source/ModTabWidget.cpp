@@ -23,6 +23,7 @@
  *
  * =====================================================================================
  */
+#include <QMenu>
 #include <QVBoxLayout>
 
 #include "ContentData.hpp"
@@ -30,8 +31,11 @@
 
 ModTabWidget::ModTabWidget(QWidget *parent) : QWidget(parent) {
 	m_modListWidget.setHeaderLabels({tr("ID"), tr("Name"), tr("Author"), tr("Latest version"), tr("Creation date")});
-	m_modListWidget.setRootIsDecorated(false);
+	// m_modListWidget.setRootIsDecorated(false);
 	m_modListWidget.setSortingEnabled(true);
+	m_modListWidget.setContextMenuPolicy(Qt::CustomContextMenu);
+
+	connect(&m_modListWidget, &QTreeWidget::customContextMenuRequested, this, &ModTabWidget::showContextMenu);
 
 	QVBoxLayout *layout = new QVBoxLayout{this};
 	layout->addWidget(&m_modListWidget);
@@ -46,6 +50,36 @@ void ModTabWidget::update(ContentData &data) {
 		item->setText(0, QString::number(it.second.id()));
 		item->setText(1, it.second.name());
 		item->setText(2, QString::number(it.second.user()));
+		item->setText(4, it.second.date());
+
+		ContentModVersion *latestVersion = nullptr;
+		for (auto &it : it.second.versions()) {
+			ContentModVersion *version = data.getModVersion(it);
+
+			auto *child = new QTreeWidgetItem(item);
+			child->setText(0, QString::number(version->id()));
+			child->setText(1, version->name());
+			child->setText(4, version->date());
+
+			if (!latestVersion || latestVersion->id() < version->id())
+				latestVersion = version;
+		}
+
+		if (latestVersion)
+			item->setText(3, latestVersion->name());
 	}
+}
+
+void ModTabWidget::showContextMenu(const QPoint &pos) {
+	QTreeWidgetItem *item = m_modListWidget.itemAt(pos);
+	if (!item) return;
+
+	QAction *downloadAction = new QAction(tr("&Download"), this);
+	downloadAction->setStatusTip(tr("Download mod"));
+
+	QMenu menu{this};
+	menu.addAction(downloadAction);
+
+	menu.exec(m_modListWidget.mapToGlobal(pos));
 }
 

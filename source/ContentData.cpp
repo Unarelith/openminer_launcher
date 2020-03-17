@@ -83,6 +83,7 @@ void ContentData::databaseUpdateFinished() {
 
 void ContentData::update() {
 	updateModList();
+	updateModVersionList();
 
 	emit windowRefeshRequested();
 }
@@ -92,7 +93,16 @@ void ContentData::updateModList() {
 
 	QSqlQuery query("SELECT * FROM mods", Database::getDatabase());
 	while (query.next()) {
-		m_modList.emplace(query.value(0).toUInt(), query);
+		m_modList.emplace(query.value(0).toUInt(), ContentMod{query, *this});
+	}
+}
+
+void ContentData::updateModVersionList() {
+	m_modVersionList.clear();
+
+	QSqlQuery query("SELECT * FROM mod_versions", Database::getDatabase());
+	while (query.next()) {
+		m_modVersionList.emplace(query.value(0).toUInt(), ContentModVersion{query, *this});
 	}
 }
 

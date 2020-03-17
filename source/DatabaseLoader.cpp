@@ -53,11 +53,35 @@ void DatabaseLoader::updateMods() const {
 		if (QThread::currentThread()->isInterruptionRequested())
 			return;
 
-		ContentMod mod(value.toObject());
+		ContentMod mod(value.toObject(), m_data);
 		mod.updateDatabaseTable();
 		mod.writeToDatabase();
 
 		m_data.setMod(mod.id(), mod);
+	}
+
+	emit updateProgressed(25);
+}
+
+void DatabaseLoader::updateModVersions() const {
+	if (QThread::currentThread()->isInterruptionRequested())
+		return;
+
+	Session session;
+	QJsonDocument json = session.get("/api/mod/version");
+	QJsonArray array = json.array();
+	if (array.isEmpty())
+		return;
+
+	for (const QJsonValue &value : array) {
+		if (QThread::currentThread()->isInterruptionRequested())
+			return;
+
+		ContentModVersion modVersion(value.toObject(), m_data);
+		modVersion.updateDatabaseTable();
+		modVersion.writeToDatabase();
+
+		m_data.setModVersion(modVersion.id(), modVersion);
 	}
 
 	emit updateProgressed(25);

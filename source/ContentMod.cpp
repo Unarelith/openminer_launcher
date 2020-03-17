@@ -25,10 +25,11 @@
  */
 #include "ContentMod.hpp"
 
-ContentMod::ContentMod(const QJsonObject &jsonObject) : ContentItem("mods") {
+ContentMod::ContentMod(const QJsonObject &jsonObject, ContentData &data) : ContentItem("mods") {
 	m_id = jsonObject.value("id").toInt();
 
 	set("name", jsonObject.value("name").toString());
+	set("date", jsonObject.value("date").toString());
 	set("user", jsonObject.value("user").toInt());
 }
 

@@ -29,6 +29,7 @@
 #include <unordered_map>
 
 #include "ContentMod.hpp"
+#include "ContentModVersion.hpp"
 #include "Database.hpp"
 #include "DatabaseThread.hpp"
 
@@ -47,14 +48,18 @@ class ContentData : public QObject {
 
 		void update();
 		void updateModList();
+		void updateModVersionList();
 
 		const Database &database() const { return m_database; }
 
 		const std::unordered_map<unsigned int, ContentMod> &modList() const { return m_modList; }
+		const std::unordered_map<unsigned int, ContentModVersion> &modVersionList() const { return m_modVersionList; }
 
-		const ContentMod *getMod(unsigned int id) { return getItem(id, m_modList); }
+		ContentMod *getMod(unsigned int id) { return getItem(id, m_modList); }
+		ContentModVersion *getModVersion(unsigned int id) { return getItem(id, m_modVersionList); }
 
 		void setMod(unsigned int id, const ContentMod &mod) { setItem(id, mod, m_modList); }
+		void setModVersion(unsigned int id, const ContentModVersion &modVersion) { setItem(id, modVersion, m_modVersionList); }
 
 	signals:
 		void stateChanged(const QString &state, int timeout = 0);
@@ -68,9 +73,10 @@ class ContentData : public QObject {
 		DatabaseThread *m_databaseThread = nullptr;
 
 		std::unordered_map<unsigned int, ContentMod> m_modList;
+		std::unordered_map<unsigned int, ContentModVersion> m_modVersionList;
 
 		template<typename T>
-		const T *getItem(unsigned int id, const std::unordered_map<unsigned int, T> &itemList) {
+		T *getItem(unsigned int id, std::unordered_map<unsigned int, T> &itemList) {
 			auto it = itemList.find(id);
 			if (it == itemList.end())
 				return nullptr;

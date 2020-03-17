@@ -37,6 +37,8 @@ class ModTabWidget : public QWidget {
 		void update(ContentData &data);
 
 	private:
+		void showContextMenu(const QPoint &pos);
+
 		QTreeWidget m_modListWidget;
 };
 

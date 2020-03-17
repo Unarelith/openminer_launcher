@@ -26,6 +26,7 @@
 #ifndef CONTENTMOD_HPP_
 #define CONTENTMOD_HPP_
 
+#include <QDateTime>
 #include <QJsonObject>
 
 #include "ContentItem.hpp"
@@ -39,7 +40,7 @@ class ContentMod : public ContentItem {
 		explicit ContentMod(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("mods", sqlQuery) {}
 
 		QString name() const { return get("name").toString(); }
-		QString date() const { return get("date").toString(); }
+		QDateTime date() const { return get("date").toDateTime(); }
 		unsigned int user() const { return get("user").toUInt(); }
 
 		void addVersion(unsigned int id) { m_versions.emplace_back(id); }

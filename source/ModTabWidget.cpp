@@ -37,6 +37,7 @@ ModTabWidget::ModTabWidget(ContentData &data, QWidget *parent) : QWidget(parent)
 	m_modListWidget.setSortingEnabled(true);
 	m_modListWidget.setContextMenuPolicy(Qt::CustomContextMenu);
 	m_modListWidget.sortItems(1, Qt::AscendingOrder);
+	m_modListWidget.setColumnWidth(0, 64);
 
 	connect(&m_modListWidget, &QTreeWidget::customContextMenuRequested, this, &ModTabWidget::showContextMenu);
 
@@ -55,7 +56,7 @@ void ModTabWidget::update() {
 		item->setText(1, QString::number(it.second.id()));
 		item->setText(2, it.second.name());
 		item->setText(3, QString::number(it.second.user()));
-		item->setText(5, it.second.date());
+		item->setText(5, it.second.date().toString());
 
 		ContentModVersion *latestVersion = nullptr;
 		for (auto &it : it.second.versions()) {
@@ -66,7 +67,7 @@ void ModTabWidget::update() {
 			// child->setText(0, " 0");
 			child->setText(1, QString::number(version->id()));
 			child->setText(2, version->name());
-			child->setText(5, version->date());
+			child->setText(5, version->date().toString());
 
 			if (!latestVersion || latestVersion->id() < version->id())
 				latestVersion = version;

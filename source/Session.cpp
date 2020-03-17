@@ -26,6 +26,7 @@
 #include <iostream>
 
 #include <QEventLoop>
+#include <QSaveFile>
 #include <QNetworkReply>
 #include <QThread>
 
@@ -72,5 +73,36 @@ QJsonDocument Session::get(const QString &apiEndpoint, const ParameterList &para
 	// std::cout << "GET request finished in " << before.msecsTo(QTime::currentTime()) << " ms" << std::endl;
 
 	return QJsonDocument::fromJson(reply->readAll());
+}
+
+void Session::download(const QUrl &url, const QString &path) const {
+	QEventLoop waitReply;
+	connect(m_network, &QNetworkAccessManager::finished, &waitReply, &QEventLoop::quit);
+
+	QNetworkReply *reply = m_network->get(QNetworkRequest(QUrl(url)));
+
+	waitReply.exec();
+
+	QVariant statusCodeVariant = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+	int statusCode = statusCodeVariant.toInt();
+
+	if (statusCode != 200) {
+		std::cerr << "Error: Http request failed. Code: " << statusCode << std::endl;
+		emit stateChanged("Request failed. (" + QString::number(statusCode) + ")");
+		emit httpError(statusCode);
+
+		if (statusCode == 401) {
+			QThread::currentThread()->requestInterruption();
+			emit userLoginRequired();
+		}
+	}
+
+	QByteArray data = reply->readAll();
+	QSaveFile file{path};
+	if (file.open(QIODevice::WriteOnly)) {
+		file.write(data);
+	}
+	else
+		std::cerr << "Error: Failed to save file: " << path.toStdString() << std::endl;
 }
 

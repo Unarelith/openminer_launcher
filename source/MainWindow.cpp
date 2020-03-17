@@ -105,6 +105,6 @@ void MainWindow::connectObjects() {
 }
 
 void MainWindow::updateWidgets() {
-	m_modTab.update(m_contentData);
+	m_modTab.update();
 }
 

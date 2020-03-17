@@ -28,18 +28,28 @@
 
 #include <QTreeWidget>
 
+#include "Session.hpp"
+
 class ContentData;
 
 class ModTabWidget : public QWidget {
 	public:
-		ModTabWidget(QWidget *parent = nullptr);
+		ModTabWidget(ContentData &data, QWidget *parent = nullptr);
 
-		void update(ContentData &data);
+		void update();
 
 	private:
 		void showContextMenu(const QPoint &pos);
 
+		void downloadActionTriggered();
+
+		ContentData &m_data;
+
 		QTreeWidget m_modListWidget;
+
+		QTreeWidgetItem *m_currentItem = nullptr;
+
+		Session m_session;
 };
 
 #endif // MODTABWIDGET_HPP_

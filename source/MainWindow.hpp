@@ -58,7 +58,7 @@ class MainWindow : public QMainWindow {
 		QTabWidget m_tabWidget{this};
 
 		InstanceTabWidget m_instanceTab;
-		ModTabWidget m_modTab;
+		ModTabWidget m_modTab{m_contentData};
 };
 
 #endif // MAINWINDOW_HPP_

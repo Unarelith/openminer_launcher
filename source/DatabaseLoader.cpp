@@ -35,6 +35,7 @@ void DatabaseLoader::update() const {
 	emit updateStarted();
 
 	updateMods();
+	updateModVersions();
 
 	emit updateFinished();
 }

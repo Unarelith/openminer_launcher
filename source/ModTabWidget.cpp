@@ -32,10 +32,11 @@
 #include "ModTabWidget.hpp"
 
 ModTabWidget::ModTabWidget(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
-	m_modListWidget.setHeaderLabels({tr("ID"), tr("Name"), tr("Author"), tr("Latest version"), tr("Creation date")});
+	m_modListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Author"), tr("Latest version"), tr("Creation date")});
 	// m_modListWidget.setRootIsDecorated(false);
 	m_modListWidget.setSortingEnabled(true);
 	m_modListWidget.setContextMenuPolicy(Qt::CustomContextMenu);
+	m_modListWidget.sortItems(1, Qt::AscendingOrder);
 
 	connect(&m_modListWidget, &QTreeWidget::customContextMenuRequested, this, &ModTabWidget::showContextMenu);
 
@@ -49,26 +50,30 @@ void ModTabWidget::update() {
 	auto &modList = m_data.modList();
 	for (auto &it : modList) {
 		auto *item = new QTreeWidgetItem(&m_modListWidget);
-		item->setText(0, QString::number(it.second.id()));
-		item->setText(1, it.second.name());
-		item->setText(2, QString::number(it.second.user()));
-		item->setText(4, it.second.date());
+		item->setIcon(0, QIcon(":/checkbox_off"));
+		// item->setText(0, " 0");
+		item->setText(1, QString::number(it.second.id()));
+		item->setText(2, it.second.name());
+		item->setText(3, QString::number(it.second.user()));
+		item->setText(5, it.second.date());
 
 		ContentModVersion *latestVersion = nullptr;
 		for (auto &it : it.second.versions()) {
 			ContentModVersion *version = m_data.getModVersion(it);
 
 			auto *child = new QTreeWidgetItem(item);
-			child->setText(0, QString::number(version->id()));
-			child->setText(1, version->name());
-			child->setText(4, version->date());
+			child->setIcon(0, QIcon(":/checkbox_off"));
+			// child->setText(0, " 0");
+			child->setText(1, QString::number(version->id()));
+			child->setText(2, version->name());
+			child->setText(5, version->date());
 
 			if (!latestVersion || latestVersion->id() < version->id())
 				latestVersion = version;
 		}
 
 		if (latestVersion)
-			item->setText(3, latestVersion->name());
+			item->setText(4, latestVersion->name());
 	}
 }
 
@@ -91,10 +96,10 @@ void ModTabWidget::showContextMenu(const QPoint &pos) {
 void ModTabWidget::downloadActionTriggered() {
 	ContentModVersion *modVersion = nullptr;
 	if (m_currentItem->parent()) {
-		modVersion = m_data.getModVersion(m_currentItem->text(0).toUInt());
+		modVersion = m_data.getModVersion(m_currentItem->text(1).toUInt());
 	}
 	else {
-		ContentMod *mod = m_data.getMod(m_currentItem->text(0).toUInt());
+		ContentMod *mod = m_data.getMod(m_currentItem->text(1).toUInt());
 
 		ContentModVersion *latestVersion = nullptr;
 		for (auto &it : mod->versions()) {

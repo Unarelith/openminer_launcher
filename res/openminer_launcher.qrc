@@ -1,6 +1,16 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
 <qresource>
+	<file alias="ask">icons/ask.svg</file>
+	<file alias="lock">icons/lock.svg</file>
+	<file alias="warning">icons/warning.svg</file>
+	<file alias="checkbox_on">icons/checkbox_on.svg</file>
+	<file alias="checkbox_off">icons/checkbox_off.svg</file>
+
+	<file alias="network-online">icons/network-online.png</file>
+	<file alias="network-offline">icons/network-offline.png</file>
+	<file alias="network-error">icons/network-error.png</file>
+
 	<file alias="theme-default">themes/default.qss</file>
 </qresource>
 </RCC>

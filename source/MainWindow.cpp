@@ -28,29 +28,29 @@
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QStandardPaths>
+#include <QStatusBar>
 
 #include "MainWindow.hpp"
 
-MainWindow::MainWindow() : QMainWindow(nullptr, Qt::Dialog) {
+MainWindow::MainWindow(const QString &apiSource) : QMainWindow(nullptr, Qt::Dialog) {
 	setWindowTitle("OpenMiner Launcher");
 	setFocusPolicy(Qt::ClickFocus);
 	resize(1280, 720);
 
-	m_tabWidget.addTab(&m_instanceTab, "Instances");
-	// m_tabWidget.addTab(new QWidget, "News");
-	// m_tabWidget.addTab(new QWidget, "Versions");
-	// m_tabWidget.addTab(new QWidget, "Games");
-	m_tabWidget.addTab(&m_modTab, "Mods");
-	// m_tabWidget.addTab(new QWidget, "Textures");
+	if (!apiSource.isEmpty())
+		Session::baseUrl = apiSource;
 
-	setCentralWidget(&m_tabWidget);
+	setupStatusBar();
+	setupTabs();
+
+	connectObjects();
 
 	openDatabase();
+
+	show();
 	updateWidgets();
 
 	m_contentData.updateDatabase();
-
-	show();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -64,6 +64,23 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 
 	if (event->key() == Qt::Key_Escape)
 		close();
+}
+
+void MainWindow::setupStatusBar() {
+	QStatusBar *statusBar = QMainWindow::statusBar();
+
+	connect(&m_contentData, &ContentData::stateChanged, statusBar, &QStatusBar::showMessage);
+}
+
+void MainWindow::setupTabs() {
+	m_tabWidget.addTab(&m_instanceTab, "Instances");
+	// m_tabWidget.addTab(new QWidget, "News");
+	// m_tabWidget.addTab(new QWidget, "Versions");
+	// m_tabWidget.addTab(new QWidget, "Games");
+	m_tabWidget.addTab(&m_modTab, "Mods");
+	// m_tabWidget.addTab(new QWidget, "Textures");
+
+	setCentralWidget(&m_tabWidget);
 }
 
 void MainWindow::openDatabase() {

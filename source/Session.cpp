@@ -31,6 +31,8 @@
 
 #include "Session.hpp"
 
+QString Session::baseUrl = "https://openminer.app/";
+
 Session::Session() {
 	m_network = new QNetworkAccessManager{this};
 }

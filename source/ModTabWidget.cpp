@@ -45,6 +45,7 @@ void ModTabWidget::update(ContentData &data) {
 		auto *item = new QTreeWidgetItem(&m_modListWidget);
 		item->setText(0, QString::number(it.second.id()));
 		item->setText(1, it.second.name());
+		item->setText(2, QString::number(it.second.user()));
 	}
 }
 

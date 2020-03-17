@@ -36,6 +36,7 @@ class ContentMod : public ContentItem {
 		explicit ContentMod(const QSqlQuery &sqlQuery) : ContentItem("mods", sqlQuery) {}
 
 		QString name() const { return get("name").toString(); }
+		unsigned int user() const { return get("user").toUInt(); }
 };
 
 #endif // CONTENTMOD_HPP_

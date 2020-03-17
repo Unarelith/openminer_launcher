@@ -24,18 +24,34 @@
  * =====================================================================================
  */
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QFile>
 
 #include "MainWindow.hpp"
 
 int main(int argc, char **argv) {
 	QApplication app(argc, argv);
+	QApplication::setApplicationName("openminer_launcher");
+	QApplication::setApplicationVersion("0.0.1");
 
 	QFile style(":/theme-default");
 	style.open(QIODevice::OpenModeFlag::ReadOnly);
 	app.setStyleSheet(style.readAll());
 
-	MainWindow win;
+	QCommandLineParser parser;
+	parser.addHelpOption();
+	parser.addVersionOption();
+	parser.addOptions({
+		{{"a", "api-source"},
+			QCoreApplication::translate("main", "Use <source> as the server for the API."),
+			QCoreApplication::translate("main", "source")},
+	});
+
+	parser.process(app);
+
+	QString apiSource = parser.value("a");
+
+	MainWindow win(apiSource);
 	app.exec();
 }
 

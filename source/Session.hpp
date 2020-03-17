@@ -40,7 +40,7 @@ class Session : public QObject {
 
 		bool isLoggedIn() const { return m_isLoggedIn; }
 
-		static constexpr const char *baseUrl = "https://openminer.app/";
+		static QString baseUrl;
 
 	signals:
 		void httpError(int errorCode) const;

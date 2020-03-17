@@ -29,5 +29,6 @@ ContentMod::ContentMod(const QJsonObject &jsonObject) : ContentItem("mods") {
 	m_id = jsonObject.value("id").toInt();
 
 	set("name", jsonObject.value("name").toString());
+	set("user", jsonObject.value("user").toInt());
 }
 

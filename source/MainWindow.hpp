@@ -39,10 +39,13 @@ class MainWindow : public QMainWindow {
 	Q_OBJECT
 
 	public:
-		MainWindow();
+		MainWindow(const QString &apiSource);
 
 		void closeEvent(QCloseEvent *event) override;
 		void keyPressEvent(QKeyEvent *event) override;
+
+		void setupStatusBar();
+		void setupTabs();
 
 	private:
 		void openDatabase();

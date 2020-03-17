@@ -36,9 +36,11 @@ ModTabWidget::ModTabWidget(ContentData &data, QWidget *parent) : QWidget(parent)
 	// m_modListWidget.setRootIsDecorated(false);
 	m_modListWidget.setSortingEnabled(true);
 	m_modListWidget.setContextMenuPolicy(Qt::CustomContextMenu);
-	m_modListWidget.sortItems(1, Qt::AscendingOrder);
+	m_modListWidget.sortItems(2, Qt::AscendingOrder);
 	m_modListWidget.setColumnWidth(0, 64);
 	m_modListWidget.hideColumn(1);
+	m_modListWidget.setSelectionMode(QAbstractItemView::NoSelection);
+	m_modListWidget.setFocusPolicy(Qt::NoFocus);
 
 	connect(&m_modListWidget, &QTreeWidget::customContextMenuRequested, this, &ModTabWidget::showContextMenu);
 
@@ -95,6 +97,8 @@ void ModTabWidget::showContextMenu(const QPoint &pos) {
 	menu.exec(m_modListWidget.mapToGlobal(pos));
 }
 
+#include <quazip5/quazipfile.h>
+
 void ModTabWidget::downloadActionTriggered() {
 	ContentModVersion *modVersion = nullptr;
 	if (m_currentItem->parent()) {
@@ -122,7 +126,32 @@ void ModTabWidget::downloadActionTriggered() {
 		if (!dir.exists(path))
 			dir.mkpath(path);
 
-		m_session.download(modVersion->doc(), path + "data");
+		m_session.download(modVersion->doc(), path + "content.zip");
+
+		QuaZip archive{path + "content.zip"};
+		archive.open(QuaZip::mdUnzip);
+
+		for(bool f = archive.goToFirstFile(); f; f = archive.goToNextFile()) {
+			QString filePath = archive.getCurrentFileName();
+
+			QuaZipFile file(archive.getZipName(), filePath);
+			file.open(QIODevice::ReadOnly);
+
+			QByteArray data = file.readAll();
+
+			file.close();
+
+			if (filePath.at(filePath.size() - 1) == '/') {
+				QDir dir;
+				dir.mkpath(path + filePath);
+			}
+			else {
+				QFile dstFile(path + filePath);
+				dstFile.open(QIODevice::WriteOnly);
+				dstFile.write(data);
+				dstFile.close();
+			}
+		}
 	}
 }
 

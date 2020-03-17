@@ -41,11 +41,9 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt5 COMPONENTS Network Sql Widgets REQUIRED)
 
 #------------------------------------------------------------------------------
-# - QtKeychain
+# - QuaZip
 #------------------------------------------------------------------------------
-find_package(Qt5Keychain REQUIRED)
-
-include_directories(${QTKEYCHAIN_INCLUDE_DIRS})
+find_package(QuaZip5 REQUIRED)
 
 #------------------------------------------------------------------------------
 # Add executable
@@ -59,9 +57,7 @@ add_executable(${CMAKE_PROJECT_NAME}
 # Link options
 #------------------------------------------------------------------------------
 target_link_libraries(${CMAKE_PROJECT_NAME}
-                      ${CPR_LIBRARIES}
-                      ${CURL_LIBRARIES}
-                      ${QTKEYCHAIN_LIBRARIES})
+                      ${QUAZIP_LIBRARIES})
 
 QT5_USE_MODULES(${CMAKE_PROJECT_NAME} Network Sql Widgets)
 

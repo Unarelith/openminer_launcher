@@ -101,6 +101,7 @@ void Session::download(const QUrl &url, const QString &path) const {
 	QSaveFile file{path};
 	if (file.open(QIODevice::WriteOnly)) {
 		file.write(data);
+		file.commit();
 	}
 	else
 		std::cerr << "Error: Failed to save file: " << path.toStdString() << std::endl;

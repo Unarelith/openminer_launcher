@@ -38,6 +38,7 @@ ModTabWidget::ModTabWidget(ContentData &data, QWidget *parent) : QWidget(parent)
 	m_modListWidget.setContextMenuPolicy(Qt::CustomContextMenu);
 	m_modListWidget.sortItems(1, Qt::AscendingOrder);
 	m_modListWidget.setColumnWidth(0, 64);
+	m_modListWidget.hideColumn(1);
 
 	connect(&m_modListWidget, &QTreeWidget::customContextMenuRequested, this, &ModTabWidget::showContextMenu);
 
@@ -65,9 +66,9 @@ void ModTabWidget::update() {
 			auto *child = new QTreeWidgetItem(item);
 			child->setIcon(0, QIcon(":/checkbox_off"));
 			// child->setText(0, " 0");
-			child->setText(1, QString::number(version->id()));
-			child->setText(2, version->name());
-			child->setText(5, version->date().toString());
+			child->setText(1, "    " + QString::number(version->id()));
+			child->setText(2, "    " + version->name());
+			child->setText(5, "    " + version->date().toString());
 
 			if (!latestVersion || latestVersion->id() < version->id())
 				latestVersion = version;

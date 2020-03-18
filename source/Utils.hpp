@@ -23,26 +23,13 @@
  *
  * =====================================================================================
  */
-#ifndef INSTANCEWIZARD_HPP_
-#define INSTANCEWIZARD_HPP_
+#ifndef UTILS_HPP_
+#define UTILS_HPP_
 
-#include <QTreeWidget>
-#include <QWizard>
+#include <QString>
 
-class ContentData;
+namespace Utils {
+	void copyDirectory(const QString &src, const QString &dest);
+}
 
-class InstanceWizard : public QWizard {
-	Q_OBJECT
-
-	public:
-		InstanceWizard(ContentData &data, QWidget *parent = nullptr);
-
-		void accept() override;
-
-	private:
-		void addIntroPage();
-
-		ContentData &m_data;
-};
-
-#endif // INSTANCEWIZARD_HPP_
+#endif // UTILS_HPP_

@@ -23,19 +23,40 @@
  *
  * =====================================================================================
  */
+#include <QDir>
 #include <QLabel>
+#include <QStandardPaths>
 #include <QVBoxLayout>
 
 #include "InstanceWizard.hpp"
-#include "InstanceWizardVersionPage.hpp"
+#include "InstanceWizardInfoPage.hpp"
 #include "InstanceWizardSummaryPage.hpp"
+#include "InstanceWizardVersionPage.hpp"
+#include "Utils.hpp"
 
 InstanceWizard::InstanceWizard(ContentData &data, QWidget *parent) : QWizard(parent), m_data(data) {
 	addIntroPage();
+	addPage(new InstanceWizardInfoPage{this});
 	addPage(new InstanceWizardVersionPage{data, this});
 	addPage(new InstanceWizardSummaryPage{data, this});
 
 	setWindowTitle(tr("Instance Wizard"));
+}
+
+void InstanceWizard::accept() {
+	int engineVersionID = field("engineVersion").toInt();
+	QString instanceName = field("instanceName").toString();
+
+	// FIXME: Check if instance already exists
+
+	QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+	QString instancePath = appData + "/instances/" + instanceName + "/";
+	QString versionPath = appData + "/versions/" + QString::number(engineVersionID) + "/openminer/";
+
+	Utils::copyDirectory(versionPath + "mods", instancePath + "mods");
+	Utils::copyDirectory(versionPath + "resources", instancePath + "resources");
+
+	QDialog::accept();
 }
 
 void InstanceWizard::addIntroPage() {

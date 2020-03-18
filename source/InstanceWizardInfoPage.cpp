@@ -23,26 +23,29 @@
  *
  * =====================================================================================
  */
-#ifndef INSTANCEWIZARD_HPP_
-#define INSTANCEWIZARD_HPP_
+#include <QLabel>
+#include <QLineEdit>
+#include <QFormLayout>
+#include <QRegExpValidator>
 
-#include <QTreeWidget>
-#include <QWizard>
+#include "InstanceWizardInfoPage.hpp"
 
-class ContentData;
+InstanceWizardInfoPage::InstanceWizardInfoPage(QWidget *parent) : QWizardPage(parent) {
+	setTitle(tr("Informations"));
 
-class InstanceWizard : public QWizard {
-	Q_OBJECT
+	QLabel *label = new QLabel(tr("Please choose a name for your instance"));
+	label->setWordWrap(true);
 
-	public:
-		InstanceWizard(ContentData &data, QWidget *parent = nullptr);
+	QRegExp re("^[a-zA-Z0-9_]+$");
+	QRegExpValidator *validator = new QRegExpValidator(re, this);
 
-		void accept() override;
+	QLineEdit *nameEdit = new QLineEdit;
+	nameEdit->setValidator(validator);
 
-	private:
-		void addIntroPage();
+	QFormLayout *layout = new QFormLayout;
+	layout->addRow("Name", nameEdit);
+	setLayout(layout);
 
-		ContentData &m_data;
-};
+	registerField("instanceName*", nameEdit);
+}
 
-#endif // INSTANCEWIZARD_HPP_

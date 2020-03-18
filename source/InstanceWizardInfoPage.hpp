@@ -23,26 +23,14 @@
  *
  * =====================================================================================
  */
-#ifndef INSTANCEWIZARD_HPP_
-#define INSTANCEWIZARD_HPP_
+#ifndef INSTANCEWIZARDINFOPAGE_HPP_
+#define INSTANCEWIZARDINFOPAGE_HPP_
 
-#include <QTreeWidget>
-#include <QWizard>
+#include <QWizardPage>
 
-class ContentData;
-
-class InstanceWizard : public QWizard {
-	Q_OBJECT
-
+class InstanceWizardInfoPage : public QWizardPage {
 	public:
-		InstanceWizard(ContentData &data, QWidget *parent = nullptr);
-
-		void accept() override;
-
-	private:
-		void addIntroPage();
-
-		ContentData &m_data;
+		InstanceWizardInfoPage(QWidget *parent = nullptr);
 };
 
-#endif // INSTANCEWIZARD_HPP_
+#endif // INSTANCEWIZARDINFOPAGE_HPP_

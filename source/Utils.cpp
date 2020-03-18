@@ -23,26 +23,23 @@
  *
  * =====================================================================================
  */
-#ifndef INSTANCEWIZARD_HPP_
-#define INSTANCEWIZARD_HPP_
+#include <QDir>
 
-#include <QTreeWidget>
-#include <QWizard>
+#include "Utils.hpp"
 
-class ContentData;
+void Utils::copyDirectory(const QString &src, const QString &dest) {
+	QDir dir(src);
+	if (!dir.exists())
+		return;
 
-class InstanceWizard : public QWizard {
-	Q_OBJECT
+	foreach (const QString &d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+		QString destPath = dest + QDir::separator() + d;
+		dir.mkpath(destPath);
+		copyDirectory(src + QDir::separator() + d, destPath);
+	}
 
-	public:
-		InstanceWizard(ContentData &data, QWidget *parent = nullptr);
+	foreach (QString f, dir.entryList(QDir::Files)) {
+		QFile::copy(src + QDir::separator() + f, dest + QDir::separator() + f);
+	}
+}
 
-		void accept() override;
-
-	private:
-		void addIntroPage();
-
-		ContentData &m_data;
-};
-
-#endif // INSTANCEWIZARD_HPP_

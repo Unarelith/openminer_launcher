@@ -45,3 +45,27 @@ void InstanceListWidget::update() {
 	}
 }
 
+#include <QDebug>
+#include <QProcess>
+#include <QStandardPaths>
+
+void InstanceListWidget::runInstance() {
+	QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
+	if (selectedItems.size() == 1) {
+		unsigned int instanceID = selectedItems.at(0)->text(0).toUInt();
+		ContentInstance *instance = m_data.getInstance(instanceID);
+
+		QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+		QString enginePath = appData + "/versions/" + QString::number(instance->engineVersionID()) + "/";
+		QString instancePath = appData + "/instances/" + instance->name() + "/";
+
+		QStringList args;
+		args << "--working-dir" << instancePath;
+
+		QProcess *process = new QProcess{this};
+		process->start(enginePath + "openminer/openminer", args);
+
+		connect(this, &QWidget::destroyed, process, &QProcess::close);
+	}
+}
+

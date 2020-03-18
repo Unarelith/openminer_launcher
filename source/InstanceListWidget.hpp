@@ -38,6 +38,9 @@ class InstanceListWidget : public QTreeWidget {
 
 		void update();
 
+	public slots:
+		void runInstance();
+
 	private:
 		ContentData &m_data;
 };

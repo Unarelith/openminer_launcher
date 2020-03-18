@@ -28,8 +28,14 @@
 #include "InstanceTabWidget.hpp"
 
 InstanceTabWidget::InstanceTabWidget(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
-	QHBoxLayout *layout = new QHBoxLayout{this};
+	QHBoxLayout *layout = new QHBoxLayout{this};;
 	layout->addWidget(&m_instanceListWidget);
 	layout->addWidget(&m_instanceSideBar);
+
+	connect(&m_instanceSideBar, &InstanceSideBar::windowRefeshRequested, this, &InstanceTabWidget::windowRefeshRequested);
+}
+
+void InstanceTabWidget::update() {
+	m_instanceListWidget.update();
 }
 

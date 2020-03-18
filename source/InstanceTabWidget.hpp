@@ -32,13 +32,20 @@
 class ContentData;
 
 class InstanceTabWidget : public QWidget {
+	Q_OBJECT
+
 	public:
 		InstanceTabWidget(ContentData &data, QWidget *parent = nullptr);
+
+		void update();
+
+	signals:
+		void windowRefeshRequested();
 
 	private:
 		ContentData &m_data;
 
-		InstanceListWidget m_instanceListWidget;
+		InstanceListWidget m_instanceListWidget{m_data};
 		InstanceSideBar m_instanceSideBar{m_data};
 };
 

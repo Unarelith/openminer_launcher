@@ -42,5 +42,7 @@ void InstanceSideBar::openWizard() {
 	InstanceWizard *wizard = new InstanceWizard{m_data, this};
 	wizard->setModal(true);
 	wizard->show();
+
+	connect(wizard, &InstanceWizard::windowRefeshRequested, this, &InstanceSideBar::windowRefeshRequested);
 }
 

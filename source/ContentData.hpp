@@ -28,6 +28,7 @@
 
 #include <unordered_map>
 
+#include "ContentInstance.hpp"
 #include "ContentEngineVersion.hpp"
 #include "ContentMod.hpp"
 #include "ContentModVersion.hpp"
@@ -48,20 +49,24 @@ class ContentData : public QObject {
 		void databaseUpdateFinished();
 
 		void update();
+		void updateInstanceList();
 		void updateEngineVersionList();
 		void updateModList();
 		void updateModVersionList();
 
 		const Database &database() const { return m_database; }
 
+		const std::unordered_map<unsigned int, ContentInstance> &instanceList() const { return m_instanceList; }
 		const std::unordered_map<unsigned int, ContentEngineVersion> &engineVersionList() const { return m_engineVersionList; }
 		const std::unordered_map<unsigned int, ContentMod> &modList() const { return m_modList; }
 		const std::unordered_map<unsigned int, ContentModVersion> &modVersionList() const { return m_modVersionList; }
 
+		ContentInstance *getInstance(unsigned int id) { return getItem(id, m_instanceList); }
 		ContentEngineVersion *getEngineVersion(unsigned int id) { return getItem(id, m_engineVersionList); }
 		ContentMod *getMod(unsigned int id) { return getItem(id, m_modList); }
 		ContentModVersion *getModVersion(unsigned int id) { return getItem(id, m_modVersionList); }
 
+		void setInstance(unsigned int id, const ContentInstance &instance) { setItem(id, instance, m_instanceList); }
 		void setEngineVersion(unsigned int id, const ContentEngineVersion &engineVersion) { setItem(id, engineVersion, m_engineVersionList); }
 		void setMod(unsigned int id, const ContentMod &mod) { setItem(id, mod, m_modList); }
 		void setModVersion(unsigned int id, const ContentModVersion &modVersion) { setItem(id, modVersion, m_modVersionList); }
@@ -77,6 +82,7 @@ class ContentData : public QObject {
 		Database m_database;
 		DatabaseThread *m_databaseThread = nullptr;
 
+		std::unordered_map<unsigned int, ContentInstance> m_instanceList;
 		std::unordered_map<unsigned int, ContentEngineVersion> m_engineVersionList;
 		std::unordered_map<unsigned int, ContentMod> m_modList;
 		std::unordered_map<unsigned int, ContentModVersion> m_modVersionList;

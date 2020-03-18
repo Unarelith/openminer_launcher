@@ -102,9 +102,11 @@ void MainWindow::openDatabase() {
 
 void MainWindow::connectObjects() {
 	connect(&m_contentData, &ContentData::windowRefeshRequested, this, &MainWindow::updateWidgets);
+	connect(&m_instanceTab, &InstanceTabWidget::windowRefeshRequested, this, &MainWindow::updateWidgets);
 }
 
 void MainWindow::updateWidgets() {
+	m_instanceTab.update();
 	m_engineVersionTab.update();
 	m_modTab.update();
 }

@@ -23,29 +23,26 @@
  *
  * =====================================================================================
  */
-#ifndef INSTANCEWIZARD_HPP_
-#define INSTANCEWIZARD_HPP_
+#ifndef CONTENTINSTANCE_HPP_
+#define CONTENTINSTANCE_HPP_
 
-#include <QTreeWidget>
-#include <QWizard>
+#include <QJsonObject>
+
+#include "ContentItem.hpp"
 
 class ContentData;
 
-class InstanceWizard : public QWizard {
-	Q_OBJECT
-
+class ContentInstance : public ContentItem {
 	public:
-		InstanceWizard(ContentData &data, QWidget *parent = nullptr);
+		ContentInstance(unsigned int id);
+		explicit ContentInstance(const QJsonObject &jsonObject, ContentData &data);
+		explicit ContentInstance(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("instances", sqlQuery) {}
 
-		void accept() override;
+		QString name() const { return get("name").toString(); }
+		void setName(const QString &name) { set("name", name); updateDatabaseTable(); writeToDatabase(); }
 
-	signals:
-		void windowRefeshRequested();
-
-	private:
-		void addIntroPage();
-
-		ContentData &m_data;
+		unsigned int engineVersionID() const { return get("engine_version").toUInt(); }
+		void setEngineVersionID(unsigned int id) { set("engine_version", id); updateDatabaseTable(); writeToDatabase(); }
 };
 
-#endif // INSTANCEWIZARD_HPP_
+#endif // CONTENTINSTANCE_HPP_

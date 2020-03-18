@@ -28,6 +28,8 @@
 #include <QStandardPaths>
 #include <QVBoxLayout>
 
+#include "ContentData.hpp"
+#include "ContentInstance.hpp"
 #include "InstanceWizard.hpp"
 #include "InstanceWizardInfoPage.hpp"
 #include "InstanceWizardSummaryPage.hpp"
@@ -49,6 +51,12 @@ void InstanceWizard::accept() {
 
 	// FIXME: Check if instance already exists
 
+	ContentInstance instance(m_data.instanceList().size());
+	instance.setEngineVersionID(engineVersionID);
+	instance.setName(instanceName);
+
+	m_data.setInstance(m_data.instanceList().size(), instance);
+
 	QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 	QString instancePath = appData + "/instances/" + instanceName + "/";
 	QString versionPath = appData + "/versions/" + QString::number(engineVersionID) + "/openminer/";
@@ -57,6 +65,8 @@ void InstanceWizard::accept() {
 	Utils::copyDirectory(versionPath + "resources", instancePath + "resources");
 
 	QDialog::accept();
+
+	emit windowRefeshRequested();
 }
 
 void InstanceWizard::addIntroPage() {

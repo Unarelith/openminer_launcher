@@ -31,8 +31,13 @@
 class ContentData;
 
 class InstanceSideBar : public QWidget {
+	Q_OBJECT
+
 	public:
 		InstanceSideBar(ContentData &data, QWidget *parent = nullptr);
+
+	signals:
+		void windowRefeshRequested();
 
 	private:
 		void openWizard();

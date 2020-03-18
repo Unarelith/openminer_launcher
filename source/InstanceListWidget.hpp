@@ -28,9 +28,18 @@
 
 #include <QTreeWidget>
 
+class ContentData;
+
 class InstanceListWidget : public QTreeWidget {
+	Q_OBJECT
+
 	public:
-		InstanceListWidget(QWidget *parent = nullptr);
+		InstanceListWidget(ContentData &data, QWidget *parent = nullptr);
+
+		void update();
+
+	private:
+		ContentData &m_data;
 };
 
 #endif // INSTANCELISTWIDGET_HPP_

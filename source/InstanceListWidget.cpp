@@ -23,12 +23,25 @@
  *
  * =====================================================================================
  */
+#include "ContentData.hpp"
 #include "InstanceListWidget.hpp"
 
-InstanceListWidget::InstanceListWidget(QWidget *parent) : QTreeWidget(parent) {
-	setHeaderLabels({tr("Name"), tr("Version"), tr("Game")});
+InstanceListWidget::InstanceListWidget(ContentData &data, QWidget *parent) : QTreeWidget(parent), m_data(data) {
+	setHeaderLabels({tr("ID"), tr("Name"), tr("Version")});
 	setRootIsDecorated(false);
 	setSortingEnabled(true);
-	// sortItems(0, Qt::AscendingOrder);
+	hideColumn(0);
+}
+
+void InstanceListWidget::update() {
+	clear();
+
+	auto &versionList = m_data.instanceList();
+	for (auto &it : versionList) {
+		auto *item = new QTreeWidgetItem(this);
+		item->setText(0, QString::number(it.second.id()));
+		item->setText(1, it.second.name());
+		item->setText(2, m_data.getEngineVersion(it.second.engineVersionID())->name());
+	}
 }
 

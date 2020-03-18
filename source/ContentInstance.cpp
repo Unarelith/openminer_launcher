@@ -23,29 +23,19 @@
  *
  * =====================================================================================
  */
-#ifndef INSTANCEWIZARD_HPP_
-#define INSTANCEWIZARD_HPP_
+#include "ContentInstance.hpp"
 
-#include <QTreeWidget>
-#include <QWizard>
+ContentInstance::ContentInstance(unsigned int id) : ContentItem("instances") {
+	m_id = id;
 
-class ContentData;
+	set("name", "");
+	set("engine_version", -1);
+}
 
-class InstanceWizard : public QWizard {
-	Q_OBJECT
+ContentInstance::ContentInstance(const QJsonObject &jsonObject, ContentData &) : ContentItem("instances") {
+	m_id = jsonObject.value("id").toInt();
 
-	public:
-		InstanceWizard(ContentData &data, QWidget *parent = nullptr);
+	set("name", jsonObject.value("name").toString());
+	set("engine_version", jsonObject.value("engine_version").toInt());
+}
 
-		void accept() override;
-
-	signals:
-		void windowRefeshRequested();
-
-	private:
-		void addIntroPage();
-
-		ContentData &m_data;
-};
-
-#endif // INSTANCEWIZARD_HPP_

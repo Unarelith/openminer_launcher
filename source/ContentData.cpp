@@ -82,11 +82,21 @@ void ContentData::databaseUpdateFinished() {
 }
 
 void ContentData::update() {
+	updateInstanceList();
 	updateEngineVersionList();
 	updateModList();
 	updateModVersionList();
 
 	emit windowRefeshRequested();
+}
+
+void ContentData::updateInstanceList() {
+	m_engineVersionList.clear();
+
+	QSqlQuery query("SELECT * FROM instances", Database::getDatabase());
+	while (query.next()) {
+		m_instanceList.emplace(query.value(0).toUInt(), ContentInstance{query, *this});
+	}
 }
 
 void ContentData::updateEngineVersionList() {

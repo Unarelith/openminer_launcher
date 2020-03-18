@@ -23,23 +23,49 @@
  *
  * =====================================================================================
  */
+#include <QLabel>
 #include <QVBoxLayout>
 
-#include "InstanceSideBar.hpp"
 #include "InstanceWizard.hpp"
 
-InstanceSideBar::InstanceSideBar(QWidget *parent) : QWidget(parent) {
-	m_addInstanceButton.setText(tr("Add instance"));
+InstanceWizard::InstanceWizard(QWidget *parent) : QWizard(parent) {
+	addIntroPage();
+	addEngineVersionSelectionPage();
 
-	connect(&m_addInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::openWizard);
-
-	QVBoxLayout *layout = new QVBoxLayout(this);
-	layout->addWidget(&m_addInstanceButton);
-	layout->addWidget(new QWidget, 1);
+	setWindowTitle(tr("Instance Wizard"));
 }
 
-void InstanceSideBar::openWizard() {
-	InstanceWizard *wizard = new InstanceWizard{this};
-	wizard->show();
+void InstanceWizard::addIntroPage() {
+	QWizardPage *page = new QWizardPage{this};
+	page->setTitle(tr("Introduction"));
+
+	QLabel *label = new QLabel(tr(
+		"This wizard will create an instance with the "
+		"engine version, mod, game, texture pack "
+		"that you decide to use."
+	));
+
+	label->setWordWrap(true);
+
+	QVBoxLayout *layout = new QVBoxLayout;
+	layout->addWidget(label);
+	page->setLayout(layout);
+
+	addPage(page);
+}
+
+void InstanceWizard::addEngineVersionSelectionPage() {
+	QWizardPage *page = new QWizardPage{this};
+	page->setTitle(tr("Select engine version"));
+
+	QLabel *label = new QLabel(tr("Please select the engine version:"));
+
+	label->setWordWrap(true);
+
+	QVBoxLayout *layout = new QVBoxLayout;
+	layout->addWidget(label);
+	page->setLayout(layout);
+
+	addPage(page);
 }
 

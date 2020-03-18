@@ -23,23 +23,20 @@
  *
  * =====================================================================================
  */
-#include <QVBoxLayout>
+#ifndef INSTANCEWIZARD_HPP_
+#define INSTANCEWIZARD_HPP_
 
-#include "InstanceSideBar.hpp"
-#include "InstanceWizard.hpp"
+#include <QWizard>
 
-InstanceSideBar::InstanceSideBar(QWidget *parent) : QWidget(parent) {
-	m_addInstanceButton.setText(tr("Add instance"));
+class InstanceWizard : public QWizard {
+	Q_OBJECT
 
-	connect(&m_addInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::openWizard);
+	public:
+		InstanceWizard(QWidget *parent = nullptr);
 
-	QVBoxLayout *layout = new QVBoxLayout(this);
-	layout->addWidget(&m_addInstanceButton);
-	layout->addWidget(new QWidget, 1);
-}
+	private:
+		void addIntroPage();
+		void addEngineVersionSelectionPage();
+};
 
-void InstanceSideBar::openWizard() {
-	InstanceWizard *wizard = new InstanceWizard{this};
-	wizard->show();
-}
-
+#endif // INSTANCEWIZARD_HPP_

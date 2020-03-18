@@ -33,6 +33,8 @@ class InstanceSideBar : public QWidget {
 		InstanceSideBar(QWidget *parent = nullptr);
 
 	private:
+		void openWizard();
+
 		QPushButton m_addInstanceButton{this};
 };
 

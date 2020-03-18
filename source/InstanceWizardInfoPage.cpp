@@ -43,7 +43,7 @@ InstanceWizardInfoPage::InstanceWizardInfoPage(QWidget *parent) : QWizardPage(pa
 	nameEdit->setValidator(validator);
 
 	QFormLayout *layout = new QFormLayout;
-	layout->addRow("Name", nameEdit);
+	layout->addRow("Name:", nameEdit);
 	setLayout(layout);
 
 	registerField("instanceName*", nameEdit);

@@ -23,6 +23,10 @@
  *
  * =====================================================================================
  */
+#include <QDir>
+#include <QProcess>
+#include <QStandardPaths>
+
 #include "ContentData.hpp"
 #include "InstanceListWidget.hpp"
 
@@ -45,10 +49,6 @@ void InstanceListWidget::update() {
 	}
 }
 
-#include <QDebug>
-#include <QProcess>
-#include <QStandardPaths>
-
 void InstanceListWidget::runInstance() {
 	QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
 	if (selectedItems.size() == 1) {
@@ -66,6 +66,25 @@ void InstanceListWidget::runInstance() {
 		process->start(enginePath + "openminer/openminer", args);
 
 		connect(this, &QWidget::destroyed, process, &QProcess::close);
+	}
+}
+
+void InstanceListWidget::deleteInstance() {
+	QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
+	if (selectedItems.size() == 1) {
+		unsigned int instanceID = selectedItems.at(0)->text(0).toUInt();
+		ContentInstance *instance = m_data.getInstance(instanceID);
+
+		QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+		QString instancePath = appData + "/instances/" + instance->name() + "/";
+
+		QDir instanceDir{instancePath};
+		instanceDir.removeRecursively();
+
+		instance->removeFromDatabase();
+		m_data.removeInstance(instanceID);
+
+		emit windowRefeshRequested();
 	}
 }
 

@@ -39,6 +39,7 @@ class InstanceSideBar : public QWidget {
 	signals:
 		void windowRefeshRequested();
 		void runInstanceButtonClicked();
+		void deleteInstanceButtonClicked();
 
 	private:
 		void openWizard();
@@ -47,6 +48,7 @@ class InstanceSideBar : public QWidget {
 
 		QPushButton m_addInstanceButton{this};
 		QPushButton m_runInstanceButton{this};
+		QPushButton m_deleteInstanceButton{this};
 };
 
 #endif // INSTANCESIDEBAR_HPP_

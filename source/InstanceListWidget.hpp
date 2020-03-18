@@ -38,8 +38,12 @@ class InstanceListWidget : public QTreeWidget {
 
 		void update();
 
+	signals:
+		void windowRefeshRequested();
+
 	public slots:
 		void runInstance();
+		void deleteInstance();
 
 	private:
 		ContentData &m_data;

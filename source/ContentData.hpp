@@ -71,6 +71,8 @@ class ContentData : public QObject {
 		void setMod(unsigned int id, const ContentMod &mod) { setItem(id, mod, m_modList); }
 		void setModVersion(unsigned int id, const ContentModVersion &modVersion) { setItem(id, modVersion, m_modVersionList); }
 
+		void removeInstance(unsigned int id) { m_instanceList.erase(id); }
+
 	signals:
 		void stateChanged(const QString &state, int timeout = 0);
 		void windowRefeshRequested();

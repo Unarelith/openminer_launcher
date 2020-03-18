@@ -31,13 +31,16 @@
 InstanceSideBar::InstanceSideBar(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
 	m_addInstanceButton.setText(tr("Add instance"));
 	m_runInstanceButton.setText(tr("Run instance"));
+	m_deleteInstanceButton.setText(tr("Delete instance"));
 
 	connect(&m_addInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::openWizard);
 	connect(&m_runInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::runInstanceButtonClicked);
+	connect(&m_deleteInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::deleteInstanceButtonClicked);
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	layout->addWidget(&m_addInstanceButton);
 	layout->addWidget(&m_runInstanceButton);
+	layout->addWidget(&m_deleteInstanceButton);
 	layout->addWidget(new QWidget, 1);
 }
 

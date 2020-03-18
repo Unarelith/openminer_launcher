@@ -84,6 +84,18 @@ void ContentItem::writeToDatabase() {
 	}
 }
 
+void ContentItem::removeFromDatabase() {
+	QString removeQueryString = "DELETE FROM " + m_sqlTable + " WHERE id = " + QString::number(m_id) + ";";
+
+	QSqlQuery removeQuery(Database::getDatabase());
+	removeQuery.prepare(removeQueryString);
+
+	if (!removeQuery.exec() && removeQuery.lastError().nativeErrorCode() != "19") {
+		qWarning() << "Error: Failed to remove an element from table " << m_sqlTable << ":" << removeQuery.lastError().text();
+		qWarning() << "       Query:" << removeQuery.lastQuery();
+	}
+}
+
 void ContentItem::set(const QString &fieldName, const QVariant &value) {
 	m_data[fieldName] = value;
 }

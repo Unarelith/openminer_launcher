@@ -51,6 +51,8 @@ ContentModVersion::ContentModVersion(const QJsonObject &jsonObject, ContentData 
 	ContentModVersion *version = data.getModVersion(m_id);
 	if (version)
 		set("state", version->state());
+	else
+		set("state", State::Available);
 
 	m_mod = data.getMod(modID());
 }

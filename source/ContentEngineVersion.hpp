@@ -42,6 +42,14 @@ class ContentEngineVersion : public ContentItem {
 		QString name() const { return get("name").toString(); }
 		QDateTime date() const { return get("date").toDateTime(); }
 		QString doc() const { return get("doc").toString(); }
+
+		enum State {
+			Available,
+			Downloaded
+		};
+
+		State state() const { return (State)get("state").toUInt(); }
+		void setState(State state) { set("state", state); writeToDatabase(); }
 };
 
 #endif // CONTENTENGINEVERSION_HPP_

@@ -23,9 +23,10 @@
  *
  * =====================================================================================
  */
+#include "ContentData.hpp"
 #include "ContentEngineVersion.hpp"
 
-ContentEngineVersion::ContentEngineVersion(const QJsonObject &jsonObject, ContentData &) : ContentItem("engine_versions") {
+ContentEngineVersion::ContentEngineVersion(const QJsonObject &jsonObject, ContentData &data) : ContentItem("engine_versions") {
 	m_id = jsonObject.value("id").toInt();
 
 	QDateTime date = QDateTime::fromString(jsonObject.value("date").toString(), Qt::ISODate);
@@ -34,5 +35,11 @@ ContentEngineVersion::ContentEngineVersion(const QJsonObject &jsonObject, Conten
 	set("name", jsonObject.value("name").toString());
 	set("date", date);
 	set("doc", jsonObject.value("doc").toString());
+
+	ContentEngineVersion *version = data.getEngineVersion(m_id);
+	if (version)
+		set("state", version->state());
+	else
+		set("state", State::Available);
 }
 

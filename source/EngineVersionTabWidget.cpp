@@ -56,7 +56,11 @@ void EngineVersionTabWidget::update() {
 	auto &versionList = m_data.engineVersionList();
 	for (auto &it : versionList) {
 		auto *item = new QTreeWidgetItem(&m_versionListWidget);
-		item->setIcon(0, QIcon(":/checkbox_off"));
+		if (it.second.state() == ContentEngineVersion::State::Available)
+			item->setIcon(0, QIcon(":/checkbox_off"));
+		else if (it.second.state() == ContentEngineVersion::State::Downloaded)
+			item->setIcon(0, QIcon(":/checkbox_on"));
+
 		item->setText(1, QString::number(it.second.id()));
 		item->setText(2, it.second.name());
 		item->setText(3, it.second.date().toString());
@@ -125,6 +129,10 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 
 		QFile file{path + "content.zip"};
 		file.remove();
+
+		engineVersion->setState(ContentEngineVersion::State::Downloaded);
+
+		update();
 	}
 }
 

@@ -33,10 +33,15 @@
 class ContentData;
 
 class EngineVersionTabWidget : public QWidget {
+	Q_OBJECT
+
 	public:
 		EngineVersionTabWidget(ContentData &data, QWidget *parent = nullptr);
 
 		void update();
+
+	signals:
+		void windowRefeshRequested();
 
 	private:
 		void showContextMenu(const QPoint &pos);

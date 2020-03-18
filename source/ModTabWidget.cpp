@@ -178,7 +178,7 @@ void ModTabWidget::downloadActionTriggered() {
 
 		modVersion->setState(ContentModVersion::State::Downloaded);
 
-		qDebug() << "Done with " << m_currentItem->text(2);
+		update();
 	}
 }
 

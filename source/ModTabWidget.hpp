@@ -33,10 +33,15 @@
 class ContentData;
 
 class ModTabWidget : public QWidget {
+	Q_OBJECT
+
 	public:
 		ModTabWidget(ContentData &data, QWidget *parent = nullptr);
 
 		void update();
+
+	signals:
+		void windowRefeshRequested();
 
 	private:
 		void showContextMenu(const QPoint &pos);

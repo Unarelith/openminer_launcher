@@ -27,10 +27,13 @@
 #include <QVBoxLayout>
 
 #include "InstanceWizard.hpp"
+#include "InstanceWizardVersionPage.hpp"
+#include "InstanceWizardSummaryPage.hpp"
 
-InstanceWizard::InstanceWizard(QWidget *parent) : QWizard(parent) {
+InstanceWizard::InstanceWizard(ContentData &data, QWidget *parent) : QWizard(parent), m_data(data) {
 	addIntroPage();
-	addEngineVersionSelectionPage();
+	addPage(new InstanceWizardVersionPage{data, this});
+	addPage(new InstanceWizardSummaryPage{data, this});
 
 	setWindowTitle(tr("Instance Wizard"));
 }
@@ -44,21 +47,6 @@ void InstanceWizard::addIntroPage() {
 		"engine version, mod, game, texture pack "
 		"that you decide to use."
 	));
-
-	label->setWordWrap(true);
-
-	QVBoxLayout *layout = new QVBoxLayout;
-	layout->addWidget(label);
-	page->setLayout(layout);
-
-	addPage(page);
-}
-
-void InstanceWizard::addEngineVersionSelectionPage() {
-	QWizardPage *page = new QWizardPage{this};
-	page->setTitle(tr("Select engine version"));
-
-	QLabel *label = new QLabel(tr("Please select the engine version:"));
 
 	label->setWordWrap(true);
 

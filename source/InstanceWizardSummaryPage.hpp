@@ -23,23 +23,24 @@
  *
  * =====================================================================================
  */
-#ifndef INSTANCETABWIDGET_HPP_
-#define INSTANCETABWIDGET_HPP_
+#ifndef INSTANCEWIZARDSUMMARYPAGE_HPP_
+#define INSTANCEWIZARDSUMMARYPAGE_HPP_
 
-#include "InstanceListWidget.hpp"
-#include "InstanceSideBar.hpp"
+#include <QLabel>
+#include <QWizardPage>
 
 class ContentData;
 
-class InstanceTabWidget : public QWidget {
+class InstanceWizardSummaryPage : public QWizardPage {
 	public:
-		InstanceTabWidget(ContentData &data, QWidget *parent = nullptr);
+		InstanceWizardSummaryPage(ContentData &data, QWidget *parent = nullptr);
 
 	private:
+		void initializePage() override;
+
 		ContentData &m_data;
 
-		InstanceListWidget m_instanceListWidget;
-		InstanceSideBar m_instanceSideBar{m_data};
+		QLabel *m_label = nullptr;
 };
 
-#endif // INSTANCETABWIDGET_HPP_
+#endif // INSTANCEWIZARDSUMMARYPAGE_HPP_

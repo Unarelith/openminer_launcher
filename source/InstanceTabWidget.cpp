@@ -27,7 +27,7 @@
 
 #include "InstanceTabWidget.hpp"
 
-InstanceTabWidget::InstanceTabWidget(QWidget *parent) : QWidget(parent) {
+InstanceTabWidget::InstanceTabWidget(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
 	QHBoxLayout *layout = new QHBoxLayout{this};
 	layout->addWidget(&m_instanceListWidget);
 	layout->addWidget(&m_instanceSideBar);

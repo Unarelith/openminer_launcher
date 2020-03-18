@@ -26,17 +26,21 @@
 #ifndef INSTANCEWIZARD_HPP_
 #define INSTANCEWIZARD_HPP_
 
+#include <QTreeWidget>
 #include <QWizard>
+
+class ContentData;
 
 class InstanceWizard : public QWizard {
 	Q_OBJECT
 
 	public:
-		InstanceWizard(QWidget *parent = nullptr);
+		InstanceWizard(ContentData &data, QWidget *parent = nullptr);
 
 	private:
 		void addIntroPage();
-		void addEngineVersionSelectionPage();
+
+		ContentData &m_data;
 };
 
 #endif // INSTANCEWIZARD_HPP_

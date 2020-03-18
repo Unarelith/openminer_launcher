@@ -28,12 +28,16 @@
 
 #include <QPushButton>
 
+class ContentData;
+
 class InstanceSideBar : public QWidget {
 	public:
-		InstanceSideBar(QWidget *parent = nullptr);
+		InstanceSideBar(ContentData &data, QWidget *parent = nullptr);
 
 	private:
 		void openWizard();
+
+		ContentData &m_data;
 
 		QPushButton m_addInstanceButton{this};
 };

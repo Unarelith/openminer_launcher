@@ -28,7 +28,7 @@
 #include "InstanceSideBar.hpp"
 #include "InstanceWizard.hpp"
 
-InstanceSideBar::InstanceSideBar(QWidget *parent) : QWidget(parent) {
+InstanceSideBar::InstanceSideBar(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
 	m_addInstanceButton.setText(tr("Add instance"));
 
 	connect(&m_addInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::openWizard);
@@ -39,7 +39,8 @@ InstanceSideBar::InstanceSideBar(QWidget *parent) : QWidget(parent) {
 }
 
 void InstanceSideBar::openWizard() {
-	InstanceWizard *wizard = new InstanceWizard{this};
+	InstanceWizard *wizard = new InstanceWizard{m_data, this};
+	wizard->setModal(true);
 	wizard->show();
 }
 

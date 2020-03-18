@@ -23,23 +23,27 @@
  *
  * =====================================================================================
  */
-#ifndef INSTANCETABWIDGET_HPP_
-#define INSTANCETABWIDGET_HPP_
+#include <QVariant>
+#include <QVBoxLayout>
 
-#include "InstanceListWidget.hpp"
-#include "InstanceSideBar.hpp"
+#include "ContentData.hpp"
+#include "InstanceWizardSummaryPage.hpp"
 
-class ContentData;
+InstanceWizardSummaryPage::InstanceWizardSummaryPage(ContentData &data, QWidget *parent) : QWizardPage(parent), m_data(data) {
+	setTitle(tr("Summary"));
 
-class InstanceTabWidget : public QWidget {
-	public:
-		InstanceTabWidget(ContentData &data, QWidget *parent = nullptr);
+	m_label = new QLabel();
 
-	private:
-		ContentData &m_data;
+	m_label->setWordWrap(true);
 
-		InstanceListWidget m_instanceListWidget;
-		InstanceSideBar m_instanceSideBar{m_data};
-};
+	QVBoxLayout *layout = new QVBoxLayout;
+	layout->addWidget(m_label);
+	setLayout(layout);
+}
 
-#endif // INSTANCETABWIDGET_HPP_
+void InstanceWizardSummaryPage::initializePage() {
+	m_label->setText(tr(
+		"A new instance will be created with:\n\n"
+		"- OpenMiner v") + m_data.getEngineVersion(field("engineVersion").toUInt())->name());
+}
+

@@ -44,6 +44,7 @@ class DatabaseLoader : public QObject {
 		void updateFinished() const;
 
 	private:
+		void updateEngineVersions() const;
 		void updateMods() const;
 		void updateModVersions() const;
 

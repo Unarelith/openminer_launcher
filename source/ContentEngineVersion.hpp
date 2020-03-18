@@ -23,44 +23,25 @@
  *
  * =====================================================================================
  */
-#ifndef MAINWINDOW_HPP_
-#define MAINWINDOW_HPP_
+#ifndef CONTENTENGINEVERSION_HPP_
+#define CONTENTENGINEVERSION_HPP_
 
-#include <QMainWindow>
-#include <QTabWidget>
+#include <QDateTime>
+#include <QJsonObject>
 
-#include "ContentData.hpp"
-#include "Session.hpp"
+#include "ContentItem.hpp"
 
-#include "EngineVersionTabWidget.hpp"
-#include "InstanceTabWidget.hpp"
-#include "ModTabWidget.hpp"
+class ContentData;
+class ContentEngineVersion;
 
-class MainWindow : public QMainWindow {
-	Q_OBJECT
-
+class ContentEngineVersion : public ContentItem {
 	public:
-		MainWindow(const QString &apiSource);
+		explicit ContentEngineVersion(const QJsonObject &jsonObject, ContentData &data);
+		explicit ContentEngineVersion(const QSqlQuery &sqlQuery, ContentData &) : ContentItem("engine_versions", sqlQuery) {}
 
-		void closeEvent(QCloseEvent *event) override;
-		void keyPressEvent(QKeyEvent *event) override;
-
-		void setupStatusBar();
-		void setupTabs();
-
-	private:
-		void openDatabase();
-
-		void connectObjects();
-		void updateWidgets();
-
-		ContentData m_contentData;
-
-		QTabWidget m_tabWidget{this};
-
-		InstanceTabWidget m_instanceTab;
-		EngineVersionTabWidget m_engineVersionTab{m_contentData};
-		ModTabWidget m_modTab{m_contentData};
+		QString name() const { return get("name").toString(); }
+		QDateTime date() const { return get("date").toDateTime(); }
+		QString doc() const { return get("doc").toString(); }
 };
 
-#endif // MAINWINDOW_HPP_
+#endif // CONTENTENGINEVERSION_HPP_

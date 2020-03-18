@@ -28,6 +28,8 @@
 #include <QStandardPaths>
 #include <QVBoxLayout>
 
+#include <quazip5/quazipfile.h>
+
 #include "ContentData.hpp"
 #include "ModTabWidget.hpp"
 
@@ -97,8 +99,6 @@ void ModTabWidget::showContextMenu(const QPoint &pos) {
 	menu.exec(m_modListWidget.mapToGlobal(pos));
 }
 
-#include <quazip5/quazipfile.h>
-
 void ModTabWidget::downloadActionTriggered() {
 	ContentModVersion *modVersion = nullptr;
 	if (m_currentItem->parent()) {
@@ -137,6 +137,9 @@ void ModTabWidget::downloadActionTriggered() {
 			QuaZipFile file(archive.getZipName(), filePath);
 			file.open(QIODevice::ReadOnly);
 
+			QuaZipFileInfo info;
+			file.getFileInfo(&info);
+
 			QByteArray data = file.readAll();
 
 			file.close();
@@ -149,9 +152,15 @@ void ModTabWidget::downloadActionTriggered() {
 				QFile dstFile(path + filePath);
 				dstFile.open(QIODevice::WriteOnly);
 				dstFile.write(data);
+				dstFile.setPermissions(info.getPermissions());
 				dstFile.close();
 			}
 		}
+
+		archive.close();
+
+		QFile file{path + "content.zip"};
+		file.remove();
 	}
 }
 

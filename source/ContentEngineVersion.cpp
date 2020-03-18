@@ -23,44 +23,16 @@
  *
  * =====================================================================================
  */
-#ifndef MAINWINDOW_HPP_
-#define MAINWINDOW_HPP_
+#include "ContentEngineVersion.hpp"
 
-#include <QMainWindow>
-#include <QTabWidget>
+ContentEngineVersion::ContentEngineVersion(const QJsonObject &jsonObject, ContentData &) : ContentItem("engine_versions") {
+	m_id = jsonObject.value("id").toInt();
 
-#include "ContentData.hpp"
-#include "Session.hpp"
+	QDateTime date = QDateTime::fromString(jsonObject.value("date").toString(), Qt::ISODate);
+	date.setTimeSpec(Qt::UTC);
 
-#include "EngineVersionTabWidget.hpp"
-#include "InstanceTabWidget.hpp"
-#include "ModTabWidget.hpp"
+	set("name", jsonObject.value("name").toString());
+	set("date", date);
+	set("doc", jsonObject.value("doc").toString());
+}
 
-class MainWindow : public QMainWindow {
-	Q_OBJECT
-
-	public:
-		MainWindow(const QString &apiSource);
-
-		void closeEvent(QCloseEvent *event) override;
-		void keyPressEvent(QKeyEvent *event) override;
-
-		void setupStatusBar();
-		void setupTabs();
-
-	private:
-		void openDatabase();
-
-		void connectObjects();
-		void updateWidgets();
-
-		ContentData m_contentData;
-
-		QTabWidget m_tabWidget{this};
-
-		InstanceTabWidget m_instanceTab;
-		EngineVersionTabWidget m_engineVersionTab{m_contentData};
-		ModTabWidget m_modTab{m_contentData};
-};
-
-#endif // MAINWINDOW_HPP_

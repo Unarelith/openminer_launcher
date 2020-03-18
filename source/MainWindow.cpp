@@ -75,7 +75,7 @@ void MainWindow::setupStatusBar() {
 void MainWindow::setupTabs() {
 	m_tabWidget.addTab(&m_instanceTab, "Instances");
 	// m_tabWidget.addTab(new QWidget, "News");
-	// m_tabWidget.addTab(new QWidget, "Versions");
+	m_tabWidget.addTab(&m_engineVersionTab, "Versions");
 	// m_tabWidget.addTab(new QWidget, "Games");
 	m_tabWidget.addTab(&m_modTab, "Mods");
 	// m_tabWidget.addTab(new QWidget, "Textures");
@@ -105,6 +105,7 @@ void MainWindow::connectObjects() {
 }
 
 void MainWindow::updateWidgets() {
+	m_engineVersionTab.update();
 	m_modTab.update();
 }
 

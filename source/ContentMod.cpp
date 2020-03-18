@@ -25,7 +25,7 @@
  */
 #include "ContentMod.hpp"
 
-ContentMod::ContentMod(const QJsonObject &jsonObject, ContentData &data) : ContentItem("mods") {
+ContentMod::ContentMod(const QJsonObject &jsonObject, ContentData &) : ContentItem("mods") {
 	m_id = jsonObject.value("id").toInt();
 
 	QDateTime date = QDateTime::fromString(jsonObject.value("date").toString(), Qt::ISODate);

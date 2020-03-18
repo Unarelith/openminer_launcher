@@ -23,44 +23,33 @@
  *
  * =====================================================================================
  */
-#ifndef MAINWINDOW_HPP_
-#define MAINWINDOW_HPP_
+#ifndef ENGINEVERSIONTABWIDGET_HPP_
+#define ENGINEVERSIONTABWIDGET_HPP_
 
-#include <QMainWindow>
-#include <QTabWidget>
+#include <QTreeWidget>
 
-#include "ContentData.hpp"
 #include "Session.hpp"
 
-#include "EngineVersionTabWidget.hpp"
-#include "InstanceTabWidget.hpp"
-#include "ModTabWidget.hpp"
+class ContentData;
 
-class MainWindow : public QMainWindow {
-	Q_OBJECT
-
+class EngineVersionTabWidget : public QWidget {
 	public:
-		MainWindow(const QString &apiSource);
+		EngineVersionTabWidget(ContentData &data, QWidget *parent = nullptr);
 
-		void closeEvent(QCloseEvent *event) override;
-		void keyPressEvent(QKeyEvent *event) override;
-
-		void setupStatusBar();
-		void setupTabs();
+		void update();
 
 	private:
-		void openDatabase();
+		void showContextMenu(const QPoint &pos);
 
-		void connectObjects();
-		void updateWidgets();
+		void downloadActionTriggered();
 
-		ContentData m_contentData;
+		ContentData &m_data;
 
-		QTabWidget m_tabWidget{this};
+		QTreeWidget m_versionListWidget;
 
-		InstanceTabWidget m_instanceTab;
-		EngineVersionTabWidget m_engineVersionTab{m_contentData};
-		ModTabWidget m_modTab{m_contentData};
+		QTreeWidgetItem *m_currentItem = nullptr;
+
+		Session m_session;
 };
 
-#endif // MAINWINDOW_HPP_
+#endif // ENGINEVERSIONTABWIDGET_HPP_

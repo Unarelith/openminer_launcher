@@ -82,10 +82,20 @@ void ContentData::databaseUpdateFinished() {
 }
 
 void ContentData::update() {
+	updateEngineVersionList();
 	updateModList();
 	updateModVersionList();
 
 	emit windowRefeshRequested();
+}
+
+void ContentData::updateEngineVersionList() {
+	m_engineVersionList.clear();
+
+	QSqlQuery query("SELECT * FROM engine_versions", Database::getDatabase());
+	while (query.next()) {
+		m_engineVersionList.emplace(query.value(0).toUInt(), ContentEngineVersion{query, *this});
+	}
 }
 
 void ContentData::updateModList() {

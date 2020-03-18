@@ -34,10 +34,35 @@
 void DatabaseLoader::update() const {
 	emit updateStarted();
 
+	updateEngineVersions();
 	updateMods();
 	updateModVersions();
 
 	emit updateFinished();
+}
+
+void DatabaseLoader::updateEngineVersions() const {
+	if (QThread::currentThread()->isInterruptionRequested())
+		return;
+
+	Session session;
+	QJsonDocument json = session.get("/api/version");
+	QJsonArray array = json.array();
+	if (array.isEmpty())
+		return;
+
+	for (const QJsonValue &value : array) {
+		if (QThread::currentThread()->isInterruptionRequested())
+			return;
+
+		ContentEngineVersion engineVersion(value.toObject(), m_data);
+		engineVersion.updateDatabaseTable();
+		engineVersion.writeToDatabase();
+
+		m_data.setEngineVersion(engineVersion.id(), engineVersion);
+	}
+
+	emit updateProgressed(25);
 }
 
 void DatabaseLoader::updateMods() const {

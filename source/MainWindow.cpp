@@ -40,12 +40,12 @@ MainWindow::MainWindow(const QString &apiSource) : QMainWindow(nullptr, Qt::Dial
 	if (!apiSource.isEmpty())
 		Session::baseUrl = apiSource;
 
+	openDatabase();
+
 	setupStatusBar();
 	setupTabs();
 
 	connectObjects();
-
-	openDatabase();
 
 	show();
 	updateWidgets();

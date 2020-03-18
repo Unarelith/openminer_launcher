@@ -65,7 +65,7 @@ void Database::addTable(const QString &name, const std::map<QString, QVariant> &
 
 	QSqlQuery query(queryString, getDatabase());
 	if (!query.isActive())
-		qWarning() << "Error: Failed to create database table " << name << ":" << query.lastError().text();
+		qWarning() << "Error: Failed to create database table" << name << ":" << query.lastError().text();
 }
 
 void Database::removeTable(const QString &name) {
@@ -73,9 +73,9 @@ void Database::removeTable(const QString &name) {
 	if (!database.tables().contains(name))
 		return;
 
-	QSqlQuery query(QString("drop table ") + name);
+	QSqlQuery query(QString("drop table ") + name, database);
 	if (!query.isActive())
-		qWarning() << "Error: Failed to remove table " << name << " from database:" << query.lastError().text();
+		qWarning() << "Error: Failed to remove table" << name << "from database:" << query.lastError().text();
 }
 
 QSqlDatabase Database::getDatabase() {

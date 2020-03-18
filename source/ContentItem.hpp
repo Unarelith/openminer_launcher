@@ -37,6 +37,7 @@ class ContentItem {
 		void updateDatabaseTable() const;
 		void writeToDatabase();
 
+		bool has(const QString &fieldName) const { return m_data.find(fieldName) != m_data.end(); }
 		void set(const QString &fieldName, const QVariant &value);
 		QVariant get(const QString &fieldName) const;
 

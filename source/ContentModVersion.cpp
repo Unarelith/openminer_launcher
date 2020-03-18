@@ -48,6 +48,10 @@ ContentModVersion::ContentModVersion(const QJsonObject &jsonObject, ContentData 
 	set("doc", jsonObject.value("doc").toString());
 	set("mod", jsonObject.value("mod").toInt());
 
+	ContentModVersion *version = data.getModVersion(m_id);
+	if (version)
+		set("state", version->state());
+
 	m_mod = data.getMod(modID());
 }
 

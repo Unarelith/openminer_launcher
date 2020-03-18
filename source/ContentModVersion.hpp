@@ -46,6 +46,14 @@ class ContentModVersion : public ContentItem {
 
 		const ContentMod &mod() const { return *m_mod; }
 
+		enum State {
+			Available,
+			Downloaded
+		};
+
+		State state() const { return (State)get("state").toUInt(); }
+		void setState(State state) { set("state", state); writeToDatabase(); }
+
 	private:
 		ContentMod *m_mod = nullptr;
 };

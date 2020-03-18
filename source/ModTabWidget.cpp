@@ -34,7 +34,7 @@
 #include "ModTabWidget.hpp"
 
 ModTabWidget::ModTabWidget(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
-	m_modListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Author"), tr("Latest version"), tr("Creation date")});
+	m_modListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Author"), tr("Latest installed"), tr("Latest version"), tr("Creation date")});
 	// m_modListWidget.setRootIsDecorated(false);
 	m_modListWidget.setSortingEnabled(true);
 	m_modListWidget.setContextMenuPolicy(Qt::CustomContextMenu);
@@ -56,30 +56,44 @@ void ModTabWidget::update() {
 	auto &modList = m_data.modList();
 	for (auto &it : modList) {
 		auto *item = new QTreeWidgetItem(&m_modListWidget);
-		item->setIcon(0, QIcon(":/checkbox_off"));
 		// item->setText(0, " 0");
 		item->setText(1, QString::number(it.second.id()));
 		item->setText(2, it.second.name());
 		item->setText(3, QString::number(it.second.user()));
-		item->setText(5, it.second.date().toString());
+		item->setText(6, it.second.date().toString());
 
 		ContentModVersion *latestVersion = nullptr;
+		ContentModVersion *latestInstalledVersion = nullptr;
 		for (auto &it : it.second.versions()) {
 			ContentModVersion *version = m_data.getModVersion(it);
 
 			auto *child = new QTreeWidgetItem(item);
-			child->setIcon(0, QIcon(":/checkbox_off"));
-			// child->setText(0, " 0");
+			if (version->state() == ContentModVersion::State::Available)
+				child->setIcon(0, QIcon(":/checkbox_off"));
+			else if (version->state() == ContentModVersion::State::Downloaded)
+				child->setIcon(0, QIcon(":/checkbox_on"));
+
 			child->setText(1, "    " + QString::number(version->id()));
 			child->setText(2, "    " + version->name());
-			child->setText(5, "    " + version->date().toString());
+			child->setText(6, "    " + version->date().toString());
 
 			if (!latestVersion || latestVersion->id() < version->id())
 				latestVersion = version;
+
+			if ((!latestInstalledVersion || latestInstalledVersion->id() < version->id())
+			&& version->state() == ContentModVersion::State::Downloaded)
+				latestInstalledVersion = version;
 		}
 
+		if (latestInstalledVersion) {
+			item->setIcon(0, QIcon(":/checkbox_on"));
+			item->setText(4, latestInstalledVersion->name());
+		}
+		else
+			item->setIcon(0, QIcon(":/checkbox_off"));
+
 		if (latestVersion)
-			item->setText(4, latestVersion->name());
+			item->setText(5, latestVersion->name());
 	}
 }
 
@@ -161,6 +175,10 @@ void ModTabWidget::downloadActionTriggered() {
 
 		QFile file{path + "content.zip"};
 		file.remove();
+
+		modVersion->setState(ContentModVersion::State::Downloaded);
+
+		qDebug() << "Done with " << m_currentItem->text(2);
 	}
 }
 

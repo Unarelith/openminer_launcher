@@ -75,7 +75,7 @@ QJsonDocument Session::get(const QString &apiEndpoint, const ParameterList &para
 	return QJsonDocument::fromJson(reply->readAll());
 }
 
-void Session::download(const QUrl &url, const QString &path) const {
+bool Session::download(const QUrl &url, const QString &path) const {
 	QEventLoop waitReply;
 	connect(m_network, &QNetworkAccessManager::finished, &waitReply, &QEventLoop::quit);
 
@@ -96,14 +96,18 @@ void Session::download(const QUrl &url, const QString &path) const {
 			emit userLoginRequired();
 		}
 	}
-
-	QByteArray data = reply->readAll();
-	QSaveFile file{path};
-	if (file.open(QIODevice::WriteOnly)) {
-		file.write(data);
-		file.commit();
+	else {
+		QByteArray data = reply->readAll();
+		QSaveFile file{path};
+		if (file.open(QIODevice::WriteOnly)) {
+			file.write(data);
+			file.commit();
+			return true;
+		}
+		else
+			std::cerr << "Error: Failed to save file: " << path.toStdString() << std::endl;
 	}
-	else
-		std::cerr << "Error: Failed to save file: " << path.toStdString() << std::endl;
+
+	return false;
 }
 

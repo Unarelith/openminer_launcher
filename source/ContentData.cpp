@@ -91,38 +91,52 @@ void ContentData::update() {
 }
 
 void ContentData::updateInstanceList() {
-	m_engineVersionList.clear();
-
 	QSqlQuery query("SELECT * FROM instances", Database::getDatabase());
 	while (query.next()) {
-		m_instanceList.emplace(query.value(0).toUInt(), ContentInstance{query, *this});
+		int id = query.value(0).toUInt();
+		ContentInstance *instance = getInstance(id);
+		if (!instance)
+			m_instanceList.emplace(id, ContentInstance{query, *this});
+		else
+			instance->loadFromSql(query);
 	}
 }
 
 void ContentData::updateEngineVersionList() {
-	m_engineVersionList.clear();
-
 	QSqlQuery query("SELECT * FROM engine_versions", Database::getDatabase());
 	while (query.next()) {
-		m_engineVersionList.emplace(query.value(0).toUInt(), ContentEngineVersion{query, *this});
+		int id = query.value(0).toUInt();
+		ContentEngineVersion *engineVersion = getEngineVersion(id);
+		if (!engineVersion)
+			m_engineVersionList.emplace(id, ContentEngineVersion{query, *this});
+		else
+			engineVersion->loadFromSql(query);
 	}
 }
 
 void ContentData::updateModList() {
-	m_modList.clear();
-
 	QSqlQuery query("SELECT * FROM mods", Database::getDatabase());
 	while (query.next()) {
-		m_modList.emplace(query.value(0).toUInt(), ContentMod{query, *this});
+		int id = query.value(0).toUInt();
+		ContentMod *mod = getMod(id);
+		if (!mod) {
+			m_modList.emplace(id, ContentMod{query, *this});
+		}
+		else {
+			mod->loadFromSql(query);
+		}
 	}
 }
 
 void ContentData::updateModVersionList() {
-	m_modVersionList.clear();
-
 	QSqlQuery query("SELECT * FROM mod_versions", Database::getDatabase());
 	while (query.next()) {
-		m_modVersionList.emplace(query.value(0).toUInt(), ContentModVersion{query, *this});
+		int id = query.value(0).toUInt();
+		ContentModVersion *modVersion = getModVersion(id);
+		if (!modVersion)
+			m_modVersionList.emplace(id, ContentModVersion{query, *this});
+		else
+			modVersion->loadFromSql(query);
 	}
 }
 

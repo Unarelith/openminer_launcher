@@ -26,7 +26,7 @@
 #include "ContentData.hpp"
 #include "ContentEngineVersion.hpp"
 
-ContentEngineVersion::ContentEngineVersion(const QJsonObject &jsonObject, ContentData &data) : ContentItem("engine_versions") {
+void ContentEngineVersion::loadFromJson(const QJsonObject &jsonObject, ContentData &data) {
 	m_id = jsonObject.value("id").toInt();
 
 	QDateTime date = QDateTime::fromString(jsonObject.value("date").toString(), Qt::ISODate);
@@ -41,5 +41,7 @@ ContentEngineVersion::ContentEngineVersion(const QJsonObject &jsonObject, Conten
 		set("state", version->state());
 	else
 		set("state", State::Available);
+
+	m_hasBeenUpdated = true;
 }
 

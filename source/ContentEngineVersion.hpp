@@ -36,8 +36,10 @@ class ContentEngineVersion;
 
 class ContentEngineVersion : public ContentItem {
 	public:
-		explicit ContentEngineVersion(const QJsonObject &jsonObject, ContentData &data);
 		explicit ContentEngineVersion(const QSqlQuery &sqlQuery, ContentData &) : ContentItem("engine_versions", sqlQuery) {}
+		explicit ContentEngineVersion(const QJsonObject &jsonObject, ContentData &data) : ContentItem("engine_versions") { loadFromJson(jsonObject, data); }
+
+		void loadFromJson(const QJsonObject &jsonObject, ContentData &data);
 
 		QString name() const { return get("name").toString(); }
 		QDateTime date() const { return get("date").toDateTime(); }

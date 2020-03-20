@@ -34,6 +34,8 @@ class ContentItem {
 		ContentItem(const QString &sqlTable);
 		ContentItem(const QString &sqlTable, const QSqlQuery &sqlQuery);
 
+		void loadFromSql(const QSqlQuery &sqlQuery);
+
 		void updateDatabaseTable() const;
 		void writeToDatabase();
 		void removeFromDatabase();
@@ -44,8 +46,12 @@ class ContentItem {
 
 		unsigned int id() const { return m_id; }
 
+		bool hasBeenUpdated() const { return m_hasBeenUpdated; }
+
 	protected:
 		unsigned int m_id;
+
+		bool m_hasBeenUpdated = false;
 
 	private:
 		QString m_sqlTable;

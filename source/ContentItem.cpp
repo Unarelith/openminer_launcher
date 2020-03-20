@@ -35,10 +35,14 @@ ContentItem::ContentItem(const QString &sqlTable) {
 }
 
 ContentItem::ContentItem(const QString &sqlTable, const QSqlQuery &sqlQuery) {
-	m_sqlTable = sqlTable;
-
 	m_id = sqlQuery.value(0).toUInt();
 
+	m_sqlTable = sqlTable;
+
+	loadFromSql(sqlQuery);
+}
+
+void ContentItem::loadFromSql(const QSqlQuery &sqlQuery) {
 	for (int i = 1 ; i < sqlQuery.record().count() ; ++i) {
 		set(sqlQuery.record().fieldName(i), sqlQuery.value(i));
 	};

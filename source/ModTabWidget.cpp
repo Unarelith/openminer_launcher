@@ -34,7 +34,7 @@
 #include "ModTabWidget.hpp"
 
 ModTabWidget::ModTabWidget(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
-	m_modListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Author"), tr("Latest installed"), tr("Latest version"), tr("Creation date")});
+	m_modListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Author"), tr("Latest installed"), tr("Latest version"), tr("Creation date"), tr("Updated")});
 	// m_modListWidget.setRootIsDecorated(false);
 	m_modListWidget.setSortingEnabled(true);
 	m_modListWidget.setContextMenuPolicy(Qt::CustomContextMenu);
@@ -61,6 +61,7 @@ void ModTabWidget::update() {
 		item->setText(2, it.second.name());
 		item->setText(3, QString::number(it.second.user()));
 		item->setText(6, it.second.date().toString());
+		item->setText(7, it.second.hasBeenUpdated() ? "true" : "false");
 
 		ContentModVersion *latestVersion = nullptr;
 		ContentModVersion *latestInstalledVersion = nullptr;
@@ -76,6 +77,7 @@ void ModTabWidget::update() {
 			child->setText(1, "    " + QString::number(version->id()));
 			child->setText(2, "    " + version->name());
 			child->setText(6, "    " + version->date().toString());
+			child->setText(7, "    " + QString(version->hasBeenUpdated() ? "true" : "false"));
 
 			if (!latestVersion || latestVersion->id() < version->id())
 				latestVersion = version;
@@ -140,45 +142,48 @@ void ModTabWidget::downloadActionTriggered() {
 		if (!dir.exists(path))
 			dir.mkpath(path);
 
-		m_session.download(modVersion->doc(), path + "content.zip");
-
-		QuaZip archive{path + "content.zip"};
-		archive.open(QuaZip::mdUnzip);
-
-		for(bool f = archive.goToFirstFile(); f; f = archive.goToNextFile()) {
-			QString filePath = archive.getCurrentFileName();
-
-			QuaZipFile file(archive.getZipName(), filePath);
-			file.open(QIODevice::ReadOnly);
-
-			QuaZipFileInfo info;
-			file.getFileInfo(&info);
-
-			QByteArray data = file.readAll();
-
-			file.close();
-
-			if (filePath.at(filePath.size() - 1) == '/') {
-				QDir dir;
-				dir.mkpath(path + filePath);
+		if (m_session.download(modVersion->doc(), path + "content.zip")) {
+			QuaZip archive{path + "content.zip"};
+			if (!archive.open(QuaZip::mdUnzip)) {
+				qDebug() << "ERROR: Failed to open archive at" << path + "content.zip";
+				return;
 			}
-			else {
-				QFile dstFile(path + filePath);
-				dstFile.open(QIODevice::WriteOnly);
-				dstFile.write(data);
-				dstFile.setPermissions(info.getPermissions());
-				dstFile.close();
+
+			for(bool f = archive.goToFirstFile(); f; f = archive.goToNextFile()) {
+				QString filePath = archive.getCurrentFileName();
+
+				QuaZipFile file(archive.getZipName(), filePath);
+				file.open(QIODevice::ReadOnly);
+
+				QuaZipFileInfo info;
+				file.getFileInfo(&info);
+
+				QByteArray data = file.readAll();
+
+				file.close();
+
+				if (filePath.at(filePath.size() - 1) == '/') {
+					QDir dir;
+					dir.mkpath(path + filePath);
+				}
+				else {
+					QFile dstFile(path + filePath);
+					dstFile.open(QIODevice::WriteOnly);
+					dstFile.write(data);
+					dstFile.setPermissions(info.getPermissions());
+					dstFile.close();
+				}
 			}
+
+			archive.close();
+
+			QFile file{path + "content.zip"};
+			file.remove();
+
+			modVersion->setState(ContentModVersion::State::Downloaded);
+
+			update();
 		}
-
-		archive.close();
-
-		QFile file{path + "content.zip"};
-		file.remove();
-
-		modVersion->setState(ContentModVersion::State::Downloaded);
-
-		update();
 	}
 }
 

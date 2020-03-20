@@ -23,93 +23,26 @@
  *
  * =====================================================================================
  */
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QThread>
-
 #include "ContentData.hpp"
 #include "DatabaseLoader.hpp"
-#include "Session.hpp"
+
+using namespace std::placeholders;
 
 void DatabaseLoader::update() const {
 	emit updateStarted();
 
-	updateEngineVersions();
-	updateMods();
-	updateModVersions();
+	updateModel<ContentEngineVersion>("/api/version",
+			std::bind(&ContentData::getEngineVersion, &m_data, _1),
+			std::bind(&ContentData::setEngineVersion, &m_data, _1, _2));
+
+	updateModel<ContentMod>("/api/mod",
+			std::bind(&ContentData::getMod, &m_data, _1),
+			std::bind(&ContentData::setMod, &m_data, _1, _2));
+
+	updateModel<ContentModVersion>("/api/mod/version",
+			std::bind(&ContentData::getModVersion, &m_data, _1),
+			std::bind(&ContentData::setModVersion, &m_data, _1, _2));
 
 	emit updateFinished();
-}
-
-void DatabaseLoader::updateEngineVersions() const {
-	if (QThread::currentThread()->isInterruptionRequested())
-		return;
-
-	Session session;
-	QJsonDocument json = session.get("/api/version");
-	QJsonArray array = json.array();
-	if (array.isEmpty())
-		return;
-
-	for (const QJsonValue &value : array) {
-		if (QThread::currentThread()->isInterruptionRequested())
-			return;
-
-		ContentEngineVersion engineVersion(value.toObject(), m_data);
-		engineVersion.updateDatabaseTable();
-		engineVersion.writeToDatabase();
-
-		m_data.setEngineVersion(engineVersion.id(), engineVersion);
-	}
-
-	emit updateProgressed(25);
-}
-
-void DatabaseLoader::updateMods() const {
-	if (QThread::currentThread()->isInterruptionRequested())
-		return;
-
-	Session session;
-	QJsonDocument json = session.get("/api/mod");
-	QJsonArray array = json.array();
-	if (array.isEmpty())
-		return;
-
-	for (const QJsonValue &value : array) {
-		if (QThread::currentThread()->isInterruptionRequested())
-			return;
-
-		ContentMod mod(value.toObject(), m_data);
-		mod.updateDatabaseTable();
-		mod.writeToDatabase();
-
-		m_data.setMod(mod.id(), mod);
-	}
-
-	emit updateProgressed(25);
-}
-
-void DatabaseLoader::updateModVersions() const {
-	if (QThread::currentThread()->isInterruptionRequested())
-		return;
-
-	Session session;
-	QJsonDocument json = session.get("/api/mod/version");
-	QJsonArray array = json.array();
-	if (array.isEmpty())
-		return;
-
-	for (const QJsonValue &value : array) {
-		if (QThread::currentThread()->isInterruptionRequested())
-			return;
-
-		ContentModVersion modVersion(value.toObject(), m_data);
-		modVersion.updateDatabaseTable();
-		modVersion.writeToDatabase();
-
-		m_data.setModVersion(modVersion.id(), modVersion);
-	}
-
-	emit updateProgressed(25);
 }
 

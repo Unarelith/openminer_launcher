@@ -25,7 +25,7 @@
  */
 #include "ContentMod.hpp"
 
-ContentMod::ContentMod(const QJsonObject &jsonObject, ContentData &) : ContentItem("mods") {
+void ContentMod::loadFromJson(const QJsonObject &jsonObject, ContentData &) {
 	m_id = jsonObject.value("id").toInt();
 
 	QDateTime date = QDateTime::fromString(jsonObject.value("date").toString(), Qt::ISODate);
@@ -34,5 +34,7 @@ ContentMod::ContentMod(const QJsonObject &jsonObject, ContentData &) : ContentIt
 	set("name", jsonObject.value("name").toString());
 	set("date", date);
 	set("user", jsonObject.value("user").toInt());
+
+	m_hasBeenUpdated = true;
 }
 

@@ -26,7 +26,13 @@
 #ifndef DATABASELOADER_HPP_
 #define DATABASELOADER_HPP_
 
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonDocument>
 #include <QObject>
+#include <QThread>
+
+#include "Session.hpp"
 
 class ContentData;
 
@@ -49,6 +55,46 @@ class DatabaseLoader : public QObject {
 		void updateModVersions() const;
 
 		ContentData &m_data;
+
+		template<typename T, typename F1, typename F2>
+		void updateModel(const QString &apiEndpoint, const F1 &getModel, const F2 &setModel) const {
+			if (QThread::currentThread()->isInterruptionRequested())
+				return;
+
+			Session session;
+			QJsonDocument json = session.get(apiEndpoint);
+			QJsonArray array = json.array();
+			if (array.isEmpty())
+				return;
+
+			for (const QJsonValue &value : array) {
+				if (QThread::currentThread()->isInterruptionRequested())
+					return;
+
+				QJsonObject jsonObject = value.toObject();
+				int id = jsonObject.value("id").toInt();
+
+				T *model = getModel(id);
+
+				if (model) {
+					model->loadFromJson(jsonObject, m_data);
+					model->updateDatabaseTable();
+					model->writeToDatabase();
+				}
+				else {
+					if (apiEndpoint == "/api/mod")
+						qDebug() << "created" << model << "from DatabaseLoader";
+
+					T model{jsonObject, m_data};
+					model.updateDatabaseTable();
+					model.writeToDatabase();
+
+					setModel(model.id(), model);
+				}
+			}
+
+			emit updateProgressed(25);
+		}
 };
 
 #endif // DATABASELOADER_HPP_

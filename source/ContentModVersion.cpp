@@ -26,8 +26,6 @@
 #include "ContentData.hpp"
 #include "ContentModVersion.hpp"
 
-#include <QDebug>
-
 ContentModVersion::ContentModVersion(const QSqlQuery &sqlQuery, ContentData &data)
 	: ContentItem("mod_versions", sqlQuery)
 {
@@ -35,9 +33,7 @@ ContentModVersion::ContentModVersion(const QSqlQuery &sqlQuery, ContentData &dat
 	m_mod->addVersion(m_id);
 }
 
-ContentModVersion::ContentModVersion(const QJsonObject &jsonObject, ContentData &data)
-	: ContentItem("mod_versions")
-{
+void ContentModVersion::loadFromJson(const QJsonObject &jsonObject, ContentData &data) {
 	m_id = jsonObject.value("id").toInt();
 
 	QDateTime date = QDateTime::fromString(jsonObject.value("date").toString(), Qt::ISODate);
@@ -55,5 +51,7 @@ ContentModVersion::ContentModVersion(const QJsonObject &jsonObject, ContentData 
 		set("state", State::Available);
 
 	m_mod = data.getMod(modID());
+
+	m_hasBeenUpdated = true;
 }
 

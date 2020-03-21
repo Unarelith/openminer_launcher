@@ -44,8 +44,8 @@ class ContentInstance : public ContentItem {
 		int engineVersionID() const { return get("engine_version").toInt(); }
 		void setEngineVersionID(unsigned int id) { set("engine_version", id); updateDatabaseTable(); writeToDatabase(); }
 
-		int modID() const { return get("mod").toInt(); }
-		void setModID(unsigned int id) { set("mod", id); updateDatabaseTable(); writeToDatabase(); }
+		QList<int> mods() const;
+		void addMod(unsigned int id);
 };
 
 #endif // CONTENTINSTANCE_HPP_

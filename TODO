@@ -5,6 +5,7 @@ TODO
 • DONE: Instance mod management
 • DONE: Ability to add multiple mods to a single instance
 • TODO: Ability to select version for each mod added
+• TODO: Interface is not refreshed for mod versions the first time
 • TODO: Instance edition
 • TODO: News tab
 

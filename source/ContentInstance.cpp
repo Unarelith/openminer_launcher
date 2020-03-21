@@ -30,7 +30,7 @@ ContentInstance::ContentInstance(unsigned int id) : ContentItem("instances") {
 
 	set("name", "");
 	set("engine_version", -1);
-	set("mod", -1);
+	set("mods", "");
 }
 
 ContentInstance::ContentInstance(const QJsonObject &jsonObject, ContentData &) : ContentItem("instances") {
@@ -38,6 +38,24 @@ ContentInstance::ContentInstance(const QJsonObject &jsonObject, ContentData &) :
 
 	set("name", jsonObject.value("name").toString());
 	set("engine_version", jsonObject.value("engine_version").toInt());
-	set("mod", jsonObject.value("mod").toInt());
+	set("mods", jsonObject.value("mods").toString());
+}
+
+QList<int> ContentInstance::mods() const {
+	QStringList mods = get("mods").toString().split(',');
+
+	QList<int> modsID;
+	for (auto &it : mods)
+		modsID.append(it.toUInt());
+
+	return modsID;
+}
+
+void ContentInstance::addMod(unsigned int id) {
+	QString mods = get("mods").toString();
+	set("mods", mods + (mods.isEmpty() ? "" : ",") + QString::number(id));
+
+	updateDatabaseTable();
+	writeToDatabase();
 }
 

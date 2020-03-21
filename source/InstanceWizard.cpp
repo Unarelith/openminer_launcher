@@ -55,8 +55,6 @@ void InstanceWizard::accept() {
 	instance.setEngineVersionID(engineVersionID);
 	instance.setName(instanceName);
 
-	m_data.setInstance(m_data.instanceList().size(), instance);
-
 	QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 	QString instancePath = appData + "/instances/" + instanceName + "/";
 	QString versionPath = appData + "/versions/" + QString::number(engineVersionID) + "/openminer/";
@@ -71,7 +69,11 @@ void InstanceWizard::accept() {
 
 		// FIXME: Use a mod string ID instead of the name
 		Utils::copyDirectory(modPath + mod->name(), instancePath + "mods/" + mod->name());
+
+		instance.addMod(mod->id());
 	}
+
+	m_data.setInstance(m_data.instanceList().size(), instance);
 
 	QDialog::accept();
 

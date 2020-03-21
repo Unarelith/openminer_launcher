@@ -63,12 +63,15 @@ void InstanceWizard::accept() {
 
 	Utils::copyDirectory(versionPath + "resources", instancePath + "resources");
 
-	ContentMod *mod = m_data.getMod(field("mod").toInt());
-	QString modPath = appData + "/mods/" + QString::number(mod->id()) + "/"
-		+ QString::number(mod->latestVersionID()) + "/";
+	auto mods = field("mods").toList();
+	for (auto &it : mods) {
+		ContentMod *mod = m_data.getMod(it.toInt());
+		QString modPath = appData + "/mods/" + QString::number(mod->id()) + "/"
+			+ QString::number(mod->latestVersionID()) + "/";
 
-	// FIXME: Use a mod string ID instead of the name
-	Utils::copyDirectory(modPath + mod->name(), instancePath + "mods/" + mod->name());
+		// FIXME: Use a mod string ID instead of the name
+		Utils::copyDirectory(modPath + mod->name(), instancePath + "mods/" + mod->name());
+	}
 
 	QDialog::accept();
 

@@ -32,6 +32,10 @@ void Utils::copyDirectory(const QString &src, const QString &dest) {
 	if (!dir.exists())
 		return;
 
+	QDir destDir(dest);
+	if (!destDir.exists())
+		dir.mkpath(dest);
+
 	foreach (const QString &d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
 		QString destPath = dest + QDir::separator() + d;
 		dir.mkpath(destPath);

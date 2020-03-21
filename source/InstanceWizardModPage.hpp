@@ -35,30 +35,30 @@ class ContentMod;
 
 class InstanceWizardModList : public QTreeWidget {
 	Q_OBJECT
-	Q_PROPERTY(int mod READ getMod)
+	Q_PROPERTY(QList<QVariant> mods READ getMods)
 
 	public:
 		InstanceWizardModList(QWidget *parent = nullptr) : QTreeWidget(parent) {
 			connect(this, &QTreeWidget::itemSelectionChanged, this, &InstanceWizardModList::selectMod);
 		}
 
-		int getMod() const { return m_mod; }
+		const QList<QVariant> &getMods() const { return m_mods; }
 
 	signals:
-		void modSelectionChanged(int newMod);
+		void modSelectionChanged(const QList<QVariant> &newMods);
 
 	private:
 		void selectMod() {
-			QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
-			if (selectedItems.size() == 0)
-				qDebug() << "ERROR: Too many selected items";
-			else
-				m_mod = selectedItems.at(0)->text(1).toUInt();
+			m_mods.clear();
 
-			emit modSelectionChanged(m_mod);
+			QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
+			for (auto &it : selectedItems)
+				m_mods.append(it->text(1).toUInt());
+
+			emit modSelectionChanged(m_mods);
 		}
 
-		int m_mod;
+		QList<QVariant> m_mods;
 };
 
 class InstanceWizardModPage : public QWizardPage {

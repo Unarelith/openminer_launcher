@@ -42,14 +42,14 @@ InstanceWizardModPage::InstanceWizardModPage(ContentData &data, QWidget *parent)
 	m_modListWidget->sortItems(2, Qt::AscendingOrder);
 	m_modListWidget->setColumnWidth(0, 27);
 	m_modListWidget->hideColumn(1);
-	m_modListWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+	m_modListWidget->setSelectionMode(QAbstractItemView::MultiSelection);
 	m_modListWidget->setFocusPolicy(Qt::NoFocus);
 
-	registerField("mod*", m_modListWidget, "mod", SIGNAL(modSelectionChanged(int)));
+	registerField("mods*", m_modListWidget, "mods", SIGNAL(modSelectionChanged(const QList<QVariant> &)));
 
 	auto &modList = m_data.modList();
 	for (auto &it : modList) {
-		// FIXME: This should test the latest INSTALLED mod version, instead of the latest
+		// FIXME: This should test the latest INSTALLED mod version, instead of the latest version
 		ContentModVersion *latestModVersion = m_data.getModVersion(it.second.latestVersionID());
 		if (latestModVersion && latestModVersion->state() == ContentModVersion::State::Downloaded) {
 			auto *item = new QTreeWidgetItem(m_modListWidget);

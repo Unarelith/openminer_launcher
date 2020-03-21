@@ -82,9 +82,6 @@ class DatabaseLoader : public QObject {
 					model->writeToDatabase();
 				}
 				else {
-					if (apiEndpoint == "/api/mod")
-						qDebug() << "created" << model << "from DatabaseLoader";
-
 					T model{jsonObject, m_data};
 					model.updateDatabaseTable();
 					model.writeToDatabase();

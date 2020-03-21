@@ -42,8 +42,16 @@ InstanceWizardSummaryPage::InstanceWizardSummaryPage(ContentData &data, QWidget 
 }
 
 void InstanceWizardSummaryPage::initializePage() {
+	// FIXME: Store mod versions instead of mods
+	//        Players should be able to select the version they want
+
+	auto *mod = m_data.getMod(field("mod").toUInt());
+
 	m_label->setText(tr(
 		"A new instance will be created with:\n\n"
-		"- OpenMiner v") + m_data.getEngineVersion(field("engineVersion").toUInt())->name());
+		"- OpenMiner v") + m_data.getEngineVersion(field("engineVersion").toUInt())->name() + "\n\n"
+		"- Mods:\n"
+		"        - " + mod->name() + " v" + m_data.getModVersion(mod->latestVersionID())->name()
+		);
 }
 

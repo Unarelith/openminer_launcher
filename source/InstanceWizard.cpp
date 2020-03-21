@@ -32,6 +32,7 @@
 #include "ContentInstance.hpp"
 #include "InstanceWizard.hpp"
 #include "InstanceWizardInfoPage.hpp"
+#include "InstanceWizardModPage.hpp"
 #include "InstanceWizardSummaryPage.hpp"
 #include "InstanceWizardVersionPage.hpp"
 #include "Utils.hpp"
@@ -40,6 +41,7 @@ InstanceWizard::InstanceWizard(ContentData &data, QWidget *parent) : QWizard(par
 	addIntroPage();
 	addPage(new InstanceWizardInfoPage{this});
 	addPage(new InstanceWizardVersionPage{data, this});
+	addPage(new InstanceWizardModPage{data, this});
 	addPage(new InstanceWizardSummaryPage{data, this});
 
 	setWindowTitle(tr("Instance Wizard"));
@@ -48,8 +50,6 @@ InstanceWizard::InstanceWizard(ContentData &data, QWidget *parent) : QWizard(par
 void InstanceWizard::accept() {
 	int engineVersionID = field("engineVersion").toInt();
 	QString instanceName = field("instanceName").toString();
-
-	// FIXME: Check if instance already exists
 
 	ContentInstance instance(m_data.instanceList().size());
 	instance.setEngineVersionID(engineVersionID);
@@ -61,8 +61,14 @@ void InstanceWizard::accept() {
 	QString instancePath = appData + "/instances/" + instanceName + "/";
 	QString versionPath = appData + "/versions/" + QString::number(engineVersionID) + "/openminer/";
 
-	Utils::copyDirectory(versionPath + "mods", instancePath + "mods");
 	Utils::copyDirectory(versionPath + "resources", instancePath + "resources");
+
+	ContentMod *mod = m_data.getMod(field("mod").toInt());
+	QString modPath = appData + "/mods/" + QString::number(mod->id()) + "/"
+		+ QString::number(mod->latestVersionID()) + "/";
+
+	// FIXME: Use a mod string ID instead of the name
+	Utils::copyDirectory(modPath + mod->name(), instancePath + "mods/" + mod->name());
 
 	QDialog::accept();
 

@@ -23,37 +23,55 @@
  *
  * =====================================================================================
  */
-#ifndef CONTENTMOD_HPP_
-#define CONTENTMOD_HPP_
+#ifndef INSTANCEWIZARDMODPAGE_HPP_
+#define INSTANCEWIZARDMODPAGE_HPP_
 
-#include <QDateTime>
-#include <QJsonObject>
-
-#include "ContentItem.hpp"
+#include <QDebug>
+#include <QTreeWidget>
+#include <QWizardPage>
 
 class ContentData;
-class ContentModVersion;
+class ContentMod;
 
-class ContentMod : public ContentItem {
+class InstanceWizardModList : public QTreeWidget {
+	Q_OBJECT
+	Q_PROPERTY(int mod READ getMod)
+
 	public:
-		explicit ContentMod(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("mods", sqlQuery) {}
-		explicit ContentMod(const QJsonObject &jsonObject, ContentData &data) : ContentItem("mods") { loadFromJson(jsonObject, data); }
+		InstanceWizardModList(QWidget *parent = nullptr) : QTreeWidget(parent) {
+			connect(this, &QTreeWidget::itemSelectionChanged, this, &InstanceWizardModList::selectMod);
+		}
 
-		void loadFromJson(const QJsonObject &jsonObject, ContentData &data);
+		int getMod() const { return m_mod; }
 
-		QString name() const { return get("name").toString(); }
-		QDateTime date() const { return get("date").toDateTime(); }
-		unsigned int user() const { return get("user").toUInt(); }
-
-		void addVersion(unsigned int id);
-		const std::vector<unsigned int> &versions() const { return m_versions; }
-
-		int latestVersionID() const { return m_latestVersionID; }
+	signals:
+		void modSelectionChanged(int newMod);
 
 	private:
-		std::vector<unsigned int> m_versions;
+		void selectMod() {
+			QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
+			if (selectedItems.size() == 0)
+				qDebug() << "ERROR: Too many selected items";
+			else
+				m_mod = selectedItems.at(0)->text(1).toUInt();
 
-		int m_latestVersionID = -1;
+			emit modSelectionChanged(m_mod);
+		}
+
+		int m_mod;
 };
 
-#endif // CONTENTMOD_HPP_
+class InstanceWizardModPage : public QWizardPage {
+	public:
+		InstanceWizardModPage(ContentData &data, QWidget *parent = nullptr);
+
+	private:
+		void selectMods();
+
+		ContentData &m_data;
+
+		InstanceWizardModList *m_modListWidget = nullptr;
+		ContentMod *m_mod = nullptr;
+};
+
+#endif // INSTANCEWIZARDMODPAGE_HPP_

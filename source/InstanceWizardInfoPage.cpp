@@ -39,6 +39,7 @@ InstanceWizardInfoPage::InstanceWizardInfoPage(QWidget *parent) : QWizardPage(pa
 	QRegExp re("^[a-zA-Z0-9_]+$");
 	QRegExpValidator *validator = new QRegExpValidator(re, this);
 
+	// FIXME: Check if instance already exists with a custom validator
 	QLineEdit *nameEdit = new QLineEdit;
 	nameEdit->setValidator(validator);
 

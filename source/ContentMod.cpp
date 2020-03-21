@@ -38,3 +38,11 @@ void ContentMod::loadFromJson(const QJsonObject &jsonObject, ContentData &) {
 	m_hasBeenUpdated = true;
 }
 
+void ContentMod::addVersion(unsigned int id) {
+	m_versions.emplace_back(id);
+
+	if (m_latestVersionID < (int)id) {
+		m_latestVersionID = id;
+	}
+}
+

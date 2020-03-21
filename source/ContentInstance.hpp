@@ -41,8 +41,11 @@ class ContentInstance : public ContentItem {
 		QString name() const { return get("name").toString(); }
 		void setName(const QString &name) { set("name", name); updateDatabaseTable(); writeToDatabase(); }
 
-		unsigned int engineVersionID() const { return get("engine_version").toUInt(); }
+		int engineVersionID() const { return get("engine_version").toInt(); }
 		void setEngineVersionID(unsigned int id) { set("engine_version", id); updateDatabaseTable(); writeToDatabase(); }
+
+		int modID() const { return get("mod").toInt(); }
+		void setModID(unsigned int id) { set("mod", id); updateDatabaseTable(); writeToDatabase(); }
 };
 
 #endif // CONTENTINSTANCE_HPP_

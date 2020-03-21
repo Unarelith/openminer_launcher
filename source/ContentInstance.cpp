@@ -30,6 +30,7 @@ ContentInstance::ContentInstance(unsigned int id) : ContentItem("instances") {
 
 	set("name", "");
 	set("engine_version", -1);
+	set("mod", -1);
 }
 
 ContentInstance::ContentInstance(const QJsonObject &jsonObject, ContentData &) : ContentItem("instances") {
@@ -37,5 +38,6 @@ ContentInstance::ContentInstance(const QJsonObject &jsonObject, ContentData &) :
 
 	set("name", jsonObject.value("name").toString());
 	set("engine_version", jsonObject.value("engine_version").toInt());
+	set("mod", jsonObject.value("mod").toInt());
 }
 

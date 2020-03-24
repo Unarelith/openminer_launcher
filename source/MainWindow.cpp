@@ -23,10 +23,14 @@
  *
  * =====================================================================================
  */
+#include <QAction>
+#include <QApplication>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QKeyEvent>
+#include <QMenuBar>
+#include <QMessageBox>
 #include <QStandardPaths>
 #include <QStatusBar>
 
@@ -43,6 +47,7 @@ MainWindow::MainWindow(const QString &apiSource) : QMainWindow(nullptr, Qt::Dial
 	openDatabase();
 
 	setupStatusBar();
+	setupMenuBar();
 	setupTabs();
 
 	connectObjects();
@@ -64,23 +69,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 
 	if (event->key() == Qt::Key_Escape)
 		close();
-}
-
-void MainWindow::setupStatusBar() {
-	QStatusBar *statusBar = QMainWindow::statusBar();
-
-	connect(&m_contentData, &ContentData::stateChanged, statusBar, &QStatusBar::showMessage);
-}
-
-void MainWindow::setupTabs() {
-	m_tabWidget.addTab(&m_instanceTab, "Instances");
-	// m_tabWidget.addTab(new QWidget, "News");
-	m_tabWidget.addTab(&m_engineVersionTab, "Versions");
-	// m_tabWidget.addTab(new QWidget, "Games");
-	m_tabWidget.addTab(&m_modTab, "Mods");
-	// m_tabWidget.addTab(new QWidget, "Textures");
-
-	setCentralWidget(&m_tabWidget);
 }
 
 void MainWindow::openDatabase() {
@@ -109,5 +97,78 @@ void MainWindow::updateWidgets() {
 	m_instanceTab.update();
 	m_engineVersionTab.update();
 	m_modTab.update();
+}
+
+void MainWindow::setupTabs() {
+	m_tabWidget.addTab(&m_instanceTab, "Instances");
+	// m_tabWidget.addTab(new QWidget, "News");
+	m_tabWidget.addTab(&m_engineVersionTab, "Versions");
+	// m_tabWidget.addTab(new QWidget, "Games");
+	m_tabWidget.addTab(&m_modTab, "Mods");
+	// m_tabWidget.addTab(new QWidget, "Textures");
+
+	setCentralWidget(&m_tabWidget);
+}
+
+void MainWindow::setupStatusBar() {
+	QStatusBar *statusBar = QMainWindow::statusBar();
+
+	connect(&m_contentData, &ContentData::stateChanged, statusBar, &QStatusBar::showMessage);
+}
+
+void MainWindow::setupMenuBar() {
+	QAction *exitAction = new QAction(tr("&Exit"), this);
+	exitAction->setShortcut(QKeySequence::Quit);
+	exitAction->setStatusTip(tr("Exit the program"));
+	connect(exitAction, &QAction::triggered, this, &MainWindow::close);
+
+	QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+	fileMenu->addAction(exitAction);
+
+	QAction *updateAction = new QAction(tr("&Update"), this);
+	updateAction->setShortcut(QKeySequence::Refresh);
+	updateAction->setStatusTip("Update local database with online data");
+	connect(updateAction, &QAction::triggered, &m_contentData, &ContentData::updateDatabase);
+
+	// FIXME: Disabled because it deletes instances
+	// QAction *reloadAction = new QAction(tr("&Reload"), this);
+	// reloadAction->setShortcut(QKeySequence::fromString("Shift+F5"));
+	// reloadAction->setStatusTip("Performs a full reload of the database");
+	// connect(reloadAction, &QAction::triggered, &m_contentData, &ContentData::reloadDatabase);
+
+	QAction *stopAction = new QAction(tr("&Stop"), this);
+	stopAction->setShortcut(QKeySequence::fromString("Ctrl+C"));
+	stopAction->setStatusTip("Stop database update");
+	connect(stopAction, &QAction::triggered, &m_contentData, &ContentData::stopDatabaseUpdate);
+
+	QMenu *databaseMenu = menuBar()->addMenu(tr("&Database"));
+	databaseMenu->addAction(updateAction);
+	// databaseMenu->addAction(reloadAction);
+	databaseMenu->addAction(stopAction);
+
+	QAction *aboutAction = new QAction(tr("&About"), this);
+	aboutAction->setShortcut(QKeySequence::HelpContents);
+	aboutAction->setStatusTip("About this program");
+	connect(aboutAction, &QAction::triggered, this, &MainWindow::openAboutWindow);
+
+	QAction *aboutQtAction = new QAction(tr("&About Qt"), this);
+	aboutQtAction->setStatusTip("About Qt");
+	connect(aboutQtAction, &QAction::triggered, qApp, &QApplication::aboutQt);
+
+	QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+	helpMenu->addAction(aboutAction);
+	helpMenu->addAction(aboutQtAction);
+}
+
+void MainWindow::openAboutWindow() {
+	QMessageBox aboutBox(this);
+	aboutBox.setWindowTitle("About OpenMiner Launcher");
+	aboutBox.setTextFormat(Qt::RichText);
+	aboutBox.setText("<h3>OpenMiner Launcher</h3>"
+	                 "Made by Quentin Bazin (aka. Unarelith)<br/><br/>"
+	                 "Thanks for using this project!<br/><br/>"
+	                 "Feel free to create a ticket <a href='https://github.com/Unarelith/openminer_launcher/issues'>here</a> if you find some bugs.");
+	aboutBox.setStandardButtons(QMessageBox::Ok);
+	aboutBox.exec();
 }
 

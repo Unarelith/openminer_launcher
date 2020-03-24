@@ -45,14 +45,17 @@ class MainWindow : public QMainWindow {
 		void closeEvent(QCloseEvent *event) override;
 		void keyPressEvent(QKeyEvent *event) override;
 
-		void setupStatusBar();
-		void setupTabs();
-
 	private:
 		void openDatabase();
 
 		void connectObjects();
 		void updateWidgets();
+
+		void setupTabs();
+		void setupStatusBar();
+		void setupMenuBar();
+
+		void openAboutWindow();
 
 		ContentData m_contentData;
 

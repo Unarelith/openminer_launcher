@@ -23,30 +23,23 @@
  *
  * =====================================================================================
  */
-#include "ContentData.hpp"
-#include "DatabaseLoader.hpp"
+#ifndef NEWSARTICLEWIDGET_HPP_
+#define NEWSARTICLEWIDGET_HPP_
 
-using namespace std::placeholders;
+#include <QLabel>
 
-void DatabaseLoader::update() const {
-	emit updateStarted();
+class ContentNewsArticle;
 
-	updateModel<ContentEngineVersion>("/api/version",
-			std::bind(&ContentData::getEngineVersion, &m_data, _1),
-			std::bind(&ContentData::setEngineVersion, &m_data, _1, _2));
+class NewsArticleWidget : public QWidget {
+	public:
+		NewsArticleWidget(QWidget *parent = nullptr);
 
-	updateModel<ContentMod>("/api/mod",
-			std::bind(&ContentData::getMod, &m_data, _1),
-			std::bind(&ContentData::setMod, &m_data, _1, _2));
+		void update(const ContentNewsArticle &article);
 
-	updateModel<ContentModVersion>("/api/mod/version",
-			std::bind(&ContentData::getModVersion, &m_data, _1),
-			std::bind(&ContentData::setModVersion, &m_data, _1, _2));
+	private:
+		QLabel *m_dateWidget = nullptr;
+		QLabel *m_titleWidget = nullptr;
+		QLabel *m_contentWidget = nullptr;
+};
 
-	updateModel<ContentNewsArticle>("/api/news",
-			std::bind(&ContentData::getNewsArticle, &m_data, _1),
-			std::bind(&ContentData::setNewsArticle, &m_data, _1, _2));
-
-	emit updateFinished();
-}
-
+#endif // NEWSARTICLEWIDGET_HPP_

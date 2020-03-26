@@ -83,6 +83,7 @@ void ContentData::databaseUpdateFinished() {
 
 void ContentData::update() {
 	updateInstanceList();
+	updateNewsArticleList();
 	updateEngineVersionList();
 	updateModList();
 	updateModVersionList();
@@ -99,6 +100,18 @@ void ContentData::updateInstanceList() {
 			m_instanceList.emplace(id, ContentInstance{query, *this});
 		else
 			instance->loadFromSql(query);
+	}
+}
+
+void ContentData::updateNewsArticleList() {
+	QSqlQuery query("SELECT * FROM news_articles", Database::getDatabase());
+	while (query.next()) {
+		int id = query.value(0).toUInt();
+		ContentNewsArticle *newsArticle = getNewsArticle(id);
+		if (!newsArticle)
+			m_newsArticleList.emplace(id, ContentNewsArticle{query, *this});
+		else
+			newsArticle->loadFromSql(query);
 	}
 }
 

@@ -23,30 +23,26 @@
  *
  * =====================================================================================
  */
-#include "ContentData.hpp"
-#include "DatabaseLoader.hpp"
+#ifndef NEWSTABWIDGET_HPP_
+#define NEWSTABWIDGET_HPP_
 
-using namespace std::placeholders;
+#include <QVBoxLayout>
 
-void DatabaseLoader::update() const {
-	emit updateStarted();
+#include "NewsArticleWidget.hpp"
 
-	updateModel<ContentEngineVersion>("/api/version",
-			std::bind(&ContentData::getEngineVersion, &m_data, _1),
-			std::bind(&ContentData::setEngineVersion, &m_data, _1, _2));
+class ContentData;
 
-	updateModel<ContentMod>("/api/mod",
-			std::bind(&ContentData::getMod, &m_data, _1),
-			std::bind(&ContentData::setMod, &m_data, _1, _2));
+class NewsTabWidget : public QWidget {
+	public:
+		NewsTabWidget(ContentData &data, QWidget *parent = nullptr);
 
-	updateModel<ContentModVersion>("/api/mod/version",
-			std::bind(&ContentData::getModVersion, &m_data, _1),
-			std::bind(&ContentData::setModVersion, &m_data, _1, _2));
+		void update();
 
-	updateModel<ContentNewsArticle>("/api/news",
-			std::bind(&ContentData::getNewsArticle, &m_data, _1),
-			std::bind(&ContentData::setNewsArticle, &m_data, _1, _2));
+	private:
+		ContentData &m_data;
 
-	emit updateFinished();
-}
+		QVBoxLayout *m_layout = nullptr;
+		QList<NewsArticleWidget *> m_widgetList;
+};
 
+#endif // NEWSTABWIDGET_HPP_

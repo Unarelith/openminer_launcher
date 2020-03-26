@@ -23,30 +23,27 @@
  *
  * =====================================================================================
  */
-#include "ContentData.hpp"
-#include "DatabaseLoader.hpp"
+#ifndef CONTENTNEWSARTICLE_HPP_
+#define CONTENTNEWSARTICLE_HPP_
 
-using namespace std::placeholders;
+#include <QDateTime>
+#include <QJsonObject>
 
-void DatabaseLoader::update() const {
-	emit updateStarted();
+#include "ContentItem.hpp"
 
-	updateModel<ContentEngineVersion>("/api/version",
-			std::bind(&ContentData::getEngineVersion, &m_data, _1),
-			std::bind(&ContentData::setEngineVersion, &m_data, _1, _2));
+class ContentData;
 
-	updateModel<ContentMod>("/api/mod",
-			std::bind(&ContentData::getMod, &m_data, _1),
-			std::bind(&ContentData::setMod, &m_data, _1, _2));
+class ContentNewsArticle : public ContentItem {
+	public:
+		explicit ContentNewsArticle(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("news_articles", sqlQuery) {}
+		explicit ContentNewsArticle(const QJsonObject &jsonObject, ContentData &data) : ContentItem("news_articles") { loadFromJson(jsonObject, data); }
 
-	updateModel<ContentModVersion>("/api/mod/version",
-			std::bind(&ContentData::getModVersion, &m_data, _1),
-			std::bind(&ContentData::setModVersion, &m_data, _1, _2));
+		void loadFromJson(const QJsonObject &jsonObject, ContentData &data);
 
-	updateModel<ContentNewsArticle>("/api/news",
-			std::bind(&ContentData::getNewsArticle, &m_data, _1),
-			std::bind(&ContentData::setNewsArticle, &m_data, _1, _2));
+		QString title() const { return get("title").toString(); }
+		QString content() const { return get("content").toString(); }
+		QDateTime date() const { return get("date").toDateTime(); }
+		unsigned int user() const { return get("user").toUInt(); }
+};
 
-	emit updateFinished();
-}
-
+#endif // CONTENTNEWSARTICLE_HPP_

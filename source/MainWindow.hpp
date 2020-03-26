@@ -35,6 +35,7 @@
 #include "EngineVersionTabWidget.hpp"
 #include "InstanceTabWidget.hpp"
 #include "ModTabWidget.hpp"
+#include "NewsTabWidget.hpp"
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -62,6 +63,7 @@ class MainWindow : public QMainWindow {
 		QTabWidget m_tabWidget{this};
 
 		InstanceTabWidget m_instanceTab{m_contentData};
+		NewsTabWidget m_newsTab{m_contentData};
 		EngineVersionTabWidget m_engineVersionTab{m_contentData};
 		ModTabWidget m_modTab{m_contentData};
 };

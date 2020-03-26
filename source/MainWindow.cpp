@@ -95,13 +95,14 @@ void MainWindow::connectObjects() {
 
 void MainWindow::updateWidgets() {
 	m_instanceTab.update();
+	m_newsTab.update();
 	m_engineVersionTab.update();
 	m_modTab.update();
 }
 
 void MainWindow::setupTabs() {
 	m_tabWidget.addTab(&m_instanceTab, "Instances");
-	// m_tabWidget.addTab(new QWidget, "News");
+	m_tabWidget.addTab(&m_newsTab, "News");
 	m_tabWidget.addTab(&m_engineVersionTab, "Versions");
 	// m_tabWidget.addTab(new QWidget, "Games");
 	m_tabWidget.addTab(&m_modTab, "Mods");

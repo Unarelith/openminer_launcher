@@ -82,6 +82,7 @@ void ContentData::databaseUpdateFinished() {
 }
 
 void ContentData::update() {
+	updateUserList();
 	updateInstanceList();
 	updateNewsArticleList();
 	updateEngineVersionList();
@@ -89,6 +90,18 @@ void ContentData::update() {
 	updateModVersionList();
 
 	emit windowRefeshRequested();
+}
+
+void ContentData::updateUserList() {
+	QSqlQuery query("SELECT * FROM users", Database::getDatabase());
+	while (query.next()) {
+		int id = query.value(0).toUInt();
+		ContentUser *user = getUser(id);
+		if (!user)
+			m_userList.emplace(id, ContentUser{query, *this});
+		else
+			user->loadFromSql(query);
+	}
 }
 
 void ContentData::updateInstanceList() {

@@ -23,34 +23,13 @@
  *
  * =====================================================================================
  */
-#include "ContentData.hpp"
-#include "DatabaseLoader.hpp"
+#include "ContentUser.hpp"
 
-using namespace std::placeholders;
+void ContentUser::loadFromJson(const QJsonObject &jsonObject, ContentData &) {
+	m_id = jsonObject.value("id").toInt();
 
-void DatabaseLoader::update() const {
-	emit updateStarted();
+	set("name", jsonObject.value("username").toString());
 
-	updateModel<ContentUser>("/api/user",
-			std::bind(&ContentData::getUser, &m_data, _1),
-			std::bind(&ContentData::setUser, &m_data, _1, _2));
-
-	updateModel<ContentNewsArticle>("/api/news",
-			std::bind(&ContentData::getNewsArticle, &m_data, _1),
-			std::bind(&ContentData::setNewsArticle, &m_data, _1, _2));
-
-	updateModel<ContentEngineVersion>("/api/version",
-			std::bind(&ContentData::getEngineVersion, &m_data, _1),
-			std::bind(&ContentData::setEngineVersion, &m_data, _1, _2));
-
-	updateModel<ContentMod>("/api/mod",
-			std::bind(&ContentData::getMod, &m_data, _1),
-			std::bind(&ContentData::setMod, &m_data, _1, _2));
-
-	updateModel<ContentModVersion>("/api/mod/version",
-			std::bind(&ContentData::getModVersion, &m_data, _1),
-			std::bind(&ContentData::setModVersion, &m_data, _1, _2));
-
-	emit updateFinished();
+	m_hasBeenUpdated = true;
 }
 

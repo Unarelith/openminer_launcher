@@ -50,10 +50,6 @@ class DatabaseLoader : public QObject {
 		void updateFinished() const;
 
 	private:
-		void updateEngineVersions() const;
-		void updateMods() const;
-		void updateModVersions() const;
-
 		ContentData &m_data;
 
 		template<typename T, typename F1, typename F2>

@@ -23,34 +23,24 @@
  *
  * =====================================================================================
  */
-#include "ContentData.hpp"
-#include "DatabaseLoader.hpp"
+#ifndef CONTENTUSER_HPP_
+#define CONTENTUSER_HPP_
 
-using namespace std::placeholders;
+#include <QJsonObject>
 
-void DatabaseLoader::update() const {
-	emit updateStarted();
+#include "ContentItem.hpp"
 
-	updateModel<ContentUser>("/api/user",
-			std::bind(&ContentData::getUser, &m_data, _1),
-			std::bind(&ContentData::setUser, &m_data, _1, _2));
+class ContentData;
 
-	updateModel<ContentNewsArticle>("/api/news",
-			std::bind(&ContentData::getNewsArticle, &m_data, _1),
-			std::bind(&ContentData::setNewsArticle, &m_data, _1, _2));
+class ContentUser : public ContentItem {
+	public:
+		explicit ContentUser(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("users", sqlQuery) {}
+		explicit ContentUser(const QJsonObject &jsonObject, ContentData &data) : ContentItem("users") { loadFromJson(jsonObject, data); }
 
-	updateModel<ContentEngineVersion>("/api/version",
-			std::bind(&ContentData::getEngineVersion, &m_data, _1),
-			std::bind(&ContentData::setEngineVersion, &m_data, _1, _2));
+		void loadFromJson(const QJsonObject &jsonObject, ContentData &data);
 
-	updateModel<ContentMod>("/api/mod",
-			std::bind(&ContentData::getMod, &m_data, _1),
-			std::bind(&ContentData::setMod, &m_data, _1, _2));
+		QString name() const { return get("name").toString(); }
+};
 
-	updateModel<ContentModVersion>("/api/mod/version",
-			std::bind(&ContentData::getModVersion, &m_data, _1),
-			std::bind(&ContentData::setModVersion, &m_data, _1, _2));
 
-	emit updateFinished();
-}
-
+#endif // CONTENTUSER_HPP_

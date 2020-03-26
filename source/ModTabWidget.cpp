@@ -59,9 +59,12 @@ void ModTabWidget::update() {
 		// item->setText(0, " 0");
 		item->setText(1, QString::number(it.second.id()));
 		item->setText(2, it.second.name());
-		item->setText(3, QString::number(it.second.user()));
 		item->setText(6, it.second.date().toString());
 		item->setText(7, it.second.hasBeenUpdated() ? "true" : "false");
+
+		ContentUser *user = m_data.getUser(it.second.user());
+		if (user)
+			item->setText(3, user->name());
 
 		ContentModVersion *latestVersion = nullptr;
 		ContentModVersion *latestInstalledVersion = nullptr;

@@ -47,6 +47,7 @@ class EngineVersionTabWidget : public QWidget {
 		void showContextMenu(const QPoint &pos);
 
 		void downloadActionTriggered();
+		void removeActionTriggered();
 
 		ContentData &m_data;
 

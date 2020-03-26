@@ -73,14 +73,25 @@ void EngineVersionTabWidget::showContextMenu(const QPoint &pos) {
 
 	m_currentItem = item;
 
-	QAction *downloadAction = new QAction(tr("&Download"), this);
-	downloadAction->setStatusTip(tr("Download engine version"));
-	connect(downloadAction, &QAction::triggered, this, &EngineVersionTabWidget::downloadActionTriggered);
+	ContentEngineVersion *engineVersion = m_data.getEngineVersion(m_currentItem->text(1).toUInt());
+	if (engineVersion) {
+		QMenu menu{this};
 
-	QMenu menu{this};
-	menu.addAction(downloadAction);
+		if (engineVersion->state() == ContentEngineVersion::State::Available) {
+			QAction *downloadAction = new QAction(tr("&Download"), this);
+			downloadAction->setStatusTip(tr("Download engine version"));
+			connect(downloadAction, &QAction::triggered, this, &EngineVersionTabWidget::downloadActionTriggered);
+			menu.addAction(downloadAction);
+		}
+		else if (engineVersion->state() == ContentEngineVersion::State::Downloaded) {
+			QAction *removeAction = new QAction(tr("&Remove"), this);
+			removeAction->setStatusTip(tr("Remove engine version"));
+			connect(removeAction, &QAction::triggered, this, &EngineVersionTabWidget::removeActionTriggered);
+			menu.addAction(removeAction);
+		}
 
-	menu.exec(m_versionListWidget.mapToGlobal(pos));
+		menu.exec(m_versionListWidget.mapToGlobal(pos));
+	}
 }
 
 void EngineVersionTabWidget::downloadActionTriggered() {
@@ -135,4 +146,22 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 		update();
 	}
 }
+
+void EngineVersionTabWidget::removeActionTriggered() {
+	ContentEngineVersion *engineVersion = m_data.getEngineVersion(m_currentItem->text(1).toUInt());
+
+	if (engineVersion) {
+		QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+		path += "/versions/" + QString::number(engineVersion->id()) + "/";
+
+		QDir dir{path};
+		if (dir.exists())
+			dir.removeRecursively();
+
+		engineVersion->setState(ContentEngineVersion::State::Available);
+
+		update();
+	}
+}
+
 

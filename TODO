@@ -14,6 +14,13 @@ TODO
 # Milestone 2
 
 • DONE: Ability to remove mods/engine versions from disk
-• TODO: Disable `Add instance` and `Remove instance` buttons when no instances are selected
+• DONE: Disable `Add instance` and `Remove instance` buttons when no instances are selected
+• TODO: Add functions to get objects path, like `ContentModVersion::getInstallPath()`
+• TODO: Use mod/texture pack `stringID` instead of using their `name`
+• TODO: Use mod/texture pack `stringID` instead of `id` for folders
+• TODO: Replace the instance creation wizard by a new window using a better layout
 • TODO: Texture packs
+• TODO: Add a repository system to use multiple contentdbs at the same time
+• TODO: Mods should be stored in `mods/<repo_string_id>/<mod_string_id>`
+• TODO: On startup, check already installed mods and add them to the database, they should use the repo name `"local"`
 

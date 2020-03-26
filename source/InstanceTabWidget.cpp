@@ -33,6 +33,7 @@ InstanceTabWidget::InstanceTabWidget(ContentData &data, QWidget *parent) : QWidg
 	layout->addWidget(&m_instanceSideBar);
 
 	connect(&m_instanceListWidget, &InstanceListWidget::windowRefeshRequested, this, &InstanceTabWidget::windowRefeshRequested);
+	connect(&m_instanceListWidget, &InstanceListWidget::itemSelectionChanged, &m_instanceSideBar, &InstanceSideBar::toggleButtons);
 	connect(&m_instanceSideBar, &InstanceSideBar::windowRefeshRequested, this, &InstanceTabWidget::windowRefeshRequested);
 	connect(&m_instanceSideBar, &InstanceSideBar::runInstanceButtonClicked, &m_instanceListWidget, &InstanceListWidget::runInstance);
 	connect(&m_instanceSideBar, &InstanceSideBar::deleteInstanceButtonClicked, &m_instanceListWidget, &InstanceListWidget::deleteInstance);

@@ -46,7 +46,7 @@ class InstanceTabWidget : public QWidget {
 		ContentData &m_data;
 
 		InstanceListWidget m_instanceListWidget{m_data};
-		InstanceSideBar m_instanceSideBar{m_data};
+		InstanceSideBar m_instanceSideBar{m_data, m_instanceListWidget};
 };
 
 #endif // INSTANCETABWIDGET_HPP_

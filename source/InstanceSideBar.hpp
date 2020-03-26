@@ -29,12 +29,15 @@
 #include <QPushButton>
 
 class ContentData;
+class InstanceListWidget;
 
 class InstanceSideBar : public QWidget {
 	Q_OBJECT
 
 	public:
-		InstanceSideBar(ContentData &data, QWidget *parent = nullptr);
+		InstanceSideBar(ContentData &data, InstanceListWidget &instanceListWidget, QWidget *parent = nullptr);
+
+		void toggleButtons();
 
 	signals:
 		void windowRefeshRequested();
@@ -45,6 +48,8 @@ class InstanceSideBar : public QWidget {
 		void openWizard();
 
 		ContentData &m_data;
+
+		InstanceListWidget &m_instanceListWidget;
 
 		QPushButton m_addInstanceButton{this};
 		QPushButton m_runInstanceButton{this};

@@ -25,13 +25,20 @@
  */
 #include <QVBoxLayout>
 
+#include "InstanceListWidget.hpp"
 #include "InstanceSideBar.hpp"
 #include "InstanceWizard.hpp"
 
-InstanceSideBar::InstanceSideBar(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
+InstanceSideBar::InstanceSideBar(ContentData &data, InstanceListWidget &instanceListWidget, QWidget *parent)
+	: QWidget(parent), m_data(data), m_instanceListWidget(instanceListWidget)
+{
+
 	m_addInstanceButton.setText(tr("Add instance"));
 	m_runInstanceButton.setText(tr("Run instance"));
 	m_deleteInstanceButton.setText(tr("Delete instance"));
+
+	m_runInstanceButton.setEnabled(false);
+	m_deleteInstanceButton.setEnabled(false);
 
 	connect(&m_addInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::openWizard);
 	connect(&m_runInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::runInstanceButtonClicked);
@@ -42,6 +49,17 @@ InstanceSideBar::InstanceSideBar(ContentData &data, QWidget *parent) : QWidget(p
 	layout->addWidget(&m_runInstanceButton);
 	layout->addWidget(&m_deleteInstanceButton);
 	layout->addWidget(new QWidget, 1);
+}
+
+void InstanceSideBar::toggleButtons() {
+	if (m_instanceListWidget.selectedItems().empty()) {
+		m_runInstanceButton.setEnabled(false);
+		m_deleteInstanceButton.setEnabled(false);
+	}
+	else {
+		m_runInstanceButton.setEnabled(true);
+		m_deleteInstanceButton.setEnabled(true);
+	}
 }
 
 void InstanceSideBar::openWizard() {

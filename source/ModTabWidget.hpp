@@ -31,6 +31,7 @@
 #include "Session.hpp"
 
 class ContentData;
+class ContentModVersion;
 
 class ModTabWidget : public QWidget {
 	Q_OBJECT
@@ -46,7 +47,10 @@ class ModTabWidget : public QWidget {
 	private:
 		void showContextMenu(const QPoint &pos);
 
+		ContentModVersion *getModVersionFromItem(QTreeWidgetItem *item);
+
 		void downloadActionTriggered();
+		void removeActionTriggered();
 
 		ContentData &m_data;
 

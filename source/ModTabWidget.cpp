@@ -102,30 +102,15 @@ void ModTabWidget::update() {
 	}
 }
 
-void ModTabWidget::showContextMenu(const QPoint &pos) {
-	QTreeWidgetItem *item = m_modListWidget.itemAt(pos);
-	if (!item) return;
-
-	m_currentItem = item;
-
-	QAction *downloadAction = new QAction(tr("&Download"), this);
-	downloadAction->setStatusTip(tr("Download mod"));
-	connect(downloadAction, &QAction::triggered, this, &ModTabWidget::downloadActionTriggered);
-
-	QMenu menu{this};
-	menu.addAction(downloadAction);
-
-	menu.exec(m_modListWidget.mapToGlobal(pos));
-}
-
-void ModTabWidget::downloadActionTriggered() {
+ContentModVersion *ModTabWidget::getModVersionFromItem(QTreeWidgetItem *item) {
 	ContentModVersion *modVersion = nullptr;
-	if (m_currentItem->parent()) {
-		modVersion = m_data.getModVersion(m_currentItem->text(1).toUInt());
+	if (item->parent()) {
+		modVersion = m_data.getModVersion(item->text(1).toUInt());
 	}
 	else {
-		ContentMod *mod = m_data.getMod(m_currentItem->text(1).toUInt());
+		ContentMod *mod = m_data.getMod(item->text(1).toUInt());
 
+		// FIXME: This should probably use the latest INSTALLED version instead
 		ContentModVersion *latestVersion = nullptr;
 		for (auto &it : mod->versions()) {
 			ContentModVersion *version = m_data.getModVersion(it);
@@ -137,6 +122,38 @@ void ModTabWidget::downloadActionTriggered() {
 			modVersion = latestVersion;
 	}
 
+	return modVersion;
+}
+
+void ModTabWidget::showContextMenu(const QPoint &pos) {
+	QTreeWidgetItem *item = m_modListWidget.itemAt(pos);
+	if (!item) return;
+
+	m_currentItem = item;
+
+	ContentModVersion *modVersion = getModVersionFromItem(m_currentItem);
+	if (modVersion) {
+		QMenu menu{this};
+
+		if (modVersion->state() == ContentModVersion::State::Available) {
+			QAction *downloadAction = new QAction(tr("&Download"), this);
+			downloadAction->setStatusTip(tr("Download mod"));
+			connect(downloadAction, &QAction::triggered, this, &ModTabWidget::downloadActionTriggered);
+			menu.addAction(downloadAction);
+		}
+		else if (modVersion->state() == ContentModVersion::State::Downloaded) {
+			QAction *removeAction = new QAction(tr("&Remove"), this);
+			removeAction->setStatusTip(tr("Remove mod from disk"));
+			connect(removeAction, &QAction::triggered, this, &ModTabWidget::removeActionTriggered);
+			menu.addAction(removeAction);
+		}
+
+		menu.exec(m_modListWidget.mapToGlobal(pos));
+	}
+}
+
+void ModTabWidget::downloadActionTriggered() {
+	ContentModVersion *modVersion = getModVersionFromItem(m_currentItem);
 	if (modVersion) {
 		QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 		path += "/mods/" + QString::number(modVersion->modID()) + "/" + QString::number(modVersion->id()) + "/";
@@ -187,6 +204,22 @@ void ModTabWidget::downloadActionTriggered() {
 
 			update();
 		}
+	}
+}
+
+void ModTabWidget::removeActionTriggered() {
+	ContentModVersion *modVersion = getModVersionFromItem(m_currentItem);
+	if (modVersion) {
+		QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+		path += "/mods/" + QString::number(modVersion->modID()) + "/" + QString::number(modVersion->id()) + "/";
+
+		QDir dir{path};
+		if (dir.exists())
+			dir.removeRecursively();
+
+		modVersion->setState(ContentModVersion::State::Available);
+
+		update();
 	}
 }
 

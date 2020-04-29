@@ -34,18 +34,22 @@ InstanceSideBar::InstanceSideBar(ContentData &data, InstanceListWidget &instance
 {
 
 	m_addInstanceButton.setText(tr("Add instance"));
+	m_editInstanceButton.setText(tr("Edit instance"));
 	m_runInstanceButton.setText(tr("Run instance"));
 	m_deleteInstanceButton.setText(tr("Delete instance"));
 
+	m_editInstanceButton.setEnabled(false);
 	m_runInstanceButton.setEnabled(false);
 	m_deleteInstanceButton.setEnabled(false);
 
 	connect(&m_addInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::openWizard);
+	connect(&m_editInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::openEditWindow);
 	connect(&m_runInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::runInstanceButtonClicked);
 	connect(&m_deleteInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::deleteInstanceButtonClicked);
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	layout->addWidget(&m_addInstanceButton);
+	layout->addWidget(&m_editInstanceButton);
 	layout->addWidget(&m_runInstanceButton);
 	layout->addWidget(&m_deleteInstanceButton);
 	layout->addWidget(new QWidget, 1);
@@ -53,10 +57,12 @@ InstanceSideBar::InstanceSideBar(ContentData &data, InstanceListWidget &instance
 
 void InstanceSideBar::toggleButtons() {
 	if (m_instanceListWidget.selectedItems().empty()) {
+		m_editInstanceButton.setEnabled(false);
 		m_runInstanceButton.setEnabled(false);
 		m_deleteInstanceButton.setEnabled(false);
 	}
 	else {
+		m_editInstanceButton.setEnabled(true);
 		m_runInstanceButton.setEnabled(true);
 		m_deleteInstanceButton.setEnabled(true);
 	}
@@ -68,5 +74,13 @@ void InstanceSideBar::openWizard() {
 	wizard->show();
 
 	connect(wizard, &InstanceWizard::windowRefeshRequested, this, &InstanceSideBar::windowRefeshRequested);
+}
+
+#include "InstanceEditWindow.hpp"
+
+void InstanceSideBar::openEditWindow() {
+	InstanceEditWindow *window = new InstanceEditWindow{m_data, this};
+	window->setModal(true);
+	window->show();
 }
 

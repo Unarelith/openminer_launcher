@@ -1,9 +1,10 @@
 /*
  * =====================================================================================
  *
- *  OpenMiner Launcher
+ *  OpenMiner
  *
  *  Copyright (C) 2018-2020 Unarelith, Quentin Bazin <openminer@unarelith.net>
+ *  Copyright (C) 2019-2020 the OpenMiner contributors (see CONTRIBUTORS.md)
  *
  *  This file is part of OpenMiner.
  *
@@ -23,39 +24,36 @@
  *
  * =====================================================================================
  */
-#ifndef INSTANCESIDEBAR_HPP_
-#define INSTANCESIDEBAR_HPP_
-
+#include <QFormLayout>
+#include <QHBoxLayout>
+#include <QLineEdit>
 #include <QPushButton>
+#include <QTabWidget>
+#include <QVBoxLayout>
 
-class ContentData;
-class InstanceListWidget;
+#include "InstanceEditModTab.hpp"
+#include "InstanceEditVersionTab.hpp"
+#include "InstanceEditWindow.hpp"
 
-class InstanceSideBar : public QWidget {
-	Q_OBJECT
+InstanceEditWindow::InstanceEditWindow(ContentData &data, QWidget *parent) : QDialog(parent) {
+	setWindowTitle("Edit instance...");
+	resize(640, 480);
 
-	public:
-		InstanceSideBar(ContentData &data, InstanceListWidget &instanceListWidget, QWidget *parent = nullptr);
+	auto *tabWidget = new QTabWidget;
+	tabWidget->addTab(new InstanceEditVersionTab{data}, "Engine");
+	tabWidget->addTab(new InstanceEditModTab{data}, "Mods");
 
-		void toggleButtons();
+	auto *formLayout = new QFormLayout;
+	formLayout->addRow("&Name", new QLineEdit);
 
-	signals:
-		void windowRefeshRequested();
-		void runInstanceButtonClicked();
-		void deleteInstanceButtonClicked();
+	auto *hLayout = new QHBoxLayout;
+	hLayout->addWidget(new QWidget, 1);
+	hLayout->addWidget(new QPushButton{"OK"});
+	hLayout->addWidget(new QPushButton{"Cancel"});
 
-	private:
-		void openWizard();
-		void openEditWindow();
+	auto *layout = new QVBoxLayout{this};
+	layout->addLayout(formLayout);
+	layout->addWidget(tabWidget);
+	layout->addLayout(hLayout);
+}
 
-		ContentData &m_data;
-
-		InstanceListWidget &m_instanceListWidget;
-
-		QPushButton m_addInstanceButton{this};
-		QPushButton m_editInstanceButton{this};
-		QPushButton m_runInstanceButton{this};
-		QPushButton m_deleteInstanceButton{this};
-};
-
-#endif // INSTANCESIDEBAR_HPP_

@@ -23,39 +23,16 @@
  *
  * =====================================================================================
  */
-#ifndef INSTANCESIDEBAR_HPP_
-#define INSTANCESIDEBAR_HPP_
+#ifndef INSTANCEEDITVERSIONTAB_HPP_
+#define INSTANCEEDITVERSIONTAB_HPP_
 
-#include <QPushButton>
+#include <QWidget>
 
 class ContentData;
-class InstanceListWidget;
 
-class InstanceSideBar : public QWidget {
-	Q_OBJECT
-
+class InstanceEditVersionTab : public QWidget {
 	public:
-		InstanceSideBar(ContentData &data, InstanceListWidget &instanceListWidget, QWidget *parent = nullptr);
-
-		void toggleButtons();
-
-	signals:
-		void windowRefeshRequested();
-		void runInstanceButtonClicked();
-		void deleteInstanceButtonClicked();
-
-	private:
-		void openWizard();
-		void openEditWindow();
-
-		ContentData &m_data;
-
-		InstanceListWidget &m_instanceListWidget;
-
-		QPushButton m_addInstanceButton{this};
-		QPushButton m_editInstanceButton{this};
-		QPushButton m_runInstanceButton{this};
-		QPushButton m_deleteInstanceButton{this};
+		InstanceEditVersionTab(ContentData &data, QWidget *parent = nullptr);
 };
 
-#endif // INSTANCESIDEBAR_HPP_
+#endif // INSTANCEEDITVERSIONTAB_HPP_

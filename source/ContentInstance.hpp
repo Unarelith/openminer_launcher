@@ -46,6 +46,7 @@ class ContentInstance : public ContentItem {
 
 		QList<int> mods() const;
 		void addMod(unsigned int id);
+		void setMods(const QList<int> &mods);
 };
 
 #endif // CONTENTINSTANCE_HPP_

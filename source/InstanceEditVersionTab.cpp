@@ -23,27 +23,28 @@
  *
  * =====================================================================================
  */
-#include <QTreeWidget>
 #include <QVBoxLayout>
 
 #include "ContentData.hpp"
 #include "InstanceEditVersionTab.hpp"
 
-InstanceEditVersionTab::InstanceEditVersionTab(ContentData &data, ContentInstance *instance, QWidget *parent) : QWidget(parent) {
-	auto *versionListWidget = new QTreeWidget;
-	versionListWidget->setHeaderLabels({"", tr("ID"), tr("Name"), tr("Creation date")});
-	versionListWidget->setRootIsDecorated(false);
-	versionListWidget->setSortingEnabled(true);
-	versionListWidget->sortItems(2, Qt::AscendingOrder);
-	versionListWidget->setColumnWidth(0, 27);
-	versionListWidget->hideColumn(1);
-	versionListWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-	versionListWidget->setFocusPolicy(Qt::NoFocus);
+InstanceEditVersionTab::InstanceEditVersionTab(ContentData &data, ContentInstance *instance, QWidget *parent) : QWidget(parent), m_data(data) {
+	m_versionListWidget = new QTreeWidget;
+	m_versionListWidget->setHeaderLabels({"", tr("ID"), tr("Name"), tr("Creation date")});
+	m_versionListWidget->setRootIsDecorated(false);
+	m_versionListWidget->setSortingEnabled(true);
+	m_versionListWidget->sortItems(2, Qt::AscendingOrder);
+	m_versionListWidget->setColumnWidth(0, 27);
+	m_versionListWidget->hideColumn(1);
+	m_versionListWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+	m_versionListWidget->setFocusPolicy(Qt::NoFocus);
+
+	connect(m_versionListWidget, &QTreeWidget::itemSelectionChanged, this, &InstanceEditVersionTab::updateSelectedVersion);
 
 	auto &engineVersionList = data.engineVersionList();
 	for (auto &it : engineVersionList) {
 		if (it.second.state() == ContentEngineVersion::State::Downloaded) {
-			auto *item = new QTreeWidgetItem(versionListWidget);
+			auto *item = new QTreeWidgetItem(m_versionListWidget);
 			if (it.second.state() == ContentEngineVersion::State::Available)
 				item->setIcon(0, QIcon(":/checkbox_off"));
 			else if (it.second.state() == ContentEngineVersion::State::Downloaded)
@@ -60,6 +61,11 @@ InstanceEditVersionTab::InstanceEditVersionTab(ContentData &data, ContentInstanc
 	}
 
 	auto *layout = new QVBoxLayout{this};
-	layout->addWidget(versionListWidget);
+	layout->addWidget(m_versionListWidget);
+}
+
+void InstanceEditVersionTab::updateSelectedVersion() {
+	QList<QTreeWidgetItem *> selectedItems = m_versionListWidget->selectedItems();
+	m_engineVersionID = (selectedItems.size() == 1) ? selectedItems.at(0)->text(1).toUInt() : -1;
 }
 

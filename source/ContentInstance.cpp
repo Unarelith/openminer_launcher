@@ -59,3 +59,12 @@ void ContentInstance::addMod(unsigned int id) {
 	writeToDatabase();
 }
 
+void ContentInstance::setMods(const QList<int> &mods) {
+	QString modString;
+	for (int modID : mods) {
+		modString += (modString.isEmpty() ? "" : ",") + QString::number(modID);
+	}
+
+	set("mods", modString);
+}
+

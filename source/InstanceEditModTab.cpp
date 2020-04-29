@@ -23,29 +23,30 @@
  *
  * =====================================================================================
  */
-#include <QTreeWidget>
 #include <QVBoxLayout>
 
 #include "ContentData.hpp"
 #include "InstanceEditModTab.hpp"
 
 InstanceEditModTab::InstanceEditModTab(ContentData &data, ContentInstance *instance, QWidget *parent) : QWidget(parent) {
-	auto *modListWidget = new QTreeWidget;
-	modListWidget->setHeaderLabels({"", tr("ID"), tr("Name"), tr("Creation date")});
-	modListWidget->setRootIsDecorated(false);
-	modListWidget->setSortingEnabled(true);
-	modListWidget->sortItems(2, Qt::AscendingOrder);
-	modListWidget->setColumnWidth(0, 27);
-	modListWidget->hideColumn(1);
-	modListWidget->setSelectionMode(QAbstractItemView::MultiSelection);
-	modListWidget->setFocusPolicy(Qt::NoFocus);
+	m_modListWidget = new QTreeWidget;
+	m_modListWidget->setHeaderLabels({"", tr("ID"), tr("Name"), tr("Creation date")});
+	m_modListWidget->setRootIsDecorated(false);
+	m_modListWidget->setSortingEnabled(true);
+	m_modListWidget->sortItems(2, Qt::AscendingOrder);
+	m_modListWidget->setColumnWidth(0, 27);
+	m_modListWidget->hideColumn(1);
+	m_modListWidget->setSelectionMode(QAbstractItemView::MultiSelection);
+	m_modListWidget->setFocusPolicy(Qt::NoFocus);
+
+	connect(m_modListWidget, &QTreeWidget::itemSelectionChanged, this, &InstanceEditModTab::updateSelectedMods);
 
 	auto &modList = data.modList();
 	for (auto &it : modList) {
 		// FIXME: This should test the latest INSTALLED mod version, instead of the latest version
 		ContentModVersion *latestModVersion = data.getModVersion(it.second.latestVersionID());
 		if (latestModVersion && latestModVersion->state() == ContentModVersion::State::Downloaded) {
-			auto *item = new QTreeWidgetItem(modListWidget);
+			auto *item = new QTreeWidgetItem(m_modListWidget);
 			if (latestModVersion->state() == ContentModVersion::State::Available)
 				item->setIcon(0, QIcon(":/checkbox_off"));
 			else if (latestModVersion->state() == ContentModVersion::State::Downloaded)
@@ -62,6 +63,15 @@ InstanceEditModTab::InstanceEditModTab(ContentData &data, ContentInstance *insta
 	}
 
 	auto *layout = new QVBoxLayout{this};
-	layout->addWidget(modListWidget);
+	layout->addWidget(m_modListWidget);
+}
+
+void InstanceEditModTab::updateSelectedMods() {
+	m_modList.clear();
+
+	QList<QTreeWidgetItem *> selectedItems = m_modListWidget->selectedItems();
+	for (auto &it : selectedItems) {
+		m_modList.append(it->text(1).toUInt());
+	}
 }
 

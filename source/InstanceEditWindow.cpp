@@ -95,31 +95,34 @@ void InstanceEditWindow::saveChanges() {
 		}
 	}
 
+	QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+	QString oldInstancePath = appData + "/instances/" + m_instance->name();
+	QString newInstancePath = appData + "/instances/" + m_nameEdit->text();
+
 	// Update the instance
 
 	m_instance->setName(m_nameEdit->text());
-
-	// TODO: Update engine version and mods accordingly to selected items in m_versionTab/m_modTab
+	m_instance->setEngineVersionID(m_versionTab->engineVersionID());
+	m_instance->setMods(m_modTab->modList());
 
 	// Reinstallation of the instance
-
-	QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-	QString oldInstancePath = appData + "/instances/" + m_instance->name() + "/";
-	QString newInstancePath = appData + "/instances/" + m_nameEdit->text() + "/";
 
 	Utils::copyDirectory(oldInstancePath, newInstancePath);
 
 	QDir oldInstanceDir{oldInstancePath};
-	oldInstanceDir.removeRecursively();
+	if (!oldInstanceDir.removeRecursively())
+		qDebug() << "Failed to remove" << oldInstanceDir.path();
 
-	QDir resourcesDir{newInstancePath + "resources/"};
-	resourcesDir.removeRecursively();
+	QDir resourcesDir{newInstancePath + "/resources"};
+	if (!resourcesDir.removeRecursively())
+		qDebug() << "Failed to remove" << resourcesDir.path();
 
-	QDir modsDir{newInstancePath + "mods/"};
-	modsDir.removeRecursively();
+	QDir modsDir{newInstancePath + "/mods"};
+	if (!modsDir.removeRecursively())
+		qDebug() << "Failed to remove" << modsDir.path();
 
-	QString versionPath = appData + "/versions/" + QString::number(m_instance->engineVersionID()) + "/openminer/";
-	Utils::copyDirectory(versionPath + "resources", newInstancePath + "resources");
+	QString versionPath = appData + "/versions/" + QString::number(m_instance->engineVersionID()) + "/openminer";
+	Utils::copyDirectory(versionPath + "/resources", newInstancePath + "/resources");
 
 	auto mods = m_instance->mods();
 	for (auto &it : mods) {
@@ -128,11 +131,11 @@ void InstanceEditWindow::saveChanges() {
 			+ QString::number(mod->latestVersionID()) + "/";
 
 		// FIXME: Use a mod string ID instead of the name
-		Utils::copyDirectory(modPath + mod->name(), newInstancePath + "mods/" + mod->name());
+		Utils::copyDirectory(modPath + mod->name(), newInstancePath + "/mods/" + mod->name());
 	}
 
-	QMessageBox::information(this, "OpenMiner Launcher", "Instance successfully edited!");
-
 	accept();
+
+	QMessageBox::information(this, "OpenMiner Launcher", "Instance successfully edited!");
 }
 

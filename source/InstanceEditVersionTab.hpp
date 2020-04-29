@@ -26,6 +26,7 @@
 #ifndef INSTANCEEDITVERSIONTAB_HPP_
 #define INSTANCEEDITVERSIONTAB_HPP_
 
+#include <QTreeWidget>
 #include <QWidget>
 
 class ContentData;
@@ -34,6 +35,17 @@ class ContentInstance;
 class InstanceEditVersionTab : public QWidget {
 	public:
 		InstanceEditVersionTab(ContentData &data, ContentInstance *instance = nullptr, QWidget *parent = nullptr);
+
+		int engineVersionID() const { return m_engineVersionID; }
+
+	private:
+		void updateSelectedVersion();
+
+		ContentData &m_data;
+
+		QTreeWidget *m_versionListWidget = nullptr;
+
+		int m_engineVersionID = -1;
 };
 
 #endif // INSTANCEEDITVERSIONTAB_HPP_

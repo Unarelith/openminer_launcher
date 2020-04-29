@@ -26,6 +26,7 @@
 #ifndef INSTANCEEDITMODTAB_HPP_
 #define INSTANCEEDITMODTAB_HPP_
 
+#include <QTreeWidget>
 #include <QWidget>
 
 class ContentData;
@@ -34,6 +35,15 @@ class ContentInstance;
 class InstanceEditModTab : public QWidget {
 	public:
 		InstanceEditModTab(ContentData &data, ContentInstance *instance = nullptr, QWidget *parent = nullptr);
+
+		const QList<int> &modList() const { return m_modList; }
+
+	private:
+		void updateSelectedMods();
+
+		QTreeWidget *m_modListWidget = nullptr;
+
+		QList<int> m_modList;
 };
 
 #endif // INSTANCEEDITMODTAB_HPP_

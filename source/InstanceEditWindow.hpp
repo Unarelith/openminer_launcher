@@ -27,12 +27,27 @@
 #define INSTANCEEDITWINDOW_HPP_
 
 #include <QDialog>
+#include <QLineEdit>
 
 class ContentData;
+class ContentInstance;
+class InstanceEditModTab;
+class InstanceEditVersionTab;
 
 class InstanceEditWindow : public QDialog {
 	public:
-		InstanceEditWindow(ContentData &data, QWidget *parent = nullptr);
+		InstanceEditWindow(ContentData &data, ContentInstance *instance = nullptr, QWidget *parent = nullptr);
+
+		void saveChanges();
+
+	private:
+		ContentData &m_data;
+		ContentInstance *m_instance = nullptr;
+
+		QLineEdit *m_nameEdit = nullptr;
+
+		InstanceEditVersionTab *m_versionTab = nullptr;
+		InstanceEditModTab *m_modTab = nullptr;
 };
 
 #endif // INSTANCEEDITWINDOW_HPP_

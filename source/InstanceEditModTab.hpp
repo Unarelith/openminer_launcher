@@ -29,10 +29,11 @@
 #include <QWidget>
 
 class ContentData;
+class ContentInstance;
 
 class InstanceEditModTab : public QWidget {
 	public:
-		InstanceEditModTab(ContentData &data, QWidget *parent = nullptr);
+		InstanceEditModTab(ContentData &data, ContentInstance *instance = nullptr, QWidget *parent = nullptr);
 };
 
 #endif // INSTANCEEDITMODTAB_HPP_

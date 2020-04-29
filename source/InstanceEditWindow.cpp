@@ -24,36 +24,115 @@
  *
  * =====================================================================================
  */
+#include <QDir>
 #include <QFormLayout>
 #include <QHBoxLayout>
-#include <QLineEdit>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QRegExpValidator>
+#include <QStandardPaths>
 #include <QTabWidget>
 #include <QVBoxLayout>
 
+#include "ContentData.hpp"
 #include "InstanceEditModTab.hpp"
 #include "InstanceEditVersionTab.hpp"
 #include "InstanceEditWindow.hpp"
+#include "Utils.hpp"
 
-InstanceEditWindow::InstanceEditWindow(ContentData &data, QWidget *parent) : QDialog(parent) {
+InstanceEditWindow::InstanceEditWindow(ContentData &data, ContentInstance *instance, QWidget *parent)
+	: QDialog(parent), m_data(data), m_instance(instance)
+{
 	setWindowTitle("Edit instance...");
 	resize(640, 480);
 
+	m_versionTab = new InstanceEditVersionTab{data, instance};
+	m_modTab = new InstanceEditModTab{data, instance};
+
 	auto *tabWidget = new QTabWidget;
-	tabWidget->addTab(new InstanceEditVersionTab{data}, "Engine");
-	tabWidget->addTab(new InstanceEditModTab{data}, "Mods");
+	tabWidget->addTab(m_versionTab, "Engine");
+	tabWidget->addTab(m_modTab, "Mods");
+
+	QRegExp re("^[a-zA-Z0-9_]+$");
+	QRegExpValidator *validator = new QRegExpValidator(re, this);
+
+	m_nameEdit = new QLineEdit;
+	m_nameEdit->setFocusPolicy(Qt::ClickFocus);
+	m_nameEdit->setValidator(validator);
+	if (instance)
+		m_nameEdit->setText(instance->name());
 
 	auto *formLayout = new QFormLayout;
-	formLayout->addRow("&Name", new QLineEdit);
+	formLayout->addRow("&Name", m_nameEdit);
+
+	auto *okButton = new QPushButton{"OK"};
+	auto *cancelButton = new QPushButton{"Cancel"};
+
+	connect(okButton, &QPushButton::clicked, this, &InstanceEditWindow::saveChanges);
+	connect(cancelButton, &QPushButton::clicked, this, &QDialog::close);
 
 	auto *hLayout = new QHBoxLayout;
 	hLayout->addWidget(new QWidget, 1);
-	hLayout->addWidget(new QPushButton{"OK"});
-	hLayout->addWidget(new QPushButton{"Cancel"});
+	hLayout->addWidget(okButton);
+	hLayout->addWidget(cancelButton);
 
 	auto *layout = new QVBoxLayout{this};
 	layout->addLayout(formLayout);
 	layout->addWidget(tabWidget);
 	layout->addLayout(hLayout);
+}
+
+void InstanceEditWindow::saveChanges() {
+	auto result = QMessageBox::question(this, "OpenMiner Launcher", "This operation will remove 'resources' and 'mods' folders.\nAre you sure?");
+	if (result != QMessageBox::Yes)
+		return;
+
+	auto &instances = m_data.instanceList();
+	for (auto &it : instances) {
+		if ((!m_instance || it.second.id() != m_instance->id()) && it.second.name() == m_nameEdit->text()) {
+			QMessageBox::critical(this, "OpenMiner Launcher", "An instance with this name already exists!");
+			return;
+		}
+	}
+
+	// Update the instance
+
+	m_instance->setName(m_nameEdit->text());
+
+	// TODO: Update engine version and mods accordingly to selected items in m_versionTab/m_modTab
+
+	// Reinstallation of the instance
+
+	QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+	QString oldInstancePath = appData + "/instances/" + m_instance->name() + "/";
+	QString newInstancePath = appData + "/instances/" + m_nameEdit->text() + "/";
+
+	Utils::copyDirectory(oldInstancePath, newInstancePath);
+
+	QDir oldInstanceDir{oldInstancePath};
+	oldInstanceDir.removeRecursively();
+
+	QDir resourcesDir{newInstancePath + "resources/"};
+	resourcesDir.removeRecursively();
+
+	QDir modsDir{newInstancePath + "mods/"};
+	modsDir.removeRecursively();
+
+	QString versionPath = appData + "/versions/" + QString::number(m_instance->engineVersionID()) + "/openminer/";
+	Utils::copyDirectory(versionPath + "resources", newInstancePath + "resources");
+
+	auto mods = m_instance->mods();
+	for (auto &it : mods) {
+		ContentMod *mod = m_data.getMod(it);
+		QString modPath = appData + "/mods/" + QString::number(mod->id()) + "/"
+			+ QString::number(mod->latestVersionID()) + "/";
+
+		// FIXME: Use a mod string ID instead of the name
+		Utils::copyDirectory(modPath + mod->name(), newInstancePath + "mods/" + mod->name());
+	}
+
+	QMessageBox::information(this, "OpenMiner Launcher", "Instance successfully edited!");
+
+	accept();
 }
 

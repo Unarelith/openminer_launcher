@@ -28,6 +28,7 @@
 #include <QStandardPaths>
 
 #include "ContentData.hpp"
+#include "InstanceEditWindow.hpp"
 #include "InstanceListWidget.hpp"
 
 InstanceListWidget::InstanceListWidget(ContentData &data, QWidget *parent) : QTreeWidget(parent), m_data(data) {
@@ -47,6 +48,22 @@ void InstanceListWidget::update() {
 		item->setText(1, it.second.name());
 		item->setText(2, m_data.getEngineVersion(it.second.engineVersionID())->name());
 	}
+}
+
+void InstanceListWidget::editInstance() {
+	ContentInstance *instance = nullptr;
+
+	QList<QTreeWidgetItem *> selectedItems = this->selectedItems();
+	if (selectedItems.size() == 1) {
+		unsigned int instanceID = selectedItems.at(0)->text(0).toUInt();
+		instance = m_data.getInstance(instanceID);
+	}
+
+	InstanceEditWindow *window = new InstanceEditWindow{m_data, instance, this};
+	window->setModal(true);
+	window->show();
+
+	connect(window, &QDialog::accepted, this, &InstanceListWidget::windowRefeshRequested);
 }
 
 void InstanceListWidget::runInstance() {

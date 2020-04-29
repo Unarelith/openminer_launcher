@@ -29,7 +29,7 @@
 #include "ContentData.hpp"
 #include "InstanceEditModTab.hpp"
 
-InstanceEditModTab::InstanceEditModTab(ContentData &data, QWidget *parent) : QWidget(parent) {
+InstanceEditModTab::InstanceEditModTab(ContentData &data, ContentInstance *instance, QWidget *parent) : QWidget(parent) {
 	auto *modListWidget = new QTreeWidget;
 	modListWidget->setHeaderLabels({"", tr("ID"), tr("Name"), tr("Creation date")});
 	modListWidget->setRootIsDecorated(false);
@@ -54,6 +54,10 @@ InstanceEditModTab::InstanceEditModTab(ContentData &data, QWidget *parent) : QWi
 			item->setText(1, QString::number(it.second.id()));
 			item->setText(2, it.second.name());
 			item->setText(3, it.second.date().toString());
+
+			if (instance && instance->mods().contains(it.second.id())) {
+				item->setSelected(true);
+			}
 		}
 	}
 

@@ -29,7 +29,7 @@
 #include "ContentData.hpp"
 #include "InstanceEditVersionTab.hpp"
 
-InstanceEditVersionTab::InstanceEditVersionTab(ContentData &data, QWidget *parent) : QWidget(parent) {
+InstanceEditVersionTab::InstanceEditVersionTab(ContentData &data, ContentInstance *instance, QWidget *parent) : QWidget(parent) {
 	auto *versionListWidget = new QTreeWidget;
 	versionListWidget->setHeaderLabels({"", tr("ID"), tr("Name"), tr("Creation date")});
 	versionListWidget->setRootIsDecorated(false);
@@ -52,6 +52,10 @@ InstanceEditVersionTab::InstanceEditVersionTab(ContentData &data, QWidget *paren
 			item->setText(1, QString::number(it.second.id()));
 			item->setText(2, it.second.name());
 			item->setText(3, it.second.date().toString());
+
+			if (instance && instance->engineVersionID() == (int)it.second.id()) {
+				item->setSelected(true);
+			}
 		}
 	}
 

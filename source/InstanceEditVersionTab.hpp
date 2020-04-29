@@ -29,10 +29,11 @@
 #include <QWidget>
 
 class ContentData;
+class ContentInstance;
 
 class InstanceEditVersionTab : public QWidget {
 	public:
-		InstanceEditVersionTab(ContentData &data, QWidget *parent = nullptr);
+		InstanceEditVersionTab(ContentData &data, ContentInstance *instance = nullptr, QWidget *parent = nullptr);
 };
 
 #endif // INSTANCEEDITVERSIONTAB_HPP_

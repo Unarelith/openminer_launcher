@@ -43,7 +43,7 @@ InstanceSideBar::InstanceSideBar(ContentData &data, InstanceListWidget &instance
 	m_deleteInstanceButton.setEnabled(false);
 
 	connect(&m_addInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::openWizard);
-	connect(&m_editInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::openEditWindow);
+	connect(&m_editInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::editInstanceButtonClicked);
 	connect(&m_runInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::runInstanceButtonClicked);
 	connect(&m_deleteInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::deleteInstanceButtonClicked);
 
@@ -74,13 +74,5 @@ void InstanceSideBar::openWizard() {
 	wizard->show();
 
 	connect(wizard, &InstanceWizard::windowRefeshRequested, this, &InstanceSideBar::windowRefeshRequested);
-}
-
-#include "InstanceEditWindow.hpp"
-
-void InstanceSideBar::openEditWindow() {
-	InstanceEditWindow *window = new InstanceEditWindow{m_data, this};
-	window->setModal(true);
-	window->show();
 }
 

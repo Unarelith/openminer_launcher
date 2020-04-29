@@ -41,6 +41,7 @@ class InstanceSideBar : public QWidget {
 
 	signals:
 		void windowRefeshRequested();
+		void editInstanceButtonClicked();
 		void runInstanceButtonClicked();
 		void deleteInstanceButtonClicked();
 

@@ -113,21 +113,26 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 		for(bool f = archive.goToFirstFile(); f; f = archive.goToNextFile()) {
 			QString filePath = archive.getCurrentFileName();
 
-			QuaZipFile file(archive.getZipName(), filePath);
-			file.open(QIODevice::ReadOnly);
-
-			QuaZipFileInfo info;
-			file.getFileInfo(&info);
-
-			QByteArray data = file.readAll();
-
-			file.close();
-
 			if (filePath.at(filePath.size() - 1) == '/') {
 				QDir dir;
 				dir.mkpath(path + filePath);
 			}
-			else {
+		}
+
+		for(bool f = archive.goToFirstFile(); f; f = archive.goToNextFile()) {
+			QString filePath = archive.getCurrentFileName();
+
+			if (filePath.at(filePath.size() - 1) != '/') {
+				QuaZipFile file(archive.getZipName(), filePath);
+				file.open(QIODevice::ReadOnly);
+
+				QuaZipFileInfo info;
+				file.getFileInfo(&info);
+
+				QByteArray data = file.readAll();
+
+				file.close();
+
 				QFile dstFile(path + filePath);
 				dstFile.open(QIODevice::WriteOnly);
 				dstFile.write(data);

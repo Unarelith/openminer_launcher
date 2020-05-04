@@ -28,7 +28,7 @@
 #include <QStandardPaths>
 #include <QVBoxLayout>
 
-#include <quazip5/quazipfile.h>
+#include <quazip/quazipfile.h>
 
 #include "ContentData.hpp"
 #include "EngineVersionTabWidget.hpp"

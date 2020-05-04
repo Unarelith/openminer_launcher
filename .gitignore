@@ -48,5 +48,6 @@ openminer_launcher
 *.dll
 
 # Misc
+build
 *.zip
 

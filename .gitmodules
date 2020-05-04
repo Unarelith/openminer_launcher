@@ -1,0 +1,3 @@
+[submodule "external/quazip"]
+	path = external/quazip
+	url = git://github.com/Unarelith/quazip.git

@@ -30,7 +30,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegExpValidator>
-#include <QStandardPaths>
 #include <QTabWidget>
 #include <QVBoxLayout>
 
@@ -38,6 +37,7 @@
 #include "InstanceEditModTab.hpp"
 #include "InstanceEditVersionTab.hpp"
 #include "InstanceEditWindow.hpp"
+#include "PathUtils.hpp"
 #include "Utils.hpp"
 
 InstanceEditWindow::InstanceEditWindow(ContentData &data, ContentInstance *instance, QWidget *parent)
@@ -95,44 +95,13 @@ void InstanceEditWindow::saveChanges() {
 		}
 	}
 
-	QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-	QString oldInstancePath = appData + "/instances/" + m_instance->name();
-	QString newInstancePath = appData + "/instances/" + m_nameEdit->text();
-
-	// Update the instance
-
+	QString oldName = m_instance->name();
 	m_instance->setName(m_nameEdit->text());
 	m_instance->setEngineVersionID(m_versionTab->engineVersionID());
 	m_instance->setMods(m_modTab->modList());
 
-	// Reinstallation of the instance
-
-	Utils::copyDirectory(oldInstancePath, newInstancePath);
-
-	QDir oldInstanceDir{oldInstancePath};
-	if (!oldInstanceDir.removeRecursively())
-		qDebug() << "Failed to remove" << oldInstanceDir.path();
-
-	QDir resourcesDir{newInstancePath + "/resources"};
-	if (!resourcesDir.removeRecursively())
-		qDebug() << "Failed to remove" << resourcesDir.path();
-
-	QDir modsDir{newInstancePath + "/mods"};
-	if (!modsDir.removeRecursively())
-		qDebug() << "Failed to remove" << modsDir.path();
-
-	QString versionPath = appData + "/versions/" + QString::number(m_instance->engineVersionID()) + "/openminer";
-	Utils::copyDirectory(versionPath + "/resources", newInstancePath + "/resources");
-
-	auto mods = m_instance->mods();
-	for (auto &it : mods) {
-		ContentMod *mod = m_data.getMod(it);
-		QString modPath = appData + "/mods/" + QString::number(mod->id()) + "/"
-			+ QString::number(mod->latestVersionID()) + "/";
-
-		// FIXME: Use a mod string ID instead of the name
-		Utils::copyDirectory(modPath + mod->name(), newInstancePath + "/mods/" + mod->name());
-	}
+	PathUtils::renameInstance(oldName, m_instance->name());
+	PathUtils::reinstallInstance(*m_instance, m_data);
 
 	accept();
 

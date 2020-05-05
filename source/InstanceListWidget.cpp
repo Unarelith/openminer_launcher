@@ -23,6 +23,8 @@
  *
  * =====================================================================================
  */
+#include <QApplication>
+#include <QMessageBox>
 #include <QDir>
 #include <QProcess>
 #include <QStandardPaths>
@@ -48,6 +50,14 @@ void InstanceListWidget::update() {
 		item->setText(1, it.second.name());
 		item->setText(2, m_data.getEngineVersion(it.second.engineVersionID())->name());
 	}
+}
+
+void InstanceListWidget::addInstance() {
+	InstanceEditWindow *window = new InstanceEditWindow{m_data, nullptr, this};
+	window->setModal(true);
+	window->show();
+
+	connect(window, &QDialog::accepted, this, &InstanceListWidget::windowRefeshRequested);
 }
 
 void InstanceListWidget::editInstance() {
@@ -91,6 +101,11 @@ void InstanceListWidget::deleteInstance() {
 	if (selectedItems.size() == 1) {
 		unsigned int instanceID = selectedItems.at(0)->text(0).toUInt();
 		ContentInstance *instance = m_data.getInstance(instanceID);
+
+		auto result = QMessageBox::question(this, QApplication::applicationDisplayName(),
+				"Are you sure you want to remove '" + instance->name() + "'?");
+		if (result != QMessageBox::Yes)
+			return;
 
 		QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 		QString instancePath = appData + "/instances/" + instance->name() + "/";

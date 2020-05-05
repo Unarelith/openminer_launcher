@@ -41,14 +41,12 @@ class InstanceSideBar : public QWidget {
 
 	signals:
 		void windowRefeshRequested();
+		void addInstanceButtonClicked();
 		void editInstanceButtonClicked();
 		void runInstanceButtonClicked();
 		void deleteInstanceButtonClicked();
 
 	private:
-		void openWizard();
-		void openEditWindow();
-
 		ContentData &m_data;
 
 		InstanceListWidget &m_instanceListWidget;

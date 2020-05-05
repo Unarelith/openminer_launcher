@@ -39,6 +39,7 @@ class InstanceListWidget : public QTreeWidget {
 		void update();
 
 	public slots:
+		void addInstance();
 		void editInstance();
 		void runInstance();
 		void deleteInstance();

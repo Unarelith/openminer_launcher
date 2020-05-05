@@ -27,7 +27,6 @@
 
 #include "InstanceListWidget.hpp"
 #include "InstanceSideBar.hpp"
-#include "InstanceWizard.hpp"
 
 InstanceSideBar::InstanceSideBar(ContentData &data, InstanceListWidget &instanceListWidget, QWidget *parent)
 	: QWidget(parent), m_data(data), m_instanceListWidget(instanceListWidget)
@@ -42,7 +41,7 @@ InstanceSideBar::InstanceSideBar(ContentData &data, InstanceListWidget &instance
 	m_runInstanceButton.setEnabled(false);
 	m_deleteInstanceButton.setEnabled(false);
 
-	connect(&m_addInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::openWizard);
+	connect(&m_addInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::addInstanceButtonClicked);
 	connect(&m_editInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::editInstanceButtonClicked);
 	connect(&m_runInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::runInstanceButtonClicked);
 	connect(&m_deleteInstanceButton, &QPushButton::clicked, this, &InstanceSideBar::deleteInstanceButtonClicked);
@@ -66,13 +65,5 @@ void InstanceSideBar::toggleButtons() {
 		m_runInstanceButton.setEnabled(true);
 		m_deleteInstanceButton.setEnabled(true);
 	}
-}
-
-void InstanceSideBar::openWizard() {
-	InstanceWizard *wizard = new InstanceWizard{m_data, this};
-	wizard->setModal(true);
-	wizard->show();
-
-	connect(wizard, &InstanceWizard::windowRefeshRequested, this, &InstanceSideBar::windowRefeshRequested);
 }
 

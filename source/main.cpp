@@ -32,6 +32,7 @@
 int main(int argc, char **argv) {
 	QApplication app(argc, argv);
 	QApplication::setApplicationName("openminer_launcher");
+	QApplication::setApplicationDisplayName("OpenMiner Launcher");
 	QApplication::setApplicationVersion("0.0.1");
 
 	QFile style(":/theme-default");

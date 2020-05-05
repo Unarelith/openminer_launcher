@@ -24,6 +24,7 @@
  *
  * =====================================================================================
  */
+#include <QApplication>
 #include <QDir>
 #include <QFormLayout>
 #include <QHBoxLayout>
@@ -43,7 +44,11 @@
 InstanceEditWindow::InstanceEditWindow(ContentData &data, ContentInstance *instance, QWidget *parent)
 	: QDialog(parent), m_data(data), m_instance(instance)
 {
-	setWindowTitle("Edit instance...");
+	if (instance)
+		setWindowTitle("Edit instance...");
+	else
+		setWindowTitle("Add instance...");
+
 	resize(640, 480);
 
 	m_versionTab = new InstanceEditVersionTab{data, instance};
@@ -83,28 +88,61 @@ InstanceEditWindow::InstanceEditWindow(ContentData &data, ContentInstance *insta
 }
 
 void InstanceEditWindow::saveChanges() {
-	auto result = QMessageBox::question(this, "OpenMiner Launcher", "This operation will remove 'resources' and 'mods' folders.\nAre you sure?");
-	if (result != QMessageBox::Yes)
+	if (m_nameEdit->text().isEmpty()) {
+		QMessageBox::critical(this, QApplication::applicationDisplayName(), "Instance name can't be empty");
 		return;
+	}
+
+	if (m_versionTab->engineVersionID() == -1) {
+		QMessageBox::critical(this, QApplication::applicationDisplayName(), "Please select an engine version");
+		return;
+	}
+
+	if (m_modTab->modList().empty()) {
+		QMessageBox::critical(this, QApplication::applicationDisplayName(), "Please select at least one mod");
+		return;
+	}
+
+	if (m_instance) {
+		auto result = QMessageBox::question(this, QApplication::applicationDisplayName(), "This operation will remove 'resources' and 'mods' folders.\nAre you sure?");
+		if (result != QMessageBox::Yes)
+			return;
+	}
 
 	auto &instances = m_data.instanceList();
 	for (auto &it : instances) {
 		if ((!m_instance || it.second.id() != m_instance->id()) && it.second.name() == m_nameEdit->text()) {
-			QMessageBox::critical(this, "OpenMiner Launcher", "An instance with this name already exists!");
+			QMessageBox::critical(this, QApplication::applicationDisplayName(), "An instance with this name already exists!");
 			return;
 		}
 	}
 
-	QString oldName = m_instance->name();
-	m_instance->setName(m_nameEdit->text());
-	m_instance->setEngineVersionID(m_versionTab->engineVersionID());
-	m_instance->setMods(m_modTab->modList());
+	if (m_instance) {
+		QString oldName = m_instance->name();
+		m_instance->setName(m_nameEdit->text());
+		m_instance->setEngineVersionID(m_versionTab->engineVersionID());
+		m_instance->setMods(m_modTab->modList());
 
-	PathUtils::renameInstance(oldName, m_instance->name());
-	PathUtils::reinstallInstance(*m_instance, m_data);
+		PathUtils::renameInstance(oldName, m_instance->name());
+		PathUtils::reinstallInstance(*m_instance, m_data);
+	}
+	else {
+		unsigned int id = m_data.instanceList().size();
+		ContentInstance instance(id);
+		instance.setName(m_nameEdit->text());
+		instance.setEngineVersionID(m_versionTab->engineVersionID());
+		instance.setMods(m_modTab->modList());
+
+		m_data.setInstance(m_data.instanceList().size(), instance);
+
+		PathUtils::reinstallInstance(*m_data.getInstance(id), m_data);
+	}
 
 	accept();
 
-	QMessageBox::information(this, "OpenMiner Launcher", "Instance successfully edited!");
+	if (m_instance)
+		QMessageBox::information(this, QApplication::applicationDisplayName(), "Instance successfully edited!");
+	else
+		QMessageBox::information(this, QApplication::applicationDisplayName(), "Instance successfully created!");
 }
 

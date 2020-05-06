@@ -84,11 +84,11 @@ void ContentData::databaseUpdateFinished() {
 void ContentData::update() {
 	updateUserList();
 	updateInstanceList();
+	updateRepositoryList();
 	updateNewsArticleList();
 	updateEngineVersionList();
 	updateModList();
 	updateModVersionList();
-	updateRepositoryList();
 
 	emit windowRefeshRequested();
 }
@@ -114,6 +114,18 @@ void ContentData::updateInstanceList() {
 			m_instanceList.emplace(id, ContentInstance{query, *this});
 		else
 			instance->loadFromSql(query);
+	}
+}
+
+void ContentData::updateRepositoryList() {
+	QSqlQuery query("SELECT * FROM repositories", Database::getDatabase());
+	while (query.next()) {
+		int id = query.value(0).toUInt();
+		ContentRepository *repository = getRepository(id);
+		if (!repository)
+			m_repositoryList.emplace(id, ContentRepository{query, *this});
+		else
+			repository->loadFromSql(query);
 	}
 }
 
@@ -164,18 +176,6 @@ void ContentData::updateModVersionList() {
 			m_modVersionList.emplace(id, ContentModVersion{query, *this});
 		else
 			modVersion->loadFromSql(query);
-	}
-}
-
-void ContentData::updateRepositoryList() {
-	QSqlQuery query("SELECT * FROM repositories", Database::getDatabase());
-	while (query.next()) {
-		int id = query.value(0).toUInt();
-		ContentRepository *repository = getRepository(id);
-		if (!repository)
-			m_repositoryList.emplace(id, ContentRepository{query, *this});
-		else
-			repository->loadFromSql(query);
 	}
 }
 

@@ -27,11 +27,10 @@
 #include "ContentEngineVersion.hpp"
 
 void ContentEngineVersion::loadFromJson(const QJsonObject &jsonObject, ContentData &data) {
-	m_id = jsonObject.value("id").toInt();
-
 	QDateTime date = QDateTime::fromString(jsonObject.value("date").toString(), Qt::ISODate);
 	date.setTimeSpec(Qt::UTC);
 
+	set("rid", jsonObject.value("id").toInt());
 	set("name", jsonObject.value("name").toString());
 	set("date", date);
 	set("doc", jsonObject.value("doc").toString());

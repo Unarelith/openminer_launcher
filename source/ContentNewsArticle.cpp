@@ -23,18 +23,24 @@
  *
  * =====================================================================================
  */
+#include "ContentData.hpp"
 #include "ContentNewsArticle.hpp"
 
-void ContentNewsArticle::loadFromJson(const QJsonObject &jsonObject, ContentData &) {
-	m_id = jsonObject.value("id").toInt();
-
+void ContentNewsArticle::loadFromJson(const QJsonObject &jsonObject, ContentData &data) {
 	QDateTime date = QDateTime::fromString(jsonObject.value("date").toString(), Qt::ISODate);
 	date.setTimeSpec(Qt::UTC);
 
+	set("rid", jsonObject.value("id").toInt());
 	set("title", jsonObject.value("title").toString());
 	set("content", jsonObject.value("content").toString());
 	set("date", date);
-	set("user", jsonObject.value("user").toInt());
+
+	unsigned int authorRemoteID = jsonObject.value("user").toInt();
+	const auto &userList = data.userList();
+	for (auto &it : userList) {
+		if (it.second.rid() == authorRemoteID)
+			set("author", it.second.id());
+	}
 
 	m_hasBeenUpdated = true;
 }

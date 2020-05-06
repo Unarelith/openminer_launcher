@@ -161,9 +161,12 @@ void ModTabWidget::showContextMenu(const QPoint &pos) {
 
 void ModTabWidget::downloadActionTriggered() {
 	ContentModVersion *modVersion = getModVersionFromItem(m_currentItem);
+	ContentMod *mod = m_data.getMod(modVersion->modID());
 	if (modVersion) {
+		QUuid repositoryUuid = modVersion->get("repository_uuid").toUuid();
+
 		QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-		path += "/mods/" + QString::number(modVersion->modID()) + "/" + QString::number(modVersion->id()) + "/";
+		path += "/mods/" + repositoryUuid.toString(QUuid::WithoutBraces) + "/" + mod->name() + "/" + modVersion->name() + "/";
 
 		QDir dir;
 		if (!dir.exists(path))
@@ -221,9 +224,12 @@ void ModTabWidget::downloadActionTriggered() {
 
 void ModTabWidget::removeActionTriggered() {
 	ContentModVersion *modVersion = getModVersionFromItem(m_currentItem);
+	ContentMod *mod = m_data.getMod(modVersion->modID());
 	if (modVersion) {
+		QUuid repositoryUuid = modVersion->get("repository_uuid").toUuid();
+
 		QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-		path += "/mods/" + QString::number(modVersion->modID()) + "/" + QString::number(modVersion->id()) + "/";
+		path += "/mods/" + repositoryUuid.toString(QUuid::WithoutBraces) + "/" + mod->name() + "/" + modVersion->name() + "/";
 
 		QDir dir{path};
 		if (dir.exists())

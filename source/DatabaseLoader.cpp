@@ -35,23 +35,28 @@ void DatabaseLoader::update() const {
 	for (auto &it : repositoryList) {
 		updateModel<ContentUser>(it.second, "/api/user",
 				std::bind(&ContentData::getUser, &m_data, _1),
-				std::bind(&ContentData::setUser, &m_data, _1, _2));
+				std::bind(&ContentData::setUser, &m_data, _1, _2),
+				std::bind(&ContentData::userList, &m_data));
 
 		updateModel<ContentNewsArticle>(it.second, "/api/news",
 				std::bind(&ContentData::getNewsArticle, &m_data, _1),
-				std::bind(&ContentData::setNewsArticle, &m_data, _1, _2));
+				std::bind(&ContentData::setNewsArticle, &m_data, _1, _2),
+				std::bind(&ContentData::newsArticleList, &m_data));
 
 		updateModel<ContentEngineVersion>(it.second, "/api/version",
 				std::bind(&ContentData::getEngineVersion, &m_data, _1),
-				std::bind(&ContentData::setEngineVersion, &m_data, _1, _2));
+				std::bind(&ContentData::setEngineVersion, &m_data, _1, _2),
+				std::bind(&ContentData::engineVersionList, &m_data));
 
 		updateModel<ContentMod>(it.second, "/api/mod",
 				std::bind(&ContentData::getMod, &m_data, _1),
-				std::bind(&ContentData::setMod, &m_data, _1, _2));
+				std::bind(&ContentData::setMod, &m_data, _1, _2),
+				std::bind(&ContentData::modList, &m_data));
 
 		updateModel<ContentModVersion>(it.second, "/api/mod/version",
 				std::bind(&ContentData::getModVersion, &m_data, _1),
-				std::bind(&ContentData::setModVersion, &m_data, _1, _2));
+				std::bind(&ContentData::setModVersion, &m_data, _1, _2),
+				std::bind(&ContentData::modVersionList, &m_data));
 	}
 
 	emit updateFinished();

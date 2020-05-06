@@ -36,10 +36,13 @@ class ContentMod;
 
 class ContentModVersion : public ContentItem {
 	public:
+		ContentModVersion() : ContentItem("mod_versions") {}
 		explicit ContentModVersion(const QSqlQuery &sqlQuery, ContentData &data);
-		explicit ContentModVersion(const QJsonObject &jsonObject, ContentData &data) : ContentItem("mod_versions") { loadFromJson(jsonObject, data); }
 
 		void loadFromJson(const QJsonObject &jsonObject, ContentData &data);
+
+		unsigned int rid() const { return get("rid").toUInt(); }
+		QUuid repositoryUuid() const { return get("repository_uuid").toUuid(); }
 
 		QString name() const { return get("name").toString(); }
 		QDateTime date() const { return get("date").toDateTime(); }

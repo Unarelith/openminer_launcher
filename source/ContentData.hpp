@@ -54,38 +54,40 @@ class ContentData : public QObject {
 		void update();
 		void updateUserList();
 		void updateInstanceList();
+		void updateRepositoryList();
 		void updateNewsArticleList();
 		void updateEngineVersionList();
 		void updateModList();
 		void updateModVersionList();
-		void updateRepositoryList();
 
 		const Database &database() const { return m_database; }
 
 		const std::unordered_map<unsigned int, ContentUser> &userList() const { return m_userList; }
 		const std::unordered_map<unsigned int, ContentInstance> &instanceList() const { return m_instanceList; }
+		const std::unordered_map<unsigned int, ContentRepository> &repositoryList() const { return m_repositoryList; }
 		const std::unordered_map<unsigned int, ContentNewsArticle> &newsArticleList() const { return m_newsArticleList; }
 		const std::unordered_map<unsigned int, ContentEngineVersion> &engineVersionList() const { return m_engineVersionList; }
 		const std::unordered_map<unsigned int, ContentMod> &modList() const { return m_modList; }
 		const std::unordered_map<unsigned int, ContentModVersion> &modVersionList() const { return m_modVersionList; }
-		const std::unordered_map<unsigned int, ContentRepository> &repositoryList() const { return m_repositoryList; }
 
 		ContentUser *getUser(unsigned int id) { return getItem(id, m_userList); }
 		ContentInstance *getInstance(unsigned int id) { return getItem(id, m_instanceList); }
+		ContentRepository *getRepository(unsigned int id) { return getItem(id, m_repositoryList); }
 		ContentNewsArticle *getNewsArticle(unsigned int id) { return getItem(id, m_newsArticleList); }
 		ContentEngineVersion *getEngineVersion(unsigned int id) { return getItem(id, m_engineVersionList); }
 		ContentMod *getMod(unsigned int id) { return getItem(id, m_modList); }
 		ContentModVersion *getModVersion(unsigned int id) { return getItem(id, m_modVersionList); }
-		ContentRepository *getRepository(unsigned int id) { return getItem(id, m_repositoryList); }
+
+		ContentMod *getModFromRid(unsigned int rid, const QUuid &uuid) { for (auto &it : m_modList) if (it.second.rid() == rid && it.second.get("repository_uuid").toUuid() == uuid) return &it.second; return nullptr; }
 		ContentRepository *getRepositoryFromUuid(const QUuid &uuid) { for (auto &it : m_repositoryList) if (it.second.uuid() == uuid) return &it.second; return nullptr; }
 
 		void setUser(unsigned int id, const ContentUser &user) { setItem(id, user, m_userList); }
 		void setInstance(unsigned int id, const ContentInstance &instance) { setItem(id, instance, m_instanceList); }
+		void setRepository(unsigned int id, const ContentRepository &repository) { setItem(id, repository, m_repositoryList); }
 		void setNewsArticle(unsigned int id, const ContentNewsArticle &newsArticle) { setItem(id, newsArticle, m_newsArticleList); }
 		void setEngineVersion(unsigned int id, const ContentEngineVersion &engineVersion) { setItem(id, engineVersion, m_engineVersionList); }
 		void setMod(unsigned int id, const ContentMod &mod) { setItem(id, mod, m_modList); }
 		void setModVersion(unsigned int id, const ContentModVersion &modVersion) { setItem(id, modVersion, m_modVersionList); }
-		void setRepository(unsigned int id, const ContentRepository &repository) { setItem(id, repository, m_repositoryList); }
 
 		void removeInstance(unsigned int id) { m_instanceList.erase(id); }
 		void removeRepository(unsigned int id) { m_repositoryList.erase(id); }
@@ -103,11 +105,11 @@ class ContentData : public QObject {
 
 		std::unordered_map<unsigned int, ContentUser> m_userList;
 		std::unordered_map<unsigned int, ContentInstance> m_instanceList;
+		std::unordered_map<unsigned int, ContentRepository> m_repositoryList;
 		std::unordered_map<unsigned int, ContentNewsArticle> m_newsArticleList;
 		std::unordered_map<unsigned int, ContentEngineVersion> m_engineVersionList;
 		std::unordered_map<unsigned int, ContentMod> m_modList;
 		std::unordered_map<unsigned int, ContentModVersion> m_modVersionList;
-		std::unordered_map<unsigned int, ContentRepository> m_repositoryList;
 
 		template<typename T>
 		T *getItem(unsigned int id, std::unordered_map<unsigned int, T> &itemList) {

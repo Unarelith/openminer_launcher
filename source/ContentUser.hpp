@@ -34,10 +34,13 @@ class ContentData;
 
 class ContentUser : public ContentItem {
 	public:
+		ContentUser() : ContentItem("users") {}
 		explicit ContentUser(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("users", sqlQuery) {}
-		explicit ContentUser(const QJsonObject &jsonObject, ContentData &data) : ContentItem("users") { loadFromJson(jsonObject, data); }
 
 		void loadFromJson(const QJsonObject &jsonObject, ContentData &data);
+
+		unsigned int rid() const { return get("rid").toUInt(); }
+		QUuid repositoryUuid() const { return get("repository_uuid").toUuid(); }
 
 		QString name() const { return get("name").toString(); }
 };

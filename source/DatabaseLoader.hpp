@@ -53,8 +53,8 @@ class DatabaseLoader : public QObject {
 	private:
 		ContentData &m_data;
 
-		template<typename T, typename F1, typename F2>
-		void updateModel(const ContentRepository &repository, const QString &apiEndpoint, const F1 &getModel, const F2 &setModel) const {
+		template<typename T, typename F1, typename F2, typename F3>
+		void updateModel(const ContentRepository &repository, const QString &apiEndpoint, const F1 &getModel, const F2 &setModel, const F3 &modelList) const {
 			if (QThread::currentThread()->isInterruptionRequested())
 				return;
 
@@ -69,19 +69,23 @@ class DatabaseLoader : public QObject {
 					return;
 
 				QJsonObject jsonObject = value.toObject();
-				int id = jsonObject.value("id").toInt();
-
-				T *model = getModel(id);
+				T *model = nullptr;
+				for (auto &it : modelList()) {
+					if (it.second.rid() == (unsigned int)jsonObject.value("id").toInt()
+					&& it.second.repositoryUuid() == repository.uuid())
+						model = const_cast<T*>(&it.second); // FIXME
+				}
 
 				if (model) {
-					model->loadFromJson(jsonObject, m_data);
 					model->set("repository_uuid", repository.uuid());
+					model->loadFromJson(jsonObject, m_data);
 					model->updateDatabaseTable();
 					model->writeToDatabase();
 				}
 				else {
-					T model{jsonObject, m_data};
+					T model{};
 					model.set("repository_uuid", repository.uuid());
+					model.loadFromJson(jsonObject, m_data);
 					model.updateDatabaseTable();
 					model.writeToDatabase();
 

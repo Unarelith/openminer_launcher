@@ -105,8 +105,10 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 	ContentEngineVersion *engineVersion = m_data.getEngineVersion(m_currentItem->text(1).toUInt());
 
 	if (engineVersion) {
+		QUuid repositoryUuid = engineVersion->get("repository_uuid").toUuid();
+
 		QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-		path += "/versions/" + QString::number(engineVersion->id()) + "/";
+		path += "/versions/" + repositoryUuid.toString(QUuid::WithoutBraces) + "/" + engineVersion->name() + "/";
 
 		QDir dir;
 		if (!dir.exists(path))
@@ -163,8 +165,9 @@ void EngineVersionTabWidget::removeActionTriggered() {
 	ContentEngineVersion *engineVersion = m_data.getEngineVersion(m_currentItem->text(1).toUInt());
 
 	if (engineVersion) {
+		QUuid repositoryUuid = engineVersion->get("repository_uuid").toUuid();
 		QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-		path += "/versions/" + QString::number(engineVersion->id()) + "/";
+		path += "/versions/" + repositoryUuid.toString(QUuid::WithoutBraces) + "/" + engineVersion->name() + "/";
 
 		QDir dir{path};
 		if (dir.exists())

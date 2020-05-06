@@ -26,12 +26,21 @@
 #include <QDebug>
 #include <QSqlError>
 #include <QSqlRecord>
+#include <QSqlResult>
 
 #include "Database.hpp"
 #include "ContentItem.hpp"
 
 ContentItem::ContentItem(const QString &sqlTable) {
 	m_sqlTable = sqlTable;
+
+	QSqlDatabase database = Database::getDatabase();
+	if (database.tables().contains(m_sqlTable)) {
+		QSqlQuery query{database};
+		query.exec("SELECT COUNT(*) FROM " + sqlTable);
+		query.first();
+		m_id = query.value(0).toUInt();
+	}
 }
 
 ContentItem::ContentItem(const QString &sqlTable, const QSqlQuery &sqlQuery) {

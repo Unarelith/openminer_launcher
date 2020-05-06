@@ -26,8 +26,7 @@
 #include "ContentUser.hpp"
 
 void ContentUser::loadFromJson(const QJsonObject &jsonObject, ContentData &) {
-	m_id = jsonObject.value("id").toInt();
-
+	set("rid", jsonObject.value("id").toInt());
 	set("name", jsonObject.value("username").toString());
 
 	m_hasBeenUpdated = true;

@@ -35,15 +35,18 @@ class ContentData;
 
 class ContentNewsArticle : public ContentItem {
 	public:
+		ContentNewsArticle() : ContentItem("news_articles") {}
 		explicit ContentNewsArticle(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("news_articles", sqlQuery) {}
-		explicit ContentNewsArticle(const QJsonObject &jsonObject, ContentData &data) : ContentItem("news_articles") { loadFromJson(jsonObject, data); }
 
 		void loadFromJson(const QJsonObject &jsonObject, ContentData &data);
+
+		unsigned int rid() const { return get("rid").toUInt(); }
+		QUuid repositoryUuid() const { return get("repository_uuid").toUuid(); }
 
 		QString title() const { return get("title").toString(); }
 		QString content() const { return get("content").toString(); }
 		QDateTime date() const { return get("date").toDateTime(); }
-		unsigned int user() const { return get("user").toUInt(); }
+		unsigned int author() const { return get("author").toUInt(); }
 };
 
 #endif // CONTENTNEWSARTICLE_HPP_

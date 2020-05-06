@@ -34,23 +34,23 @@ ContentModVersion::ContentModVersion(const QSqlQuery &sqlQuery, ContentData &dat
 }
 
 void ContentModVersion::loadFromJson(const QJsonObject &jsonObject, ContentData &data) {
-	m_id = jsonObject.value("id").toInt();
-
 	QDateTime date = QDateTime::fromString(jsonObject.value("date").toString(), Qt::ISODate);
 	date.setTimeSpec(Qt::UTC);
 
+	m_mod = data.getModFromRid(jsonObject.value("mod").toInt(), get("repository_uuid").toUuid());
+	m_mod->addVersion(m_id);
+
+	set("rid", jsonObject.value("id").toInt());
 	set("name", jsonObject.value("name").toString());
 	set("date", date);
 	set("doc", jsonObject.value("doc").toString());
-	set("mod", jsonObject.value("mod").toInt());
+	set("mod", m_mod->id());
 
 	ContentModVersion *version = data.getModVersion(m_id);
 	if (version)
 		set("state", version->state());
 	else
 		set("state", State::Available);
-
-	m_mod = data.getMod(modID());
 
 	m_hasBeenUpdated = true;
 }

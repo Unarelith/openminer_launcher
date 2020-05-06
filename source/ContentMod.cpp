@@ -23,14 +23,15 @@
  *
  * =====================================================================================
  */
+#include <QDebug>
+
 #include "ContentMod.hpp"
 
 void ContentMod::loadFromJson(const QJsonObject &jsonObject, ContentData &) {
-	m_id = jsonObject.value("id").toInt();
-
 	QDateTime date = QDateTime::fromString(jsonObject.value("date").toString(), Qt::ISODate);
 	date.setTimeSpec(Qt::UTC);
 
+	set("rid", jsonObject.value("id").toInt());
 	set("name", jsonObject.value("name").toString());
 	set("date", date);
 	set("user", jsonObject.value("user").toInt());

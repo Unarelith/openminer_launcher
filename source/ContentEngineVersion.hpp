@@ -36,10 +36,13 @@ class ContentEngineVersion;
 
 class ContentEngineVersion : public ContentItem {
 	public:
+		ContentEngineVersion() : ContentItem("engine_versions") {}
 		explicit ContentEngineVersion(const QSqlQuery &sqlQuery, ContentData &) : ContentItem("engine_versions", sqlQuery) {}
-		explicit ContentEngineVersion(const QJsonObject &jsonObject, ContentData &data) : ContentItem("engine_versions") { loadFromJson(jsonObject, data); }
 
 		void loadFromJson(const QJsonObject &jsonObject, ContentData &data);
+
+		unsigned int rid() const { return get("rid").toUInt(); }
+		QUuid repositoryUuid() const { return get("repository_uuid").toUuid(); }
 
 		QString name() const { return get("name").toString(); }
 		QDateTime date() const { return get("date").toDateTime(); }

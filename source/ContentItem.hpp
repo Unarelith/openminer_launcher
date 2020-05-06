@@ -50,7 +50,7 @@ class ContentItem {
 		bool hasBeenUpdated() const { return m_hasBeenUpdated; }
 
 	protected:
-		unsigned int m_id;
+		unsigned int m_id = 0;
 
 		bool m_hasBeenUpdated = false;
 

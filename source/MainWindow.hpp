@@ -41,7 +41,7 @@ class MainWindow : public QMainWindow {
 	Q_OBJECT
 
 	public:
-		MainWindow(const QString &apiSource);
+		MainWindow();
 
 		void closeEvent(QCloseEvent *event) override;
 		void keyPressEvent(QKeyEvent *event) override;

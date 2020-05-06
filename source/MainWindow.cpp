@@ -37,13 +37,10 @@
 #include "MainWindow.hpp"
 #include "RepositoryWindow.hpp"
 
-MainWindow::MainWindow(const QString &apiSource) : QMainWindow(nullptr, Qt::Dialog) {
+MainWindow::MainWindow() : QMainWindow(nullptr, Qt::Dialog) {
 	setWindowTitle("OpenMiner Launcher");
 	setFocusPolicy(Qt::ClickFocus);
 	resize(1280, 720);
-
-	if (!apiSource.isEmpty())
-		Session::baseUrl = apiSource;
 
 	openDatabase();
 

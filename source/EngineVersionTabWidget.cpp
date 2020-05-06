@@ -34,7 +34,7 @@
 #include "EngineVersionTabWidget.hpp"
 
 EngineVersionTabWidget::EngineVersionTabWidget(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
-	m_versionListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Creation date")});
+	m_versionListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Repository"), tr("Creation date")});
 	m_versionListWidget.setRootIsDecorated(false);
 	m_versionListWidget.setSortingEnabled(true);
 	m_versionListWidget.setContextMenuPolicy(Qt::CustomContextMenu);
@@ -63,7 +63,14 @@ void EngineVersionTabWidget::update() {
 
 		item->setText(1, QString::number(it.second.id()));
 		item->setText(2, it.second.name());
-		item->setText(3, it.second.date().toString());
+		item->setText(4, it.second.date().toString());
+
+		QUuid repositoryUuid = it.second.get("repository_uuid").toUuid();
+		ContentRepository *repository = m_data.getRepositoryFromUuid(repositoryUuid);
+		if (repository)
+			item->setText(3, repository->name());
+		else
+			item->setText(3, "N/A");
 	}
 }
 

@@ -36,14 +36,11 @@ class Session : public QObject {
 		Session();
 
 		using ParameterList = std::map<QString, QString>;
-		QJsonDocument get(const QString &apiEndpoint, const ParameterList &parameters = {}) const;
-		QJsonDocument get(const QString &baseUrl, const QString &apiEndpoint, const ParameterList &parameters = {}) const;
+		QJsonDocument get(const QString &url, const ParameterList &parameters = {}) const;
 
 		bool download(const QUrl &url, const QString &path) const;
 
 		bool isLoggedIn() const { return m_isLoggedIn; }
-
-		static QString baseUrl;
 
 	signals:
 		void httpError(int errorCode) const;

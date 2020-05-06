@@ -39,20 +39,20 @@ int main(int argc, char **argv) {
 	style.open(QIODevice::OpenModeFlag::ReadOnly);
 	app.setStyleSheet(style.readAll());
 
-	QCommandLineParser parser;
-	parser.addHelpOption();
-	parser.addVersionOption();
-	parser.addOptions({
-		{{"a", "api-source"},
-			QCoreApplication::translate("main", "Use <source> as the server for the API."),
-			QCoreApplication::translate("main", "source")},
-	});
+	// QCommandLineParser parser;
+	// parser.addHelpOption();
+	// parser.addVersionOption();
+	// parser.addOptions({
+	// 	{{"a", "api-source"},
+	// 		QCoreApplication::translate("main", "Use <source> as the server for the API."),
+	// 		QCoreApplication::translate("main", "source")},
+	// });
+    //
+	// parser.process(app);
+    //
+	// QString apiSource = parser.value("a");
 
-	parser.process(app);
-
-	QString apiSource = parser.value("a");
-
-	MainWindow win(apiSource);
+	MainWindow win;
 	app.exec();
 }
 

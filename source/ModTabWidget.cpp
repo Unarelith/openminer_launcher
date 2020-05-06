@@ -34,7 +34,7 @@
 #include "ModTabWidget.hpp"
 
 ModTabWidget::ModTabWidget(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
-	m_modListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Author"), tr("Latest installed"), tr("Latest version"), tr("Creation date"), tr("Updated")});
+	m_modListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Author"), tr("Latest installed"), tr("Latest version"), tr("Repository"), tr("Creation date"), tr("Updated")});
 	// m_modListWidget.setRootIsDecorated(false);
 	m_modListWidget.setSortingEnabled(true);
 	m_modListWidget.setContextMenuPolicy(Qt::CustomContextMenu);
@@ -59,8 +59,15 @@ void ModTabWidget::update() {
 		// item->setText(0, " 0");
 		item->setText(1, QString::number(it.second.id()));
 		item->setText(2, it.second.name());
-		item->setText(6, it.second.date().toString());
-		item->setText(7, it.second.hasBeenUpdated() ? "true" : "false");
+		item->setText(7, it.second.date().toString());
+		item->setText(8, it.second.hasBeenUpdated() ? "true" : "false");
+
+		QUuid repositoryUuid = it.second.get("repository_uuid").toUuid();
+		ContentRepository *repository = m_data.getRepositoryFromUuid(repositoryUuid);
+		if (repository)
+			item->setText(6, repository->name());
+		else
+			item->setText(6, "N/A");
 
 		ContentUser *user = m_data.getUser(it.second.user());
 		if (user)
@@ -79,8 +86,8 @@ void ModTabWidget::update() {
 
 			child->setText(1, "    " + QString::number(version->id()));
 			child->setText(2, "    " + version->name());
-			child->setText(6, "    " + version->date().toString());
-			child->setText(7, "    " + QString(version->hasBeenUpdated() ? "true" : "false"));
+			child->setText(7, "    " + version->date().toString());
+			child->setText(8, "    " + QString(version->hasBeenUpdated() ? "true" : "false"));
 
 			if (!latestVersion || latestVersion->id() < version->id())
 				latestVersion = version;

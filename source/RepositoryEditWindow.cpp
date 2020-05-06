@@ -83,7 +83,7 @@ void RepositoryEditWindow::saveRepository() {
 	m_cancelButton->setEnabled(false);
 
 	Session session;
-	QJsonDocument doc = session.get(url, "api/");
+	QJsonDocument doc = session.get(url + "api/");
 	QUuid uuid = doc.object().value("uuid").toString();
 
 	if (uuid.isNull()) {

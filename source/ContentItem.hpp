@@ -27,6 +27,7 @@
 #define CONTENTITEM_HPP_
 
 #include <QSqlQuery>
+#include <QUuid>
 #include <QVariant>
 
 class ContentItem {

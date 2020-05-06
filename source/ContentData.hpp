@@ -77,6 +77,7 @@ class ContentData : public QObject {
 		ContentMod *getMod(unsigned int id) { return getItem(id, m_modList); }
 		ContentModVersion *getModVersion(unsigned int id) { return getItem(id, m_modVersionList); }
 		ContentRepository *getRepository(unsigned int id) { return getItem(id, m_repositoryList); }
+		ContentRepository *getRepositoryFromUuid(const QUuid &uuid) { for (auto &it : m_repositoryList) if (it.second.uuid() == uuid) return &it.second; return nullptr; }
 
 		void setUser(unsigned int id, const ContentUser &user) { setItem(id, user, m_userList); }
 		void setInstance(unsigned int id, const ContentInstance &instance) { setItem(id, instance, m_instanceList); }

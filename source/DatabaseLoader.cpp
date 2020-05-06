@@ -31,25 +31,28 @@ using namespace std::placeholders;
 void DatabaseLoader::update() const {
 	emit updateStarted();
 
-	updateModel<ContentUser>("/api/user",
-			std::bind(&ContentData::getUser, &m_data, _1),
-			std::bind(&ContentData::setUser, &m_data, _1, _2));
+	const auto &repositoryList = m_data.repositoryList();
+	for (auto &it : repositoryList) {
+		updateModel<ContentUser>(it.second, "/api/user",
+				std::bind(&ContentData::getUser, &m_data, _1),
+				std::bind(&ContentData::setUser, &m_data, _1, _2));
 
-	updateModel<ContentNewsArticle>("/api/news",
-			std::bind(&ContentData::getNewsArticle, &m_data, _1),
-			std::bind(&ContentData::setNewsArticle, &m_data, _1, _2));
+		updateModel<ContentNewsArticle>(it.second, "/api/news",
+				std::bind(&ContentData::getNewsArticle, &m_data, _1),
+				std::bind(&ContentData::setNewsArticle, &m_data, _1, _2));
 
-	updateModel<ContentEngineVersion>("/api/version",
-			std::bind(&ContentData::getEngineVersion, &m_data, _1),
-			std::bind(&ContentData::setEngineVersion, &m_data, _1, _2));
+		updateModel<ContentEngineVersion>(it.second, "/api/version",
+				std::bind(&ContentData::getEngineVersion, &m_data, _1),
+				std::bind(&ContentData::setEngineVersion, &m_data, _1, _2));
 
-	updateModel<ContentMod>("/api/mod",
-			std::bind(&ContentData::getMod, &m_data, _1),
-			std::bind(&ContentData::setMod, &m_data, _1, _2));
+		updateModel<ContentMod>(it.second, "/api/mod",
+				std::bind(&ContentData::getMod, &m_data, _1),
+				std::bind(&ContentData::setMod, &m_data, _1, _2));
 
-	updateModel<ContentModVersion>("/api/mod/version",
-			std::bind(&ContentData::getModVersion, &m_data, _1),
-			std::bind(&ContentData::setModVersion, &m_data, _1, _2));
+		updateModel<ContentModVersion>(it.second, "/api/mod/version",
+				std::bind(&ContentData::getModVersion, &m_data, _1),
+				std::bind(&ContentData::setModVersion, &m_data, _1, _2));
+	}
 
 	emit updateFinished();
 }

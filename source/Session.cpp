@@ -32,22 +32,16 @@
 
 #include "Session.hpp"
 
-QString Session::baseUrl = "https://openminer.app/";
-
 Session::Session() {
 	m_network = new QNetworkAccessManager{this};
 }
 
-QJsonDocument Session::get(const QString &apiEndpoint, const ParameterList &parameters) const {
-	return get(baseUrl, apiEndpoint, parameters);
-}
-
-QJsonDocument Session::get(const QString &baseUrl, const QString &apiEndpoint, const ParameterList &parameters) const {
-	QString url = baseUrl + apiEndpoint;
+QJsonDocument Session::get(const QString &url, const ParameterList &parameters) const {
+	QString parameterString{""};
 	for (auto &parameter : parameters)
-		url += "&" + parameter.first + "=" + parameter.second;
+		parameterString += "&" + parameter.first + "=" + parameter.second;
 
-	// qDebug() << "GET" << url;
+	// qDebug() << "GET" << url + parameterString;
 
 	emit stateChanged("Downloading...");
 
@@ -56,7 +50,7 @@ QJsonDocument Session::get(const QString &baseUrl, const QString &apiEndpoint, c
 	QEventLoop waitReply;
 	connect(m_network, &QNetworkAccessManager::finished, &waitReply, &QEventLoop::quit);
 
-	QNetworkReply *reply = m_network->get(QNetworkRequest(QUrl(url)));
+	QNetworkReply *reply = m_network->get(QNetworkRequest(QUrl(url + parameterString)));
 
 	waitReply.exec();
 

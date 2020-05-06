@@ -45,7 +45,9 @@ class RepositoryEditWindow : public QDialog {
 
 		QLineEdit *m_nameEdit = nullptr;
 		QLineEdit *m_urlEdit = nullptr;
-		QLineEdit *m_uuidEdit = nullptr;
+
+		QPushButton *m_okButton = nullptr;
+		QPushButton *m_cancelButton = nullptr;
 };
 
 #endif // REPOSITORYEDITWINDOW_HPP_

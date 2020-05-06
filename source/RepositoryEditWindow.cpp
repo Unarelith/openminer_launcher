@@ -48,15 +48,15 @@ RepositoryEditWindow::RepositoryEditWindow(ContentRepository *repository, Conten
 	formLayout->addRow("&Name:", m_nameEdit);
 	formLayout->addRow("&URL:", m_urlEdit);
 
-	auto *okButton = new QPushButton{"&OK"};
-	auto *cancelButton = new QPushButton{"&Cancel"};
+	m_okButton = new QPushButton{"&OK"};
+	m_cancelButton = new QPushButton{"&Cancel"};
 
-	connect(okButton, &QPushButton::clicked, this, &RepositoryEditWindow::saveRepository);
-	connect(cancelButton, &QPushButton::clicked, this, &QDialog::close);
+	connect(m_okButton, &QPushButton::clicked, this, &RepositoryEditWindow::saveRepository);
+	connect(m_cancelButton, &QPushButton::clicked, this, &QDialog::close);
 
 	auto *buttonLayout = new QHBoxLayout;
-	buttonLayout->addWidget(okButton);
-	buttonLayout->addWidget(cancelButton);
+	buttonLayout->addWidget(m_okButton);
+	buttonLayout->addWidget(m_cancelButton);
 
 	auto *layout = new QVBoxLayout{this};
 	layout->addLayout(formLayout);
@@ -79,17 +79,30 @@ void RepositoryEditWindow::saveRepository() {
 		return;
 	}
 
+	m_okButton->setEnabled(false);
+	m_cancelButton->setEnabled(false);
+
 	Session session;
 	QJsonDocument doc = session.get(url, "api/");
-	QString uuid = doc.object().value("uuid").toString();
+	QUuid uuid = doc.object().value("uuid").toString();
+
+	if (uuid.isNull()) {
+		auto result = QMessageBox::question(this, QApplication::applicationDisplayName(), "Unable to get UUID. This repository won't work.\nDo you want to add it anyway?");
+		if (result != QMessageBox::Yes) {
+			m_okButton->setEnabled(true);
+			m_cancelButton->setEnabled(true);
+
+			return;
+		}
+	}
 
 	if (m_repository) {
 		m_repository->setName(name);
 		m_repository->setUrl(url);
-		m_repository->setUuid(uuid);
+		m_repository->setUuid(uuid.toString());
 	}
 	else {
-		ContentRepository repository(m_data.repositoryList().size(), name, url, uuid);
+		ContentRepository repository(m_data.repositoryList().size(), name, url, uuid.toString());
 		repository.updateDatabaseTable();
 		repository.writeToDatabase();
 		m_data.setRepository(m_data.repositoryList().size(), repository);

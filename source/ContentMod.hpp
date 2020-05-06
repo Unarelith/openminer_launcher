@@ -49,12 +49,12 @@ class ContentMod : public ContentItem {
 		unsigned int user() const { return get("user").toUInt(); }
 
 		void addVersion(unsigned int id);
-		const std::vector<unsigned int> &versions() const { return m_versions; }
+		const QList<unsigned int> &versions() const { return m_versions; }
 
 		int latestVersionID() const { return m_latestVersionID; }
 
 	private:
-		std::vector<unsigned int> m_versions;
+		QList<unsigned int> m_versions;
 
 		int m_latestVersionID = -1;
 };

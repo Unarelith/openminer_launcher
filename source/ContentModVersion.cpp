@@ -38,7 +38,8 @@ void ContentModVersion::loadFromJson(const QJsonObject &jsonObject, ContentData 
 	date.setTimeSpec(Qt::UTC);
 
 	m_mod = data.getModFromRid(jsonObject.value("mod").toInt(), get("repository_uuid").toUuid());
-	m_mod->addVersion(m_id);
+	if (!m_mod->versions().contains(m_id))
+		m_mod->addVersion(m_id);
 
 	set("rid", jsonObject.value("id").toInt());
 	set("name", jsonObject.value("name").toString());

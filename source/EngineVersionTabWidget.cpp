@@ -25,13 +25,13 @@
  */
 #include <QDir>
 #include <QMenu>
-#include <QStandardPaths>
 #include <QVBoxLayout>
 
 #include <quazip/quazipfile.h>
 
 #include "ContentData.hpp"
 #include "EngineVersionTabWidget.hpp"
+#include "PathUtils.hpp"
 
 EngineVersionTabWidget::EngineVersionTabWidget(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
 	m_versionListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Repository"), tr("Creation date")});
@@ -105,18 +105,15 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 	ContentEngineVersion *engineVersion = m_data.getEngineVersion(m_currentItem->text(1).toUInt());
 
 	if (engineVersion) {
-		QUuid repositoryUuid = engineVersion->get("repository_uuid").toUuid();
-
-		QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-		path += "/versions/" + repositoryUuid.toString(QUuid::WithoutBraces) + "/" + engineVersion->name() + "/";
+		QString path = PathUtils::getEngineVersionPath(*engineVersion);
 
 		QDir dir;
 		if (!dir.exists(path))
 			dir.mkpath(path);
 
-		m_session.download(engineVersion->doc(), path + "content.zip");
+		m_session.download(engineVersion->doc(), path + "/content.zip");
 
-		QuaZip archive{path + "content.zip"};
+		QuaZip archive{path + "/content.zip"};
 		archive.open(QuaZip::mdUnzip);
 
 		for(bool f = archive.goToFirstFile(); f; f = archive.goToNextFile()) {
@@ -124,7 +121,7 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 
 			if (filePath.at(filePath.size() - 1) == '/') {
 				QDir dir;
-				dir.mkpath(path + filePath);
+				dir.mkpath(path + QDir::separator() + filePath);
 			}
 		}
 
@@ -142,7 +139,7 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 
 				file.close();
 
-				QFile dstFile(path + filePath);
+				QFile dstFile(path + QDir::separator() + filePath);
 				dstFile.open(QIODevice::WriteOnly);
 				dstFile.write(data);
 				dstFile.setPermissions(info.getPermissions());
@@ -152,7 +149,7 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 
 		archive.close();
 
-		QFile file{path + "content.zip"};
+		QFile file{path + "/content.zip"};
 		file.remove();
 
 		engineVersion->setState(ContentEngineVersion::State::Downloaded);
@@ -165,9 +162,7 @@ void EngineVersionTabWidget::removeActionTriggered() {
 	ContentEngineVersion *engineVersion = m_data.getEngineVersion(m_currentItem->text(1).toUInt());
 
 	if (engineVersion) {
-		QUuid repositoryUuid = engineVersion->get("repository_uuid").toUuid();
-		QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-		path += "/versions/" + repositoryUuid.toString(QUuid::WithoutBraces) + "/" + engineVersion->name() + "/";
+		QString path = PathUtils::getEngineVersionPath(*engineVersion);
 
 		QDir dir{path};
 		if (dir.exists())

@@ -34,8 +34,7 @@ class ContentData;
 
 class ContentInstance : public ContentItem {
 	public:
-		ContentInstance(unsigned int id);
-		explicit ContentInstance(const QJsonObject &jsonObject, ContentData &data);
+		ContentInstance();
 		explicit ContentInstance(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("instances", sqlQuery) {}
 
 		QString name() const { return get("name").toString(); }

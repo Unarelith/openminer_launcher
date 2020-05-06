@@ -27,11 +27,11 @@
 #include <QMessageBox>
 #include <QDir>
 #include <QProcess>
-#include <QStandardPaths>
 
 #include "ContentData.hpp"
 #include "InstanceEditWindow.hpp"
 #include "InstanceListWidget.hpp"
+#include "PathUtils.hpp"
 
 InstanceListWidget::InstanceListWidget(ContentData &data, QWidget *parent) : QTreeWidget(parent), m_data(data) {
 	setHeaderLabels({tr("ID"), tr("Name"), tr("Version")});
@@ -82,15 +82,14 @@ void InstanceListWidget::runInstance() {
 		unsigned int instanceID = selectedItems.at(0)->text(0).toUInt();
 		ContentInstance *instance = m_data.getInstance(instanceID);
 
-		QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-		QString enginePath = appData + "/versions/" + QString::number(instance->engineVersionID()) + "/";
-		QString instancePath = appData + "/instances/" + instance->name() + "/";
+		QString enginePath = PathUtils::getEngineVersionPath(*m_data.getEngineVersion(instance->engineVersionID()));
+		QString instancePath = PathUtils::getInstancePath(instance->name());
 
 		QStringList args;
 		args << "--working-dir" << instancePath;
 
 		QProcess *process = new QProcess{this};
-		process->start(enginePath + "openminer/openminer", args);
+		process->start(enginePath + "/openminer/openminer", args);
 
 		connect(this, &QWidget::destroyed, process, &QProcess::close);
 	}
@@ -107,8 +106,7 @@ void InstanceListWidget::deleteInstance() {
 		if (result != QMessageBox::Yes)
 			return;
 
-		QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-		QString instancePath = appData + "/instances/" + instance->name() + "/";
+		QString instancePath = PathUtils::getInstancePath(instance->name());
 
 		QDir instanceDir{instancePath};
 		instanceDir.removeRecursively();

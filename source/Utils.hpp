@@ -29,7 +29,7 @@
 #include <QString>
 
 namespace Utils {
-	void copyDirectory(const QString &src, const QString &dest);
+	void copyDirectory(const QString &src, const QString &dest, bool isVerbose = false);
 }
 
 #endif // UTILS_HPP_

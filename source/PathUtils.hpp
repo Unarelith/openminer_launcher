@@ -29,12 +29,15 @@
 #include <QString>
 
 class ContentData;
+class ContentEngineVersion;
 class ContentInstance;
+class ContentMod;
+class ContentModVersion;
 
 namespace PathUtils {
 	QString getInstancePath(const QString &instanceName);
-	QString getEnginePath(int versionID);
-	QString getModPath(int modID, int versionID, const QString &modName);
+	QString getEngineVersionPath(const ContentEngineVersion &engineVersion);
+	QString getModVersionPath(const ContentMod &mod, const ContentModVersion &modVersion);
 
 	void renameInstance(const QString &oldName, const QString &newName);
 	void reinstallInstance(const ContentInstance &instance, ContentData &data);

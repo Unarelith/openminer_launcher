@@ -63,7 +63,7 @@ void ContentItem::updateDatabaseTable() const {
 		// FIXME: Change record instead of dropping the entire table
 		if ((unsigned int)database.record(m_sqlTable).count() != m_data.size() + 1) {
 			qDebug() << "Removing deprecated table:" << m_sqlTable;
-			// qDebug() << "Record: " << database.record(m_sqlTable);
+			qDebug() << "Record: " << database.record(m_sqlTable);
 			Database::removeTable(m_sqlTable);
 		}
 	}

@@ -127,15 +127,14 @@ void InstanceEditWindow::saveChanges() {
 		PathUtils::reinstallInstance(*m_instance, m_data);
 	}
 	else {
-		unsigned int id = m_data.instanceList().size();
-		ContentInstance instance(id);
+		ContentInstance instance;
 		instance.setName(m_nameEdit->text());
 		instance.setEngineVersionID(m_versionTab->engineVersionID());
 		instance.setMods(m_modTab->modList());
 
-		m_data.setInstance(m_data.instanceList().size(), instance);
+		m_data.setInstance(instance.id(), instance);
 
-		PathUtils::reinstallInstance(*m_data.getInstance(id), m_data);
+		PathUtils::reinstallInstance(instance, m_data);
 	}
 
 	accept();

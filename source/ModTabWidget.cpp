@@ -25,13 +25,13 @@
  */
 #include <QDir>
 #include <QMenu>
-#include <QStandardPaths>
 #include <QVBoxLayout>
 
 #include <quazip/quazipfile.h>
 
 #include "ContentData.hpp"
 #include "ModTabWidget.hpp"
+#include "PathUtils.hpp"
 
 ModTabWidget::ModTabWidget(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
 	m_modListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Author"), tr("Latest installed"), tr("Latest version"), tr("Repository"), tr("Creation date"), tr("Updated")});
@@ -163,19 +163,16 @@ void ModTabWidget::downloadActionTriggered() {
 	ContentModVersion *modVersion = getModVersionFromItem(m_currentItem);
 	ContentMod *mod = m_data.getMod(modVersion->modID());
 	if (modVersion) {
-		QUuid repositoryUuid = modVersion->get("repository_uuid").toUuid();
-
-		QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-		path += "/mods/" + repositoryUuid.toString(QUuid::WithoutBraces) + "/" + mod->name() + "/" + modVersion->name() + "/";
+		QString path = PathUtils::getModVersionPath(*mod, *modVersion);
 
 		QDir dir;
 		if (!dir.exists(path))
 			dir.mkpath(path);
 
-		if (m_session.download(modVersion->doc(), path + "content.zip")) {
-			QuaZip archive{path + "content.zip"};
+		if (m_session.download(modVersion->doc(), path + "/content.zip")) {
+			QuaZip archive{path + "/content.zip"};
 			if (!archive.open(QuaZip::mdUnzip)) {
-				qDebug() << "ERROR: Failed to open archive at" << path + "content.zip";
+				qDebug() << "ERROR: Failed to open archive at" << path + "/content.zip";
 				return;
 			}
 
@@ -184,7 +181,7 @@ void ModTabWidget::downloadActionTriggered() {
 
 				if (filePath.at(filePath.size() - 1) == '/') {
 					QDir dir;
-					dir.mkpath(path + filePath);
+					dir.mkpath(path + QDir::separator() + filePath);
 				}
 			}
 
@@ -202,7 +199,7 @@ void ModTabWidget::downloadActionTriggered() {
 
 					file.close();
 
-					QFile dstFile(path + filePath);
+					QFile dstFile(path + QDir::separator() + filePath);
 					dstFile.open(QIODevice::WriteOnly);
 					dstFile.write(data);
 					dstFile.setPermissions(info.getPermissions());
@@ -212,7 +209,7 @@ void ModTabWidget::downloadActionTriggered() {
 
 			archive.close();
 
-			QFile file{path + "content.zip"};
+			QFile file{path + "/content.zip"};
 			file.remove();
 
 			modVersion->setState(ContentModVersion::State::Downloaded);
@@ -226,10 +223,7 @@ void ModTabWidget::removeActionTriggered() {
 	ContentModVersion *modVersion = getModVersionFromItem(m_currentItem);
 	ContentMod *mod = m_data.getMod(modVersion->modID());
 	if (modVersion) {
-		QUuid repositoryUuid = modVersion->get("repository_uuid").toUuid();
-
-		QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-		path += "/mods/" + repositoryUuid.toString(QUuid::WithoutBraces) + "/" + mod->name() + "/" + modVersion->name() + "/";
+		QString path = PathUtils::getModVersionPath(*mod, *modVersion);
 
 		QDir dir{path};
 		if (dir.exists())

@@ -36,14 +36,18 @@ QString PathUtils::getInstancePath(const QString &instanceName) {
 	return appData + "/instances/" + instanceName;
 }
 
-QString PathUtils::getEnginePath(int versionID) {
+QString PathUtils::getEngineVersionPath(const ContentEngineVersion &engineVersion) {
+	QUuid repositoryUuid = engineVersion.repositoryUuid();
+
 	QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-	return appData + "/versions/" + QString::number(versionID) + "/openminer";
+	return appData + "/versions/" + repositoryUuid.toString(QUuid::WithoutBraces) + "/" + engineVersion.name();
 }
 
-QString PathUtils::getModPath(int modID, int versionID, const QString &modName) {
+QString PathUtils::getModVersionPath(const ContentMod &mod, const ContentModVersion &modVersion) {
+	QUuid repositoryUuid = modVersion.repositoryUuid();
+
 	QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-	return appData + "/mods/" + QString::number(modID) + "/" + QString::number(versionID) + "/" + modName;
+	return appData + "/mods/" + repositoryUuid.toString(QUuid::WithoutBraces) + "/" + mod.name() + "/" + modVersion.name();
 }
 
 void PathUtils::renameInstance(const QString &oldName, const QString &newName) {
@@ -67,16 +71,15 @@ void PathUtils::renameInstance(const QString &oldName, const QString &newName) {
 
 void PathUtils::reinstallInstance(const ContentInstance &instance, ContentData &data) {
 	QString instancePath = getInstancePath(instance.name());
-	QString versionPath = getEnginePath(instance.engineVersionID());
-	Utils::copyDirectory(versionPath + "/resources", instancePath + "/resources");
+	QString engineVersionPath = getEngineVersionPath(*data.getEngineVersion(instance.engineVersionID()));
+	Utils::copyDirectory(engineVersionPath + "/openminer/resources", instancePath + "/resources");
 
 	auto mods = instance.mods();
 	for (auto &it : mods) {
 		ContentMod *mod = data.getMod(it);
-		QString modPath = PathUtils::getModPath(mod->id(), mod->latestVersionID(), mod->name());
+		QString modVersionPath = PathUtils::getModVersionPath(*mod, *data.getModVersion(mod->latestVersionID()));
 
-		// FIXME: Use a mod string ID instead of the name
-		Utils::copyDirectory(modPath, instancePath + "/mods/" + mod->name());
+		Utils::copyDirectory(modVersionPath + "/" + mod->name(), instancePath + "/mods/" + mod->name());
 	}
 }
 

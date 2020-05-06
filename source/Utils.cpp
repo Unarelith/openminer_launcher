@@ -23,27 +23,43 @@
  *
  * =====================================================================================
  */
+#include <QDebug>
 #include <QDir>
 
 #include "Utils.hpp"
 
-void Utils::copyDirectory(const QString &src, const QString &dest) {
+void Utils::copyDirectory(const QString &src, const QString &dest, bool isVerbose) {
+	if (isVerbose)
+		qDebug() << "Copying" << src << "to" << dest;
+
 	QDir dir(src);
-	if (!dir.exists())
+	if (!dir.exists()) {
+		if (isVerbose)
+			qDebug() << src << "doesn't exist, aborting...";
 		return;
-
-	QDir destDir(dest);
-	if (!destDir.exists())
-		dir.mkpath(dest);
-
-	foreach (const QString &d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-		QString destPath = dest + QDir::separator() + d;
-		dir.mkpath(destPath);
-		copyDirectory(src + QDir::separator() + d, destPath);
 	}
 
-	foreach (QString f, dir.entryList(QDir::Files)) {
+	QDir destDir(dest);
+	if (!destDir.exists()) {
+		destDir.mkpath(dest);
+		if (isVerbose)
+			qDebug() << "Created destination directory:" << dest;
+	}
+
+	for (const QString &d : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+		QString destPath = dest + QDir::separator() + d;
+		QDir dest{destPath};
+		dest.mkpath(destPath);
+		if (isVerbose)
+			qDebug() << "Created directory:" << destPath;
+
+		copyDirectory(src + QDir::separator() + d, destPath, isVerbose);
+	}
+
+	for (const QString &f : dir.entryList(QDir::Files)) {
 		QFile::copy(src + QDir::separator() + f, dest + QDir::separator() + f);
+		if (isVerbose)
+			qDebug() << "Copied file from" << src + QDir::separator() + f << "to" << dest + QDir::separator() + f;
 	}
 }
 

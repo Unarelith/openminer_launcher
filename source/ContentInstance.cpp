@@ -25,20 +25,10 @@
  */
 #include "ContentInstance.hpp"
 
-ContentInstance::ContentInstance(unsigned int id) : ContentItem("instances") {
-	m_id = id;
-
+ContentInstance::ContentInstance() : ContentItem("instances") {
 	set("name", "");
 	set("engine_version", -1);
 	set("mods", "");
-}
-
-ContentInstance::ContentInstance(const QJsonObject &jsonObject, ContentData &) : ContentItem("instances") {
-	m_id = jsonObject.value("id").toInt();
-
-	set("name", jsonObject.value("name").toString());
-	set("engine_version", jsonObject.value("engine_version").toInt());
-	set("mods", jsonObject.value("mods").toString());
 }
 
 QList<int> ContentInstance::mods() const {

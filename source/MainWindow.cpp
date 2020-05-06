@@ -35,6 +35,7 @@
 #include <QStatusBar>
 
 #include "MainWindow.hpp"
+#include "RepositoryWindow.hpp"
 
 MainWindow::MainWindow(const QString &apiSource) : QMainWindow(nullptr, Qt::Dialog) {
 	setWindowTitle("OpenMiner Launcher");
@@ -126,6 +127,10 @@ void MainWindow::setupMenuBar() {
 	QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(exitAction);
 
+	QAction *repositoriesAction = new QAction(tr("&Repositories..."), this);
+	repositoriesAction->setStatusTip(tr("View and edit repositories"));
+	connect(repositoriesAction, &QAction::triggered, this, &MainWindow::openRepositoryWindow);
+
 	QAction *updateAction = new QAction(tr("&Update"), this);
 	updateAction->setShortcut(QKeySequence::Refresh);
 	updateAction->setStatusTip("Update local database with online data");
@@ -142,10 +147,12 @@ void MainWindow::setupMenuBar() {
 	stopAction->setStatusTip("Stop database update");
 	connect(stopAction, &QAction::triggered, &m_contentData, &ContentData::stopDatabaseUpdate);
 
-	QMenu *databaseMenu = menuBar()->addMenu(tr("&Database"));
-	databaseMenu->addAction(updateAction);
-	// databaseMenu->addAction(reloadAction);
-	databaseMenu->addAction(stopAction);
+	QMenu *contentMenu = menuBar()->addMenu(tr("&Content"));
+	contentMenu->addAction(repositoriesAction);
+	contentMenu->addSeparator();
+	contentMenu->addAction(updateAction);
+	// contentMenu->addAction(reloadAction);
+	contentMenu->addAction(stopAction);
 
 	QAction *aboutAction = new QAction(tr("&About"), this);
 	aboutAction->setShortcut(QKeySequence::HelpContents);
@@ -159,6 +166,11 @@ void MainWindow::setupMenuBar() {
 	QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
 	helpMenu->addAction(aboutAction);
 	helpMenu->addAction(aboutQtAction);
+}
+
+void MainWindow::openRepositoryWindow() {
+	auto *window = new RepositoryWindow(m_contentData, this);
+	window->show();
 }
 
 void MainWindow::openAboutWindow() {

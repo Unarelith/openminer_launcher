@@ -43,8 +43,8 @@ InstanceListWidget::InstanceListWidget(ContentData &data, QWidget *parent) : QTr
 void InstanceListWidget::update() {
 	clear();
 
-	auto &versionList = m_data.instanceList();
-	for (auto &it : versionList) {
+	auto &instanceList = m_data.instanceList();
+	for (auto &it : instanceList) {
 		auto *item = new QTreeWidgetItem(this);
 		item->setText(0, QString::number(it.second.id()));
 		item->setText(1, it.second.name());

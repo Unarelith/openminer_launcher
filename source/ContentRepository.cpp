@@ -23,50 +23,15 @@
  *
  * =====================================================================================
  */
-#ifndef MAINWINDOW_HPP_
-#define MAINWINDOW_HPP_
+#include <QJsonObject>
 
-#include <QMainWindow>
-#include <QTabWidget>
+#include "ContentRepository.hpp"
 
-#include "ContentData.hpp"
-#include "Session.hpp"
+ContentRepository::ContentRepository(unsigned int id, const QString &name, const QUrl &url, const QUuid &uuid) : ContentItem("repositories") {
+	m_id = id;
 
-#include "EngineVersionTabWidget.hpp"
-#include "InstanceTabWidget.hpp"
-#include "ModTabWidget.hpp"
-#include "NewsTabWidget.hpp"
+	set("name", name);
+	set("url", url);
+	set("uuid", uuid);
+}
 
-class MainWindow : public QMainWindow {
-	Q_OBJECT
-
-	public:
-		MainWindow(const QString &apiSource);
-
-		void closeEvent(QCloseEvent *event) override;
-		void keyPressEvent(QKeyEvent *event) override;
-
-	private:
-		void openDatabase();
-
-		void connectObjects();
-		void updateWidgets();
-
-		void setupTabs();
-		void setupStatusBar();
-		void setupMenuBar();
-
-		void openRepositoryWindow();
-		void openAboutWindow();
-
-		ContentData m_contentData;
-
-		QTabWidget m_tabWidget{this};
-
-		InstanceTabWidget m_instanceTab{m_contentData};
-		NewsTabWidget m_newsTab{m_contentData};
-		EngineVersionTabWidget m_engineVersionTab{m_contentData};
-		ModTabWidget m_modTab{m_contentData};
-};
-
-#endif // MAINWINDOW_HPP_

@@ -23,50 +23,32 @@
  *
  * =====================================================================================
  */
-#ifndef MAINWINDOW_HPP_
-#define MAINWINDOW_HPP_
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QPushButton>
 
-#include <QMainWindow>
-#include <QTabWidget>
+#include "RepositoryEditWindow.hpp"
 
-#include "ContentData.hpp"
-#include "Session.hpp"
+RepositoryEditWindow::RepositoryEditWindow(ContentRepository *repository, QWidget *parent) : m_repository(repository) {
+	setModal(true);
 
-#include "EngineVersionTabWidget.hpp"
-#include "InstanceTabWidget.hpp"
-#include "ModTabWidget.hpp"
-#include "NewsTabWidget.hpp"
+	auto *formLayout = new QFormLayout;
+	formLayout->addRow("&Name:", new QLineEdit);
+	formLayout->addRow("&URL:", new QLineEdit);
+	formLayout->addRow("UU&ID:", new QLineEdit);
 
-class MainWindow : public QMainWindow {
-	Q_OBJECT
+	auto *okButton = new QPushButton{"&OK"};
+	auto *cancelButton = new QPushButton{"&Cancel"};
 
-	public:
-		MainWindow(const QString &apiSource);
+	connect(okButton, &QPushButton::clicked, this, &QDialog::close); // FIXME
+	connect(cancelButton, &QPushButton::clicked, this, &QDialog::close);
 
-		void closeEvent(QCloseEvent *event) override;
-		void keyPressEvent(QKeyEvent *event) override;
+	auto *buttonLayout = new QHBoxLayout;
+	buttonLayout->addWidget(okButton);
+	buttonLayout->addWidget(cancelButton);
 
-	private:
-		void openDatabase();
+	auto *layout = new QVBoxLayout{this};
+	layout->addLayout(formLayout);
+	layout->addLayout(buttonLayout);
+}
 
-		void connectObjects();
-		void updateWidgets();
-
-		void setupTabs();
-		void setupStatusBar();
-		void setupMenuBar();
-
-		void openRepositoryWindow();
-		void openAboutWindow();
-
-		ContentData m_contentData;
-
-		QTabWidget m_tabWidget{this};
-
-		InstanceTabWidget m_instanceTab{m_contentData};
-		NewsTabWidget m_newsTab{m_contentData};
-		EngineVersionTabWidget m_engineVersionTab{m_contentData};
-		ModTabWidget m_modTab{m_contentData};
-};
-
-#endif // MAINWINDOW_HPP_

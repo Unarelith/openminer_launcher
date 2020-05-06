@@ -33,6 +33,7 @@
 #include "ContentMod.hpp"
 #include "ContentModVersion.hpp"
 #include "ContentNewsArticle.hpp"
+#include "ContentRepository.hpp"
 #include "ContentUser.hpp"
 #include "Database.hpp"
 #include "DatabaseThread.hpp"
@@ -57,6 +58,7 @@ class ContentData : public QObject {
 		void updateEngineVersionList();
 		void updateModList();
 		void updateModVersionList();
+		void updateRepositoryList();
 
 		const Database &database() const { return m_database; }
 
@@ -66,6 +68,7 @@ class ContentData : public QObject {
 		const std::unordered_map<unsigned int, ContentEngineVersion> &engineVersionList() const { return m_engineVersionList; }
 		const std::unordered_map<unsigned int, ContentMod> &modList() const { return m_modList; }
 		const std::unordered_map<unsigned int, ContentModVersion> &modVersionList() const { return m_modVersionList; }
+		const std::unordered_map<unsigned int, ContentRepository> &repositoryList() const { return m_repositoryList; }
 
 		ContentUser *getUser(unsigned int id) { return getItem(id, m_userList); }
 		ContentInstance *getInstance(unsigned int id) { return getItem(id, m_instanceList); }
@@ -73,6 +76,7 @@ class ContentData : public QObject {
 		ContentEngineVersion *getEngineVersion(unsigned int id) { return getItem(id, m_engineVersionList); }
 		ContentMod *getMod(unsigned int id) { return getItem(id, m_modList); }
 		ContentModVersion *getModVersion(unsigned int id) { return getItem(id, m_modVersionList); }
+		ContentRepository *getRepository(unsigned int id) { return getItem(id, m_repositoryList); }
 
 		void setUser(unsigned int id, const ContentUser &user) { setItem(id, user, m_userList); }
 		void setInstance(unsigned int id, const ContentInstance &instance) { setItem(id, instance, m_instanceList); }
@@ -80,6 +84,7 @@ class ContentData : public QObject {
 		void setEngineVersion(unsigned int id, const ContentEngineVersion &engineVersion) { setItem(id, engineVersion, m_engineVersionList); }
 		void setMod(unsigned int id, const ContentMod &mod) { setItem(id, mod, m_modList); }
 		void setModVersion(unsigned int id, const ContentModVersion &modVersion) { setItem(id, modVersion, m_modVersionList); }
+		void setRepository(unsigned int id, const ContentRepository &repository) { setItem(id, repository, m_repositoryList); }
 
 		void removeInstance(unsigned int id) { m_instanceList.erase(id); }
 
@@ -100,6 +105,7 @@ class ContentData : public QObject {
 		std::unordered_map<unsigned int, ContentEngineVersion> m_engineVersionList;
 		std::unordered_map<unsigned int, ContentMod> m_modList;
 		std::unordered_map<unsigned int, ContentModVersion> m_modVersionList;
+		std::unordered_map<unsigned int, ContentRepository> m_repositoryList;
 
 		template<typename T>
 		T *getItem(unsigned int id, std::unordered_map<unsigned int, T> &itemList) {

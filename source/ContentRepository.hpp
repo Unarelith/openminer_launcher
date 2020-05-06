@@ -23,50 +23,24 @@
  *
  * =====================================================================================
  */
-#ifndef MAINWINDOW_HPP_
-#define MAINWINDOW_HPP_
+#ifndef CONTENTREPOSITORY_HPP_
+#define CONTENTREPOSITORY_HPP_
 
-#include <QMainWindow>
-#include <QTabWidget>
+#include <QUrl>
+#include <QUuid>
 
-#include "ContentData.hpp"
-#include "Session.hpp"
+#include "ContentItem.hpp"
 
-#include "EngineVersionTabWidget.hpp"
-#include "InstanceTabWidget.hpp"
-#include "ModTabWidget.hpp"
-#include "NewsTabWidget.hpp"
+class ContentData;
 
-class MainWindow : public QMainWindow {
-	Q_OBJECT
-
+class ContentRepository : public ContentItem {
 	public:
-		MainWindow(const QString &apiSource);
+		ContentRepository(unsigned int id, const QString &name, const QUrl &url, const QUuid &uuid);
+		explicit ContentRepository(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("repositories", sqlQuery) {}
 
-		void closeEvent(QCloseEvent *event) override;
-		void keyPressEvent(QKeyEvent *event) override;
-
-	private:
-		void openDatabase();
-
-		void connectObjects();
-		void updateWidgets();
-
-		void setupTabs();
-		void setupStatusBar();
-		void setupMenuBar();
-
-		void openRepositoryWindow();
-		void openAboutWindow();
-
-		ContentData m_contentData;
-
-		QTabWidget m_tabWidget{this};
-
-		InstanceTabWidget m_instanceTab{m_contentData};
-		NewsTabWidget m_newsTab{m_contentData};
-		EngineVersionTabWidget m_engineVersionTab{m_contentData};
-		ModTabWidget m_modTab{m_contentData};
+		QString name() const { return get("name").toString(); }
+		QUrl url() const { return get("url").toUrl(); }
+		QUuid uuid() const { return get("uuid").toUuid(); }
 };
 
-#endif // MAINWINDOW_HPP_
+#endif // CONTENTREPOSITORY_HPP_

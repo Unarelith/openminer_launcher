@@ -23,50 +23,19 @@
  *
  * =====================================================================================
  */
-#ifndef MAINWINDOW_HPP_
-#define MAINWINDOW_HPP_
+#ifndef REPOSITORYEDITWINDOW_HPP_
+#define REPOSITORYEDITWINDOW_HPP_
 
-#include <QMainWindow>
-#include <QTabWidget>
+#include <QDialog>
 
-#include "ContentData.hpp"
-#include "Session.hpp"
+class ContentRepository;
 
-#include "EngineVersionTabWidget.hpp"
-#include "InstanceTabWidget.hpp"
-#include "ModTabWidget.hpp"
-#include "NewsTabWidget.hpp"
-
-class MainWindow : public QMainWindow {
-	Q_OBJECT
-
+class RepositoryEditWindow : public QDialog {
 	public:
-		MainWindow(const QString &apiSource);
-
-		void closeEvent(QCloseEvent *event) override;
-		void keyPressEvent(QKeyEvent *event) override;
+		RepositoryEditWindow(ContentRepository *repository = nullptr, QWidget *parent = nullptr);
 
 	private:
-		void openDatabase();
-
-		void connectObjects();
-		void updateWidgets();
-
-		void setupTabs();
-		void setupStatusBar();
-		void setupMenuBar();
-
-		void openRepositoryWindow();
-		void openAboutWindow();
-
-		ContentData m_contentData;
-
-		QTabWidget m_tabWidget{this};
-
-		InstanceTabWidget m_instanceTab{m_contentData};
-		NewsTabWidget m_newsTab{m_contentData};
-		EngineVersionTabWidget m_engineVersionTab{m_contentData};
-		ModTabWidget m_modTab{m_contentData};
+		ContentRepository *m_repository = nullptr;
 };
 
-#endif // MAINWINDOW_HPP_
+#endif // REPOSITORYEDITWINDOW_HPP_

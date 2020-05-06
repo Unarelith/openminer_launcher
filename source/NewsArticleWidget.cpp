@@ -25,7 +25,7 @@
  */
 #include <QVBoxLayout>
 
-#include "ContentNewsArticle.hpp"
+#include "ContentData.hpp"
 #include "NewsArticleWidget.hpp"
 
 NewsArticleWidget::NewsArticleWidget(QWidget *parent) : QWidget(parent) {
@@ -57,21 +57,30 @@ NewsArticleWidget::NewsArticleWidget(QWidget *parent) : QWidget(parent) {
 	line2->setFrameShape(QFrame::HLine);
 	line2->setFrameShadow(QFrame::Sunken);
 
+	m_authorWidget = new QLabel;
+
 	m_dateWidget = new QLabel;
 	m_dateWidget->setAlignment(Qt::AlignRight);
+
+	auto *horizontalLayout = new QHBoxLayout;
+	horizontalLayout->addWidget(m_authorWidget);
+	horizontalLayout->addWidget(m_dateWidget);
 
 	auto *layout = new QVBoxLayout(this);
 	layout->addWidget(m_titleWidget);
 	layout->addWidget(line);
 	layout->addWidget(m_contentWidget);
 	layout->addWidget(line2);
-	layout->addWidget(m_dateWidget);
+	layout->addLayout(horizontalLayout);
 }
 
-void NewsArticleWidget::update(const ContentNewsArticle &article) {
-	m_dateWidget->setText(article.date().toString("dddd dd MMMM HH:mm:ss"));
+void NewsArticleWidget::update(const ContentNewsArticle &article, ContentData &data) {
+	ContentUser *author = data.getUser(article.author());
+	ContentRepository *repository = data.getRepositoryFromUuid(article.repositoryUuid());
 
 	m_titleWidget->setText(article.title());
 	m_contentWidget->setText(article.content());
+	m_authorWidget->setText("By " + author->name() + " on repository " + repository->name());
+	m_dateWidget->setText(article.date().toString("dddd dd MMMM HH:mm:ss"));
 }
 

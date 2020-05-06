@@ -28,18 +28,20 @@
 
 #include <QLabel>
 
+class ContentData;
 class ContentNewsArticle;
 
 class NewsArticleWidget : public QWidget {
 	public:
 		NewsArticleWidget(QWidget *parent = nullptr);
 
-		void update(const ContentNewsArticle &article);
+		void update(const ContentNewsArticle &article, ContentData &data);
 
 	private:
-		QLabel *m_dateWidget = nullptr;
 		QLabel *m_titleWidget = nullptr;
 		QLabel *m_contentWidget = nullptr;
+		QLabel *m_authorWidget = nullptr;
+		QLabel *m_dateWidget = nullptr;
 };
 
 #endif // NEWSARTICLEWIDGET_HPP_

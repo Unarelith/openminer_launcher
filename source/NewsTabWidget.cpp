@@ -56,7 +56,7 @@ void NewsTabWidget::update() {
 
 	for (auto &newsArticle : newsArticles) {
 		auto *widget = new NewsArticleWidget{this};
-		widget->update(newsArticle);
+		widget->update(newsArticle, m_data);
 		m_layout->addWidget(widget);
 		m_widgetList.append(widget);
 	}

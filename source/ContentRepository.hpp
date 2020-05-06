@@ -35,12 +35,16 @@ class ContentData;
 
 class ContentRepository : public ContentItem {
 	public:
-		ContentRepository(unsigned int id, const QString &name, const QUrl &url, const QUuid &uuid);
+		ContentRepository(unsigned int id, const QString &name, const QString &url);
 		explicit ContentRepository(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("repositories", sqlQuery) {}
 
 		QString name() const { return get("name").toString(); }
 		QUrl url() const { return get("url").toUrl(); }
 		QUuid uuid() const { return get("uuid").toUuid(); }
+
+		void setName(const QString &name) { set("name", name); updateDatabaseTable(); writeToDatabase(); }
+		void setUrl(const QString &url) { set("url", url); updateDatabaseTable(); writeToDatabase(); }
+		void setUuid(const QString &uuid) { set("uuid", uuid); updateDatabaseTable(); writeToDatabase(); }
 };
 
 #endif // CONTENTREPOSITORY_HPP_

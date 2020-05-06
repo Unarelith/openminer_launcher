@@ -23,8 +23,9 @@
  *
  * =====================================================================================
  */
+#include <QApplication>
+#include <QMessageBox>
 #include <QPushButton>
-#include <QTreeWidget>
 #include <QVBoxLayout>
 
 #include "ContentData.hpp"
@@ -34,20 +35,11 @@
 RepositoryWindow::RepositoryWindow(ContentData &data, QWidget *parent) : QDialog(parent), m_data(data) {
 	setModal(true);
 
-	auto *repositoryList = new QTreeWidget;
-	repositoryList->setHeaderLabels({tr("ID"), tr("Name"), tr("URL"), tr("UUID")});
-	repositoryList->setRootIsDecorated(false);
-	repositoryList->setSortingEnabled(true);
-	repositoryList->hideColumn(0);
-
-	auto &repositories = data.repositoryList();
-	for (auto &it : repositories) {
-		auto *item = new QTreeWidgetItem(repositoryList);
-		item->setText(0, QString::number(it.second.id()));
-		item->setText(1, it.second.name());
-		item->setText(2, it.second.url().toString());
-		item->setText(3, it.second.uuid().toString());
-	}
+	m_repositoryList = new QTreeWidget;
+	m_repositoryList->setHeaderLabels({tr("ID"), tr("Name"), tr("URL"), tr("UUID")});
+	m_repositoryList->setRootIsDecorated(false);
+	m_repositoryList->setSortingEnabled(true);
+	m_repositoryList->hideColumn(0);
 
 	auto *addButton = new QPushButton{"Add"};
 	auto *editButton = new QPushButton{"Edit"};
@@ -63,22 +55,54 @@ RepositoryWindow::RepositoryWindow(ContentData &data, QWidget *parent) : QDialog
 	horizontalLayout->addWidget(removeButton);
 
 	auto *layout = new QVBoxLayout(this);
-	layout->addWidget(repositoryList);
+	layout->addWidget(m_repositoryList);
 	layout->addLayout(horizontalLayout);
+
+	update();
+}
+
+void RepositoryWindow::update() {
+	m_repositoryList->clear();
+
+	auto &repositoryList = m_data.repositoryList();
+	for (auto &it : repositoryList) {
+		auto *item = new QTreeWidgetItem(m_repositoryList);
+		item->setText(0, QString::number(it.second.id()));
+		item->setText(1, it.second.name());
+		item->setText(2, it.second.url().toString());
+		item->setText(3, it.second.uuid().toString());
+	}
 }
 
 void RepositoryWindow::addRepository() {
-	auto *window = new RepositoryEditWindow{nullptr, this};
+	auto *window = new RepositoryEditWindow{nullptr, m_data, this};
+	connect(window, &QDialog::accepted, this, &RepositoryWindow::update);
 	window->show();
 }
 
 void RepositoryWindow::editRepository() {
-	auto *window = new RepositoryEditWindow{nullptr, this}; // FIXME
-	window->show();
+	QList<QTreeWidgetItem *> selectedItems = m_repositoryList->selectedItems();
+	if (selectedItems.size() == 1) {
+		unsigned int repositoryID = selectedItems.at(0)->text(0).toUInt();
+		ContentRepository *repository = m_data.getRepository(repositoryID);
+
+		auto *window = new RepositoryEditWindow{repository, m_data, this};
+		connect(window, &QDialog::accepted, this, &RepositoryWindow::update);
+		window->show();
+	}
 }
 
 void RepositoryWindow::removeRepository() {
-	// TODO: Confirmation dialog
-	// TODO: Remove the repository from m_data
+	QList<QTreeWidgetItem *> selectedItems = m_repositoryList->selectedItems();
+	if (selectedItems.size() == 1) {
+		auto result = QMessageBox::question(this, QApplication::applicationDisplayName(), "Do you really want to remove this repository?");
+		if (result != QMessageBox::Yes)
+			return;
+
+		unsigned int repositoryID = selectedItems.at(0)->text(0).toUInt();
+		m_data.removeRepository(repositoryID);
+
+		update();
+	}
 }
 

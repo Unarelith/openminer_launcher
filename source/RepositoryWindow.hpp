@@ -27,6 +27,7 @@
 #define REPOSITORYWINDOW_HPP_
 
 #include <QDialog>
+#include <QTreeWidget>
 
 class ContentData;
 
@@ -42,6 +43,8 @@ class RepositoryWindow : public QDialog {
 		void removeRepository();
 
 		ContentData &m_data;
+
+		QTreeWidget *m_repositoryList = nullptr;
 };
 
 #endif // REPOSITORYWINDOW_HPP_

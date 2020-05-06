@@ -87,6 +87,7 @@ class ContentData : public QObject {
 		void setRepository(unsigned int id, const ContentRepository &repository) { setItem(id, repository, m_repositoryList); }
 
 		void removeInstance(unsigned int id) { m_instanceList.erase(id); }
+		void removeRepository(unsigned int id) { m_repositoryList.erase(id); }
 
 	signals:
 		void stateChanged(const QString &state, int timeout = 0);

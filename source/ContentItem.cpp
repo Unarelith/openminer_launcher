@@ -58,8 +58,7 @@ void ContentItem::updateDatabaseTable() const {
 			Database::removeTable(m_sqlTable);
 		}
 	}
-
-	if (!database.tables().contains(m_sqlTable)) {
+	else {
 		Database::addTable(m_sqlTable, m_data);
 	}
 }

@@ -27,15 +27,25 @@
 #define REPOSITORYEDITWINDOW_HPP_
 
 #include <QDialog>
+#include <QLineEdit>
 
+class ContentData;
 class ContentRepository;
 
 class RepositoryEditWindow : public QDialog {
 	public:
-		RepositoryEditWindow(ContentRepository *repository = nullptr, QWidget *parent = nullptr);
+		RepositoryEditWindow(ContentRepository *repository, ContentData &data, QWidget *parent = nullptr);
 
 	private:
+		void saveRepository();
+
+		ContentData &m_data;
+
 		ContentRepository *m_repository = nullptr;
+
+		QLineEdit *m_nameEdit = nullptr;
+		QLineEdit *m_urlEdit = nullptr;
+		QLineEdit *m_uuidEdit = nullptr;
 };
 
 #endif // REPOSITORYEDITWINDOW_HPP_

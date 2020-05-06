@@ -23,24 +23,35 @@
  *
  * =====================================================================================
  */
+#include <QApplication>
 #include <QFormLayout>
-#include <QLineEdit>
+#include <QMessageBox>
 #include <QPushButton>
 
+#include "ContentData.hpp"
 #include "RepositoryEditWindow.hpp"
 
-RepositoryEditWindow::RepositoryEditWindow(ContentRepository *repository, QWidget *parent) : m_repository(repository) {
+RepositoryEditWindow::RepositoryEditWindow(ContentRepository *repository, ContentData &data, QWidget *parent)
+	: m_data(data), m_repository(repository)
+{
 	setModal(true);
 
+	m_nameEdit = new QLineEdit;
+	m_urlEdit = new QLineEdit;
+
+	if (repository) {
+		m_nameEdit->setText(repository->name());
+		m_urlEdit->setText(repository->url().toString());
+	}
+
 	auto *formLayout = new QFormLayout;
-	formLayout->addRow("&Name:", new QLineEdit);
-	formLayout->addRow("&URL:", new QLineEdit);
-	formLayout->addRow("UU&ID:", new QLineEdit);
+	formLayout->addRow("&Name:", m_nameEdit);
+	formLayout->addRow("&URL:", m_urlEdit);
 
 	auto *okButton = new QPushButton{"&OK"};
 	auto *cancelButton = new QPushButton{"&Cancel"};
 
-	connect(okButton, &QPushButton::clicked, this, &QDialog::close); // FIXME
+	connect(okButton, &QPushButton::clicked, this, &RepositoryEditWindow::saveRepository);
 	connect(cancelButton, &QPushButton::clicked, this, &QDialog::close);
 
 	auto *buttonLayout = new QHBoxLayout;
@@ -50,5 +61,35 @@ RepositoryEditWindow::RepositoryEditWindow(ContentRepository *repository, QWidge
 	auto *layout = new QVBoxLayout{this};
 	layout->addLayout(formLayout);
 	layout->addLayout(buttonLayout);
+}
+
+void RepositoryEditWindow::saveRepository() {
+	QString name = m_nameEdit->text();
+	QString url = m_urlEdit->text();
+
+	if (name.isEmpty()) {
+		QMessageBox::critical(this, QApplication::applicationDisplayName(), "Name required");
+		return;
+	}
+
+	if (url.isEmpty()) {
+		QMessageBox::critical(this, QApplication::applicationDisplayName(), "URL required");
+		return;
+	}
+
+	// TODO: Get the UUID here
+
+	if (m_repository) {
+		m_repository->setName(name);
+		m_repository->setUrl(url);
+	}
+	else {
+		ContentRepository repository(m_data.repositoryList().size(), name, url);
+		repository.updateDatabaseTable();
+		repository.writeToDatabase();
+		m_data.setRepository(m_data.repositoryList().size(), repository);
+	}
+
+	accept();
 }
 

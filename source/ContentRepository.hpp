@@ -35,7 +35,7 @@ class ContentData;
 
 class ContentRepository : public ContentItem {
 	public:
-		ContentRepository(unsigned int id, const QString &name, const QString &url);
+		ContentRepository(unsigned int id, const QString &name, const QString &url, const QString &uuid);
 		explicit ContentRepository(const QSqlQuery &sqlQuery, ContentData &data) : ContentItem("repositories", sqlQuery) {}
 
 		QString name() const { return get("name").toString(); }

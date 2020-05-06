@@ -42,9 +42,15 @@ class RepositoryWindow : public QDialog {
 		void editRepository();
 		void removeRepository();
 
+		void selectionChanged();
+
 		ContentData &m_data;
 
 		QTreeWidget *m_repositoryList = nullptr;
+
+		QPushButton *m_addButton = nullptr;
+		QPushButton *m_editButton = nullptr;
+		QPushButton *m_removeButton = nullptr;
 };
 
 #endif // REPOSITORYWINDOW_HPP_

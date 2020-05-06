@@ -37,6 +37,7 @@ class Session : public QObject {
 
 		using ParameterList = std::map<QString, QString>;
 		QJsonDocument get(const QString &apiEndpoint, const ParameterList &parameters = {}) const;
+		QJsonDocument get(const QString &baseUrl, const QString &apiEndpoint, const ParameterList &parameters = {}) const;
 
 		bool download(const QUrl &url, const QString &path) const;
 

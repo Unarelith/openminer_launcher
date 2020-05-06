@@ -39,13 +39,17 @@ Session::Session() {
 }
 
 QJsonDocument Session::get(const QString &apiEndpoint, const ParameterList &parameters) const {
-	QString url = baseUrl + apiEndpoint + "?format=json";
+	return get(baseUrl, apiEndpoint, parameters);
+}
+
+QJsonDocument Session::get(const QString &baseUrl, const QString &apiEndpoint, const ParameterList &parameters) const {
+	QString url = baseUrl + apiEndpoint;
 	for (auto &parameter : parameters)
 		url += "&" + parameter.first + "=" + parameter.second;
 
-	// std::cout << "GET " << apiEndpoint.toStdString() << std::endl;
+	// qDebug() << "GET" << url;
 
-	emit stateChanged("Downloading intra data, this may take a while...");
+	emit stateChanged("Downloading...");
 
 	// QTime before = QTime::currentTime();
 
@@ -60,7 +64,7 @@ QJsonDocument Session::get(const QString &apiEndpoint, const ParameterList &para
 	int statusCode = statusCodeVariant.toInt();
 
 	if (statusCode != 200) {
-		std::cerr << "Error: Http request failed. Code: " << statusCode << std::endl;
+		qDebug() << "Error: Http request failed. Code:" << statusCode;
 		emit stateChanged("Request failed. (" + QString::number(statusCode) + ")");
 		emit httpError(statusCode);
 

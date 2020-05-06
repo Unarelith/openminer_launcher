@@ -33,6 +33,7 @@
 #include "RepositoryWindow.hpp"
 
 RepositoryWindow::RepositoryWindow(ContentData &data, QWidget *parent) : QDialog(parent), m_data(data) {
+	resize(640, 240);
 	setModal(true);
 
 	m_repositoryList = new QTreeWidget;
@@ -41,24 +42,27 @@ RepositoryWindow::RepositoryWindow(ContentData &data, QWidget *parent) : QDialog
 	m_repositoryList->setSortingEnabled(true);
 	m_repositoryList->hideColumn(0);
 
-	auto *addButton = new QPushButton{"Add"};
-	auto *editButton = new QPushButton{"Edit"};
-	auto *removeButton = new QPushButton{"Remove"};
+	connect(m_repositoryList, &QTreeWidget::itemSelectionChanged, this, &RepositoryWindow::selectionChanged);
 
-	connect(addButton, &QPushButton::clicked, this, &RepositoryWindow::addRepository);
-	connect(editButton, &QPushButton::clicked, this, &RepositoryWindow::editRepository);
-	connect(removeButton, &QPushButton::clicked, this, &RepositoryWindow::removeRepository);
+	m_addButton = new QPushButton{"Add"};
+	m_editButton = new QPushButton{"Edit"};
+	m_removeButton = new QPushButton{"Remove"};
+
+	connect(m_addButton, &QPushButton::clicked, this, &RepositoryWindow::addRepository);
+	connect(m_editButton, &QPushButton::clicked, this, &RepositoryWindow::editRepository);
+	connect(m_removeButton, &QPushButton::clicked, this, &RepositoryWindow::removeRepository);
 
 	auto *horizontalLayout = new QHBoxLayout;
-	horizontalLayout->addWidget(addButton);
-	horizontalLayout->addWidget(editButton);
-	horizontalLayout->addWidget(removeButton);
+	horizontalLayout->addWidget(m_addButton);
+	horizontalLayout->addWidget(m_editButton);
+	horizontalLayout->addWidget(m_removeButton);
 
 	auto *layout = new QVBoxLayout(this);
 	layout->addWidget(m_repositoryList);
 	layout->addLayout(horizontalLayout);
 
 	update();
+	selectionChanged();
 }
 
 void RepositoryWindow::update() {
@@ -103,6 +107,18 @@ void RepositoryWindow::removeRepository() {
 		m_data.removeRepository(repositoryID);
 
 		update();
+	}
+}
+
+void RepositoryWindow::selectionChanged() {
+	QList<QTreeWidgetItem *> selectedItems = m_repositoryList->selectedItems();
+	if (selectedItems.size() > 0) {
+		m_editButton->setEnabled(true);
+		m_removeButton->setEnabled(true);
+	}
+	else {
+		m_editButton->setEnabled(false);
+		m_removeButton->setEnabled(false);
 	}
 }
 

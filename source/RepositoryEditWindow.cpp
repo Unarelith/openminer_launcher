@@ -66,6 +66,8 @@ RepositoryEditWindow::RepositoryEditWindow(ContentRepository *repository, Conten
 void RepositoryEditWindow::saveRepository() {
 	QString name = m_nameEdit->text();
 	QString url = m_urlEdit->text();
+	if (!url.endsWith('/'))
+		url.append('/');
 
 	if (name.isEmpty()) {
 		QMessageBox::critical(this, QApplication::applicationDisplayName(), "Name required");
@@ -77,14 +79,17 @@ void RepositoryEditWindow::saveRepository() {
 		return;
 	}
 
-	// TODO: Get the UUID here
+	Session session;
+	QJsonDocument doc = session.get(url, "api/");
+	QString uuid = doc.object().value("uuid").toString();
 
 	if (m_repository) {
 		m_repository->setName(name);
 		m_repository->setUrl(url);
+		m_repository->setUuid(uuid);
 	}
 	else {
-		ContentRepository repository(m_data.repositoryList().size(), name, url);
+		ContentRepository repository(m_data.repositoryList().size(), name, url, uuid);
 		repository.updateDatabaseTable();
 		repository.writeToDatabase();
 		m_data.setRepository(m_data.repositoryList().size(), repository);

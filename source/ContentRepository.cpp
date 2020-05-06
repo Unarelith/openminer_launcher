@@ -27,11 +27,11 @@
 
 #include "ContentRepository.hpp"
 
-ContentRepository::ContentRepository(unsigned int id, const QString &name, const QString &url) : ContentItem("repositories") {
+ContentRepository::ContentRepository(unsigned int id, const QString &name, const QString &url, const QString &uuid) : ContentItem("repositories") {
 	m_id = id;
 
 	set("name", name);
 	set("url", url);
-	set("uuid", "");
+	set("uuid", uuid);
 }
 

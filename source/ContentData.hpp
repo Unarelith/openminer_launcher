@@ -37,6 +37,7 @@
 #include "ContentUser.hpp"
 #include "Database.hpp"
 #include "DatabaseThread.hpp"
+#include "Session.hpp"
 
 class ContentData : public QObject {
 	Q_OBJECT
@@ -61,6 +62,8 @@ class ContentData : public QObject {
 		void updateModVersionList();
 
 		const Database &database() const { return m_database; }
+
+		Session &session() { return m_session; }
 
 		const std::unordered_map<unsigned int, ContentUser> &userList() const { return m_userList; }
 		const std::unordered_map<unsigned int, ContentInstance> &instanceList() const { return m_instanceList; }
@@ -102,6 +105,8 @@ class ContentData : public QObject {
 	private:
 		Database m_database;
 		DatabaseThread *m_databaseThread = nullptr;
+
+		Session m_session;
 
 		std::unordered_map<unsigned int, ContentUser> m_userList;
 		std::unordered_map<unsigned int, ContentInstance> m_instanceList;

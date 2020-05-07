@@ -110,7 +110,7 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 		ContentEngineVersion *engineVersion = m_data.getEngineVersion(engineVersionID);
 
 		if (engineVersion) {
-			QNetworkReply *reply = m_session.downloadRequest(engineVersion->doc());
+			QNetworkReply *reply = m_data.session().downloadRequest(engineVersion->doc());
 			connect(reply, &QNetworkReply::finished, [this, reply]() { unzipFile(reply); });
 			connect(reply, &QNetworkReply::downloadProgress, this, [this, reply](qint64 bytesReceived, qint64 bytesTotal) {
 				updateProgressBar(reply, bytesReceived, bytesTotal);
@@ -159,7 +159,7 @@ void EngineVersionTabWidget::unzipFile(QNetworkReply *reply) {
 		if (!dir.exists(path))
 			dir.mkpath(path);
 
-		if (!m_session.saveFileToDisk(reply, path + "/content.zip")) {
+		if (!m_data.session().saveFileToDisk(reply, path + "/content.zip")) {
 			qDebug() << "Failed to save" << path + "/content.zip";
 			return;
 		}

@@ -167,7 +167,7 @@ void ModTabWidget::downloadActionTriggered() {
 		ContentModVersion *modVersion = getModVersionFromItem(selectedItems.at(0));
 
 		if (modVersion) {
-			QNetworkReply *reply = m_session.downloadRequest(modVersion->doc());
+			QNetworkReply *reply = m_data.session().downloadRequest(modVersion->doc());
 			connect(reply, &QNetworkReply::finished, [this, reply]() { unzipFile(reply); });
 			connect(reply, &QNetworkReply::downloadProgress, this, [this, reply](qint64 bytesReceived, qint64 bytesTotal) {
 				updateProgressBar(reply, bytesReceived, bytesTotal);
@@ -215,7 +215,7 @@ void ModTabWidget::unzipFile(QNetworkReply *reply) {
 		if (!dir.exists(path))
 			dir.mkpath(path);
 
-		if (!m_session.saveFileToDisk(reply, path + "/content.zip")) {
+		if (!m_data.session().saveFileToDisk(reply, path + "/content.zip")) {
 			qDebug() << "Failed to save" << path + "/content.zip";
 			return;
 		}

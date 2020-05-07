@@ -120,7 +120,7 @@ void MainWindow::setupStatusBar() {
 	QStatusBar *statusBar = QMainWindow::statusBar();
 	statusBar->addPermanentWidget(dbUpdateBar);
 
-	// connect(&m_session, &Session::stateChanged, statusBar, &QStatusBar::showMessage);
+	connect(&m_contentData.session(), &Session::stateChanged, statusBar, &QStatusBar::showMessage);
 	connect(&m_contentData, &ContentData::stateChanged, statusBar, &QStatusBar::showMessage);
 	connect(&m_contentData.database().loader(), &DatabaseLoader::stateChanged, statusBar, &QStatusBar::showMessage);
 	connect(&m_contentData.database().loader(), &DatabaseLoader::updateProgressed, dbUpdateBar, &QProgressBar::setValue);

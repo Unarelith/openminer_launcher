@@ -33,24 +33,25 @@
 #include "Session.hpp"
 
 Session::Session() {
-	m_network = new QNetworkAccessManager{this};
 }
 
-QJsonDocument Session::get(const QString &url, const ParameterList &parameters) const {
+QJsonDocument Session::get(const QString &url, const ParameterList &parameters) {
 	QString parameterString{""};
 	for (auto &parameter : parameters)
 		parameterString += "&" + parameter.first + "=" + parameter.second;
 
 	// qDebug() << "GET" << url + parameterString;
 
-	emit stateChanged("Downloading...");
+	// emit stateChanged("Downloading...");
 
 	// QTime before = QTime::currentTime();
 
-	QEventLoop waitReply;
-	connect(m_network, &QNetworkAccessManager::finished, &waitReply, &QEventLoop::quit);
+	QNetworkAccessManager &network = getNetworkAccessManager();
 
-	QNetworkReply *reply = m_network->get(QNetworkRequest(QUrl(url + parameterString)));
+	QEventLoop waitReply;
+	connect(&network, &QNetworkAccessManager::finished, &waitReply, &QEventLoop::quit);
+
+	QNetworkReply *reply = network.get(QNetworkRequest(QUrl(url + parameterString)));
 
 	waitReply.exec();
 
@@ -73,11 +74,13 @@ QJsonDocument Session::get(const QString &url, const ParameterList &parameters) 
 	return QJsonDocument::fromJson(reply->readAll());
 }
 
-bool Session::download(const QUrl &url, const QString &path) const {
-	QEventLoop waitReply;
-	connect(m_network, &QNetworkAccessManager::finished, &waitReply, &QEventLoop::quit);
+bool Session::download(const QUrl &url, const QString &path) {
+	QNetworkAccessManager &network = getNetworkAccessManager();
 
-	QNetworkReply *reply = m_network->get(QNetworkRequest(QUrl(url)));
+	QEventLoop waitReply;
+	connect(&network, &QNetworkAccessManager::finished, &waitReply, &QEventLoop::quit);
+
+	QNetworkReply *reply = network.get(QNetworkRequest(QUrl(url)));
 
 	waitReply.exec();
 
@@ -109,8 +112,8 @@ bool Session::download(const QUrl &url, const QString &path) const {
 	return false;
 }
 
-QNetworkReply *Session::downloadRequest(const QUrl &url) const {
-	return m_network->get(QNetworkRequest(QUrl(url)));
+QNetworkReply *Session::downloadRequest(const QUrl &url) {
+	return getNetworkAccessManager().get(QNetworkRequest(QUrl(url)));
 }
 
 bool Session::saveFileToDisk(QNetworkReply *reply, const QString &path) const {
@@ -140,5 +143,17 @@ bool Session::saveFileToDisk(QNetworkReply *reply, const QString &path) const {
 	}
 
 	return false;
+}
+
+QNetworkAccessManager &Session::getNetworkAccessManager() {
+	const QString thread_address = QString("0x") + QString::number((quintptr)QThread::currentThreadId(), 16);
+	auto it = m_networkManagers.find(thread_address);
+	if (it != m_networkManagers.end()) {
+		return *it->second;
+	} else {
+		qDebug() << "Creating new network manager for thread" << thread_address;
+		m_networkManagers.emplace(thread_address, new QNetworkAccessManager);
+		return *m_networkManagers.at(thread_address);
+	}
 }
 

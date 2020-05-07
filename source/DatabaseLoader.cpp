@@ -40,7 +40,7 @@ void DatabaseLoader::update() const {
 		emit updateProgressed(0);
 		emit stateChanged("Loading users from repository '" + it.second.name() + "'...");
 
-		updateModel<ContentUser>(it.second, "/api/user",
+		updateModel<ContentUser>(it.second, "/api/user", m_data.session(),
 				std::bind(&ContentData::getUser, &m_data, _1),
 				std::bind(&ContentData::setUser, &m_data, _1, _2),
 				std::bind(&ContentData::userList, &m_data));
@@ -48,7 +48,7 @@ void DatabaseLoader::update() const {
 		emit updateProgressed(20);
 		emit stateChanged("Loading news from repository '" + it.second.name() + "'...");
 
-		updateModel<ContentNewsArticle>(it.second, "/api/news",
+		updateModel<ContentNewsArticle>(it.second, "/api/news", m_data.session(),
 				std::bind(&ContentData::getNewsArticle, &m_data, _1),
 				std::bind(&ContentData::setNewsArticle, &m_data, _1, _2),
 				std::bind(&ContentData::newsArticleList, &m_data));
@@ -56,7 +56,7 @@ void DatabaseLoader::update() const {
 		emit updateProgressed(40);
 		emit stateChanged("Loading engine versions from repository '" + it.second.name() + "'...");
 
-		updateModel<ContentEngineVersion>(it.second, "/api/version",
+		updateModel<ContentEngineVersion>(it.second, "/api/version", m_data.session(),
 				std::bind(&ContentData::getEngineVersion, &m_data, _1),
 				std::bind(&ContentData::setEngineVersion, &m_data, _1, _2),
 				std::bind(&ContentData::engineVersionList, &m_data));
@@ -64,7 +64,7 @@ void DatabaseLoader::update() const {
 		emit updateProgressed(60);
 		emit stateChanged("Loading mods from repository '" + it.second.name() + "'...");
 
-		updateModel<ContentMod>(it.second, "/api/mod",
+		updateModel<ContentMod>(it.second, "/api/mod", m_data.session(),
 				std::bind(&ContentData::getMod, &m_data, _1),
 				std::bind(&ContentData::setMod, &m_data, _1, _2),
 				std::bind(&ContentData::modList, &m_data));
@@ -72,7 +72,7 @@ void DatabaseLoader::update() const {
 		emit updateProgressed(80);
 		emit stateChanged("Loading mod versions from repository '" + it.second.name() + "'...");
 
-		updateModel<ContentModVersion>(it.second, "/api/mod/version",
+		updateModel<ContentModVersion>(it.second, "/api/mod/version", m_data.session(),
 				std::bind(&ContentData::getModVersion, &m_data, _1),
 				std::bind(&ContentData::setModVersion, &m_data, _1, _2),
 				std::bind(&ContentData::modVersionList, &m_data));

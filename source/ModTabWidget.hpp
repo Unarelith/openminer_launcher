@@ -28,10 +28,9 @@
 
 #include <unordered_map>
 
+#include <QNetworkReply>
 #include <QPushButton>
 #include <QTreeWidget>
-
-#include "Session.hpp"
 
 class ContentData;
 class ContentModVersion;
@@ -63,8 +62,6 @@ class ModTabWidget : public QWidget {
 		QTreeWidget m_modListWidget;
 
 		QTreeWidgetItem *m_currentItem = nullptr;
-
-		Session m_session;
 
 		QPushButton *m_installButton = nullptr;
 		QPushButton *m_removeButton = nullptr;

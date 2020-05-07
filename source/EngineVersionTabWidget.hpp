@@ -28,10 +28,9 @@
 
 #include <unordered_map>
 
+#include <QNetworkReply>
 #include <QPushButton>
 #include <QTreeWidget>
-
-#include "Session.hpp"
 
 class ContentData;
 
@@ -58,8 +57,6 @@ class EngineVersionTabWidget : public QWidget {
 		ContentData &m_data;
 
 		QTreeWidget m_versionListWidget;
-
-		Session m_session;
 
 		QPushButton *m_installButton = nullptr;
 		QPushButton *m_removeButton = nullptr;

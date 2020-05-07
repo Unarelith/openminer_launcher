@@ -26,6 +26,8 @@
 #ifndef SESSION_HPP_
 #define SESSION_HPP_
 
+#include <unordered_map>
+
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
 
@@ -36,10 +38,10 @@ class Session : public QObject {
 		Session();
 
 		using ParameterList = std::map<QString, QString>;
-		QJsonDocument get(const QString &url, const ParameterList &parameters = {}) const;
+		QJsonDocument get(const QString &url, const ParameterList &parameters = {});
 
-		bool download(const QUrl &url, const QString &path) const;
-		QNetworkReply *downloadRequest(const QUrl &url) const;
+		bool download(const QUrl &url, const QString &path);
+		QNetworkReply *downloadRequest(const QUrl &url);
 		bool saveFileToDisk(QNetworkReply *reply, const QString &path) const;
 
 		bool isLoggedIn() const { return m_isLoggedIn; }
@@ -54,9 +56,11 @@ class Session : public QObject {
 		void stateChanged(const QString &state, int timeout = 0) const;
 
 	private:
+		QNetworkAccessManager &getNetworkAccessManager();
+
 		bool m_isLoggedIn = false;
 
-		QNetworkAccessManager *m_network = nullptr;
+		std::unordered_map<QString, QNetworkAccessManager *> m_networkManagers;
 };
 
 #endif // SESSION_HPP_

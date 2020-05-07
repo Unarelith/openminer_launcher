@@ -32,8 +32,8 @@
 #include <QObject>
 #include <QThread>
 
-#include "Session.hpp"
 #include "ContentRepository.hpp"
+#include "Session.hpp"
 
 class ContentData;
 
@@ -56,11 +56,10 @@ class DatabaseLoader : public QObject {
 		ContentData &m_data;
 
 		template<typename T, typename F1, typename F2, typename F3>
-		void updateModel(const ContentRepository &repository, const QString &apiEndpoint, const F1 &getModel, const F2 &setModel, const F3 &modelList) const {
+		void updateModel(const ContentRepository &repository, const QString &apiEndpoint, Session &session, const F1 &getModel, const F2 &setModel, const F3 &modelList) const {
 			if (QThread::currentThread()->isInterruptionRequested())
 				return;
 
-			Session session;
 			QJsonDocument json = session.get(repository.url().toString() + apiEndpoint);
 			QJsonArray array = json.array();
 			if (array.isEmpty())

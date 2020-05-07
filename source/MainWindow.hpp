@@ -30,8 +30,6 @@
 #include <QTabWidget>
 
 #include "ContentData.hpp"
-#include "Session.hpp"
-
 #include "EngineVersionTabWidget.hpp"
 #include "InstanceTabWidget.hpp"
 #include "ModTabWidget.hpp"

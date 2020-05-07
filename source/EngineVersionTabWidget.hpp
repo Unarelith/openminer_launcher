@@ -28,6 +28,7 @@
 
 #include <unordered_map>
 
+#include <QPushButton>
 #include <QTreeWidget>
 
 #include "Session.hpp"
@@ -46,21 +47,22 @@ class EngineVersionTabWidget : public QWidget {
 		void windowRefeshRequested();
 
 	private:
-		void showContextMenu(const QPoint &pos);
-
 		void downloadActionTriggered();
+		void removeActionTriggered();
+
 		void updateProgressBar(QNetworkReply *reply, qint64 bytesReceived, qint64 bytesTotal);
 		void unzipFile(QNetworkReply *reply);
 
-		void removeActionTriggered();
+		void toggleButtons();
 
 		ContentData &m_data;
 
 		QTreeWidget m_versionListWidget;
 
-		QTreeWidgetItem *m_currentItem = nullptr;
-
 		Session m_session;
+
+		QPushButton *m_installButton = nullptr;
+		QPushButton *m_removeButton = nullptr;
 
 		std::unordered_map<QNetworkReply *, QTreeWidgetItem *> m_downloads;
 };

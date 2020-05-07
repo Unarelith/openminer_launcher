@@ -24,11 +24,11 @@
  * =====================================================================================
  */
 #include <QDir>
+#include <QHBoxLayout>
 #include <QMenu>
 #include <QNetworkReply>
 #include <QProgressBar>
 #include <QTreeWidgetItemIterator>
-#include <QVBoxLayout>
 
 #include <quazip/quazipfile.h>
 
@@ -45,13 +45,27 @@ EngineVersionTabWidget::EngineVersionTabWidget(ContentData &data, QWidget *paren
 	m_versionListWidget.setColumnWidth(0, 27);
 	m_versionListWidget.setColumnWidth(5, 32);
 	m_versionListWidget.hideColumn(1);
-	m_versionListWidget.setSelectionMode(QAbstractItemView::NoSelection);
-	m_versionListWidget.setFocusPolicy(Qt::NoFocus);
 
-	connect(&m_versionListWidget, &QTreeWidget::customContextMenuRequested, this, &EngineVersionTabWidget::showContextMenu);
+	connect(&m_versionListWidget, &QTreeWidget::itemSelectionChanged, this, &EngineVersionTabWidget::toggleButtons);
 
-	QVBoxLayout *layout = new QVBoxLayout{this};
+	m_installButton = new QPushButton{tr("Install")};
+	m_removeButton = new QPushButton{tr("Remove")};
+
+	m_installButton->setDisabled(true);
+	m_removeButton->setDisabled(true);
+
+	connect(m_installButton, &QPushButton::clicked, this, &EngineVersionTabWidget::downloadActionTriggered);
+	connect(m_removeButton, &QPushButton::clicked, this, &EngineVersionTabWidget::removeActionTriggered);
+
+	auto *sideBar = new QWidget;
+	auto *buttonLayout = new QVBoxLayout{sideBar};
+	buttonLayout->addWidget(m_installButton);
+	buttonLayout->addWidget(m_removeButton);
+	buttonLayout->addWidget(new QWidget, 1);
+
+	QHBoxLayout *layout = new QHBoxLayout{this};
 	layout->addWidget(&m_versionListWidget);
+	layout->addWidget(sideBar);
 }
 
 void EngineVersionTabWidget::update() {
@@ -89,50 +103,48 @@ void EngineVersionTabWidget::update() {
 		m_versionListWidget.resizeColumnToContents(i);
 }
 
-void EngineVersionTabWidget::showContextMenu(const QPoint &pos) {
-	QTreeWidgetItem *item = m_versionListWidget.itemAt(pos);
-	if (!item) return;
+void EngineVersionTabWidget::downloadActionTriggered() {
+	QList<QTreeWidgetItem *> selectedItems = m_versionListWidget.selectedItems();
+	if (selectedItems.size() == 1) {
+		unsigned int engineVersionID = selectedItems.at(0)->text(1).toUInt();
+		ContentEngineVersion *engineVersion = m_data.getEngineVersion(engineVersionID);
 
-	m_currentItem = item;
+		if (engineVersion) {
+			QNetworkReply *reply = m_session.downloadRequest(engineVersion->doc());
+			connect(reply, &QNetworkReply::finished, [this, reply]() { unzipFile(reply); });
+			connect(reply, &QNetworkReply::downloadProgress, this, [this, reply](qint64 bytesReceived, qint64 bytesTotal) {
+				updateProgressBar(reply, bytesReceived, bytesTotal);
+			});
 
-	ContentEngineVersion *engineVersion = m_data.getEngineVersion(m_currentItem->text(1).toUInt());
-	if (engineVersion) {
-		QMenu menu{this};
-
-		if (engineVersion->state() == ContentEngineVersion::State::Available) {
-			QAction *downloadAction = new QAction(tr("&Download"), this);
-			downloadAction->setStatusTip(tr("Download engine version"));
-			connect(downloadAction, &QAction::triggered, this, &EngineVersionTabWidget::downloadActionTriggered);
-			menu.addAction(downloadAction);
+			m_downloads.emplace(reply, selectedItems.at(0));
 		}
-		else if (engineVersion->state() == ContentEngineVersion::State::Downloaded) {
-			QAction *removeAction = new QAction(tr("&Remove"), this);
-			removeAction->setStatusTip(tr("Remove engine version"));
-			connect(removeAction, &QAction::triggered, this, &EngineVersionTabWidget::removeActionTriggered);
-			menu.addAction(removeAction);
-		}
-
-		menu.exec(m_versionListWidget.mapToGlobal(pos));
 	}
 }
 
-void EngineVersionTabWidget::downloadActionTriggered() {
-	ContentEngineVersion *engineVersion = m_data.getEngineVersion(m_currentItem->text(1).toUInt());
+void EngineVersionTabWidget::removeActionTriggered() {
+	QList<QTreeWidgetItem *> selectedItems = m_versionListWidget.selectedItems();
+	if (selectedItems.size() == 1) {
+		unsigned int engineVersionID = selectedItems.at(0)->text(1).toUInt();
+		ContentEngineVersion *engineVersion = m_data.getEngineVersion(engineVersionID);
 
-	if (engineVersion) {
-		QNetworkReply *reply = m_session.downloadRequest(engineVersion->doc());
-		connect(reply, &QNetworkReply::finished, [this, reply]() { unzipFile(reply); });
-		connect(reply, &QNetworkReply::downloadProgress, this, [this, reply](qint64 bytesReceived, qint64 bytesTotal) {
-			updateProgressBar(reply, bytesReceived, bytesTotal);
-		});
+		if (engineVersion) {
+			QString path = PathUtils::getEngineVersionPath(*engineVersion);
 
-		m_downloads.emplace(reply, m_currentItem);
+			QDir dir{path};
+			if (dir.exists())
+				dir.removeRecursively();
+
+			engineVersion->setState(ContentEngineVersion::State::Available);
+
+			update();
+		}
 	}
 }
 
 void EngineVersionTabWidget::updateProgressBar(QNetworkReply *reply, qint64 bytesReceived, qint64 bytesTotal) {
 	QProgressBar *progressBar = (QProgressBar *)m_versionListWidget.itemWidget(m_downloads.at(reply), 5);
-	progressBar->setValue((float)bytesReceived / bytesTotal * 100.f);
+	if (progressBar)
+		progressBar->setValue((float)bytesReceived / bytesTotal * 100.f);
 }
 
 void EngineVersionTabWidget::unzipFile(QNetworkReply *reply) {
@@ -200,20 +212,18 @@ void EngineVersionTabWidget::unzipFile(QNetworkReply *reply) {
 	}
 }
 
-void EngineVersionTabWidget::removeActionTriggered() {
-	ContentEngineVersion *engineVersion = m_data.getEngineVersion(m_currentItem->text(1).toUInt());
+void EngineVersionTabWidget::toggleButtons() {
+	QList<QTreeWidgetItem *> selectedItems = m_versionListWidget.selectedItems();
+	if (selectedItems.size() == 1) {
+		unsigned int engineVersionID = selectedItems.at(0)->text(1).toUInt();
+		ContentEngineVersion *engineVersion = m_data.getEngineVersion(engineVersionID);
 
-	if (engineVersion) {
-		QString path = PathUtils::getEngineVersionPath(*engineVersion);
-
-		QDir dir{path};
-		if (dir.exists())
-			dir.removeRecursively();
-
-		engineVersion->setState(ContentEngineVersion::State::Available);
-
-		update();
+		m_installButton->setEnabled(engineVersion->state() != ContentEngineVersion::State::Downloaded);
+		m_removeButton->setEnabled(engineVersion->state() == ContentEngineVersion::State::Downloaded);
+	}
+	else {
+		m_installButton->setEnabled(false);
+		m_removeButton->setEnabled(false);
 	}
 }
-
 

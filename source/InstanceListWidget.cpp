@@ -34,7 +34,7 @@
 #include "PathUtils.hpp"
 
 InstanceListWidget::InstanceListWidget(ContentData &data, QWidget *parent) : QTreeWidget(parent), m_data(data) {
-	setHeaderLabels({tr("ID"), tr("Name"), tr("Version")});
+	setHeaderLabels({tr("ID"), tr("Name"), tr("Version"), tr("Mods")});
 	setRootIsDecorated(false);
 	setSortingEnabled(true);
 	hideColumn(0);
@@ -48,7 +48,33 @@ void InstanceListWidget::update() {
 		auto *item = new QTreeWidgetItem(this);
 		item->setText(0, QString::number(it.second.id()));
 		item->setText(1, it.second.name());
-		item->setText(2, m_data.getEngineVersion(it.second.engineVersionID())->name());
+
+		auto *engineVersion = m_data.getEngineVersion(it.second.engineVersionID());
+		if (engineVersion) {
+			QString versionString = engineVersion->name();
+
+			auto *repo = m_data.getRepositoryFromUuid(engineVersion->repositoryUuid());
+			if (repo)
+				versionString += " (" + repo->name() + ")";
+
+			item->setText(2, versionString);
+		}
+
+		const auto &mods = it.second.mods();
+		QString modString;
+		for (auto &it : mods) {
+			auto *mod = m_data.getMod(it);
+			if (!modString.isEmpty())
+				modString += ", ";
+
+			modString += mod->name();
+
+			auto *repo = m_data.getRepositoryFromUuid(mod->repositoryUuid());
+			if (repo)
+				modString += " (" + repo->name() + ")";
+		}
+
+		item->setText(3, modString);
 	}
 }
 

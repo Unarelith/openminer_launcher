@@ -138,7 +138,7 @@ void ModTabWidget::update() {
 	toggleButtons();
 }
 
-ContentModVersion *ModTabWidget::getModVersionFromItem(QTreeWidgetItem *item) {
+ContentModVersion *ModTabWidget::getModVersionFromItem(QTreeWidgetItem *item, bool installed) {
 	ContentModVersion *modVersion = nullptr;
 	if (item->parent()) {
 		modVersion = m_data.getModVersion(item->text(1).toUInt());
@@ -146,11 +146,11 @@ ContentModVersion *ModTabWidget::getModVersionFromItem(QTreeWidgetItem *item) {
 	else {
 		ContentMod *mod = m_data.getMod(item->text(1).toUInt());
 
-		// FIXME: This should probably use the latest INSTALLED version instead
 		ContentModVersion *latestVersion = nullptr;
 		for (auto &it : mod->versions()) {
 			ContentModVersion *version = m_data.getModVersion(it);
-			if (!latestVersion || latestVersion->id() < version->id())
+			if ((!latestVersion || latestVersion->id() < version->id())
+			&& (!installed || version->state() == ContentModVersion::State::Downloaded))
 				latestVersion = version;
 		}
 
@@ -181,7 +181,7 @@ void ModTabWidget::downloadActionTriggered() {
 void ModTabWidget::removeActionTriggered() {
 	QList<QTreeWidgetItem *> selectedItems = m_modListWidget.selectedItems();
 	if (selectedItems.size() == 1) {
-		ContentModVersion *modVersion = getModVersionFromItem(selectedItems.at(0));
+		ContentModVersion *modVersion = getModVersionFromItem(selectedItems.at(0), true);
 
 		if (modVersion) {
 			QString path = PathUtils::getModVersionPath(modVersion->mod(), *modVersion);

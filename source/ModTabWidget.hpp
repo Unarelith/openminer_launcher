@@ -48,7 +48,7 @@ class ModTabWidget : public QWidget {
 		void windowRefeshRequested();
 
 	private:
-		ContentModVersion *getModVersionFromItem(QTreeWidgetItem *item);
+		ContentModVersion *getModVersionFromItem(QTreeWidgetItem *item, bool installed = false);
 
 		void downloadActionTriggered();
 		void removeActionTriggered();

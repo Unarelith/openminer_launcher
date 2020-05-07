@@ -76,6 +76,9 @@ void RepositoryWindow::update() {
 		item->setText(2, it.second.url().toString());
 		item->setText(3, it.second.uuid().toString());
 	}
+
+	for (int i = 0 ; i < 4 ; ++i)
+		m_repositoryList->resizeColumnToContents(i);
 }
 
 void RepositoryWindow::addRepository() {

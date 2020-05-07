@@ -30,7 +30,7 @@
 
 InstanceEditModTab::InstanceEditModTab(ContentData &data, ContentInstance *instance, QWidget *parent) : QWidget(parent) {
 	m_modListWidget = new QTreeWidget;
-	m_modListWidget->setHeaderLabels({"", tr("ID"), tr("Name"), tr("Creation date")});
+	m_modListWidget->setHeaderLabels({"", tr("ID"), tr("Name"), tr("Creation date"), tr("Repository")});
 	m_modListWidget->setRootIsDecorated(false);
 	m_modListWidget->setSortingEnabled(true);
 	m_modListWidget->sortItems(2, Qt::AscendingOrder);
@@ -56,6 +56,10 @@ InstanceEditModTab::InstanceEditModTab(ContentData &data, ContentInstance *insta
 			item->setText(2, it.second.name());
 			item->setText(3, it.second.date().toString());
 
+			auto *repo = data.getRepositoryFromUuid(it.second.repositoryUuid());
+			if (repo)
+				item->setText(4, repo->name());
+
 			if (instance && instance->mods().contains(it.second.id())) {
 				item->setSelected(true);
 			}
@@ -64,6 +68,9 @@ InstanceEditModTab::InstanceEditModTab(ContentData &data, ContentInstance *insta
 
 	auto *layout = new QVBoxLayout{this};
 	layout->addWidget(m_modListWidget);
+
+	for (int i = 0 ; i < 5 ; ++i)
+		m_modListWidget->resizeColumnToContents(i);
 }
 
 void InstanceEditModTab::updateSelectedMods() {

@@ -30,11 +30,10 @@
 
 InstanceEditVersionTab::InstanceEditVersionTab(ContentData &data, ContentInstance *instance, QWidget *parent) : QWidget(parent), m_data(data) {
 	m_versionListWidget = new QTreeWidget;
-	m_versionListWidget->setHeaderLabels({"", tr("ID"), tr("Name"), tr("Creation date")});
+	m_versionListWidget->setHeaderLabels({"", tr("ID"), tr("Name"), tr("Creation date"), tr("Repository")});
 	m_versionListWidget->setRootIsDecorated(false);
 	m_versionListWidget->setSortingEnabled(true);
 	m_versionListWidget->sortItems(2, Qt::AscendingOrder);
-	m_versionListWidget->setColumnWidth(0, 27);
 	m_versionListWidget->hideColumn(1);
 	m_versionListWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 	m_versionListWidget->setFocusPolicy(Qt::NoFocus);
@@ -54,6 +53,10 @@ InstanceEditVersionTab::InstanceEditVersionTab(ContentData &data, ContentInstanc
 			item->setText(2, it.second.name());
 			item->setText(3, it.second.date().toString());
 
+			auto *repo = m_data.getRepositoryFromUuid(it.second.repositoryUuid());
+			if (repo)
+				item->setText(4, repo->name());
+
 			if (instance && instance->engineVersionID() == (int)it.second.id()) {
 				item->setSelected(true);
 			}
@@ -62,6 +65,9 @@ InstanceEditVersionTab::InstanceEditVersionTab(ContentData &data, ContentInstanc
 
 	auto *layout = new QVBoxLayout{this};
 	layout->addWidget(m_versionListWidget);
+
+	for (int i = 0 ; i < 5 ; ++i)
+		m_versionListWidget->resizeColumnToContents(i);
 }
 
 void InstanceEditVersionTab::updateSelectedVersion() {

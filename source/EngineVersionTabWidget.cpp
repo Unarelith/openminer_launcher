@@ -30,8 +30,6 @@
 #include <QProgressBar>
 #include <QTreeWidgetItemIterator>
 
-#include <quazip/quazipfile.h>
-
 #include "ContentData.hpp"
 #include "EngineVersionTabWidget.hpp"
 #include "PathUtils.hpp"
@@ -101,6 +99,8 @@ void EngineVersionTabWidget::update() {
 
 	for (int i = 0 ; i < 5 ; ++i)
 		m_versionListWidget.resizeColumnToContents(i);
+
+	toggleButtons();
 }
 
 void EngineVersionTabWidget::downloadActionTriggered() {
@@ -162,47 +162,7 @@ void EngineVersionTabWidget::unzipFile(QNetworkReply *reply) {
 			return;
 		}
 
-		QuaZip archive{path + "/content.zip"};
-		if (!archive.open(QuaZip::mdUnzip)) {
-			qDebug() << "Failed to open archive. Error code:" << archive.getZipError();
-			return;
-		}
-
-		for(bool f = archive.goToFirstFile(); f; f = archive.goToNextFile()) {
-			QString filePath = archive.getCurrentFileName();
-
-			if (filePath.at(filePath.size() - 1) == '/') {
-				QDir dir;
-				dir.mkpath(path + QDir::separator() + filePath);
-			}
-		}
-
-		for(bool f = archive.goToFirstFile(); f; f = archive.goToNextFile()) {
-			QString filePath = archive.getCurrentFileName();
-
-			if (filePath.at(filePath.size() - 1) != '/') {
-				QuaZipFile file(archive.getZipName(), filePath);
-				file.open(QIODevice::ReadOnly);
-
-				QuaZipFileInfo info;
-				file.getFileInfo(&info);
-
-				QByteArray data = file.readAll();
-
-				file.close();
-
-				QFile dstFile(path + QDir::separator() + filePath);
-				dstFile.open(QIODevice::WriteOnly);
-				dstFile.write(data);
-				dstFile.setPermissions(info.getPermissions());
-				dstFile.close();
-			}
-		}
-
-		archive.close();
-
-		QFile file{path + "/content.zip"};
-		file.remove();
+		PathUtils::unzipFile(path + "/content.zip", true);
 
 		engineVersion->setState(ContentEngineVersion::State::Downloaded);
 

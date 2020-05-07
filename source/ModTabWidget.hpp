@@ -26,6 +26,9 @@
 #ifndef MODTABWIDGET_HPP_
 #define MODTABWIDGET_HPP_
 
+#include <unordered_map>
+
+#include <QPushButton>
 #include <QTreeWidget>
 
 #include "Session.hpp"
@@ -45,12 +48,15 @@ class ModTabWidget : public QWidget {
 		void windowRefeshRequested();
 
 	private:
-		void showContextMenu(const QPoint &pos);
-
 		ContentModVersion *getModVersionFromItem(QTreeWidgetItem *item);
 
 		void downloadActionTriggered();
 		void removeActionTriggered();
+
+		void updateProgressBar(QNetworkReply *reply, qint64 bytesReceived, qint64 bytesTotal);
+		void unzipFile(QNetworkReply *reply);
+
+		void toggleButtons();
 
 		ContentData &m_data;
 
@@ -59,6 +65,11 @@ class ModTabWidget : public QWidget {
 		QTreeWidgetItem *m_currentItem = nullptr;
 
 		Session m_session;
+
+		QPushButton *m_installButton = nullptr;
+		QPushButton *m_removeButton = nullptr;
+
+		std::unordered_map<QNetworkReply *, QTreeWidgetItem *> m_downloads;
 };
 
 #endif // MODTABWIDGET_HPP_

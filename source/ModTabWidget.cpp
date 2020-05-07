@@ -25,29 +25,43 @@
  */
 #include <QDir>
 #include <QMenu>
+#include <QNetworkReply>
+#include <QProgressBar>
 #include <QVBoxLayout>
-
-#include <quazip/quazipfile.h>
 
 #include "ContentData.hpp"
 #include "ModTabWidget.hpp"
 #include "PathUtils.hpp"
 
 ModTabWidget::ModTabWidget(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
-	m_modListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Author"), tr("Latest installed"), tr("Latest version"), tr("Repository"), tr("Creation date"), tr("Updated")});
-	// m_modListWidget.setRootIsDecorated(false);
+	m_modListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Author"), tr("Latest installed"), tr("Latest version"), tr("Repository"), tr("Creation date"), tr("Updated"), "", ""});
 	m_modListWidget.setSortingEnabled(true);
 	m_modListWidget.setContextMenuPolicy(Qt::CustomContextMenu);
 	m_modListWidget.sortItems(2, Qt::AscendingOrder);
 	m_modListWidget.setColumnWidth(0, 64);
+	m_modListWidget.setColumnWidth(9, 32);
 	m_modListWidget.hideColumn(1);
-	m_modListWidget.setSelectionMode(QAbstractItemView::NoSelection);
-	m_modListWidget.setFocusPolicy(Qt::NoFocus);
 
-	connect(&m_modListWidget, &QTreeWidget::customContextMenuRequested, this, &ModTabWidget::showContextMenu);
+	connect(&m_modListWidget, &QTreeWidget::itemSelectionChanged, this, &ModTabWidget::toggleButtons);
 
-	QVBoxLayout *layout = new QVBoxLayout{this};
+	m_installButton = new QPushButton{tr("Install")};
+	m_removeButton = new QPushButton{tr("Remove")};
+
+	m_installButton->setDisabled(true);
+	m_removeButton->setDisabled(true);
+
+	connect(m_installButton, &QPushButton::clicked, this, &ModTabWidget::downloadActionTriggered);
+	connect(m_removeButton, &QPushButton::clicked, this, &ModTabWidget::removeActionTriggered);
+
+	auto *sideBar = new QWidget;
+	auto *buttonLayout = new QVBoxLayout{sideBar};
+	buttonLayout->addWidget(m_installButton);
+	buttonLayout->addWidget(m_removeButton);
+	buttonLayout->addWidget(new QWidget, 1);
+
+	QHBoxLayout *layout = new QHBoxLayout{this};
 	layout->addWidget(&m_modListWidget);
+	layout->addWidget(sideBar);
 }
 
 void ModTabWidget::update() {
@@ -56,7 +70,6 @@ void ModTabWidget::update() {
 	auto &modList = m_data.modList();
 	for (auto &it : modList) {
 		auto *item = new QTreeWidgetItem(&m_modListWidget);
-		// item->setText(0, " 0");
 		item->setText(1, QString::number(it.second.id()));
 		item->setText(2, it.second.name());
 		item->setText(7, it.second.date().toString());
@@ -73,6 +86,10 @@ void ModTabWidget::update() {
 		if (user)
 			item->setText(3, user->name());
 
+		auto *progressBar = new QProgressBar;
+		progressBar->setRange(0, 100);
+		m_modListWidget.setItemWidget(item, 9, progressBar);
+
 		ContentModVersion *latestVersion = nullptr;
 		ContentModVersion *latestInstalledVersion = nullptr;
 		for (auto &it : it.second.versions()) {
@@ -83,11 +100,18 @@ void ModTabWidget::update() {
 				child->setIcon(0, QIcon(":/checkbox_off"));
 			else if (version->state() == ContentModVersion::State::Downloaded)
 				child->setIcon(0, QIcon(":/checkbox_on"));
+			else
+				child->setIcon(0, QIcon(":/ask"));
 
+			child->setText(1, "    " + QString::number(version->id()));
 			child->setText(1, "    " + QString::number(version->id()));
 			child->setText(2, "    " + version->name());
 			child->setText(7, "    " + version->date().toString());
 			child->setText(8, "    " + QString(version->hasBeenUpdated() ? "true" : "false"));
+
+			auto *progressBar = new QProgressBar;
+			progressBar->setRange(0, 100);
+			m_modListWidget.setItemWidget(child, 9, progressBar);
 
 			if (!latestVersion || latestVersion->id() < version->id())
 				latestVersion = version;
@@ -107,6 +131,11 @@ void ModTabWidget::update() {
 		if (latestVersion)
 			item->setText(5, latestVersion->name());
 	}
+
+	for (int i = 1 ; i < 9 ; ++i)
+		m_modListWidget.resizeColumnToContents(i);
+
+	toggleButtons();
 }
 
 ContentModVersion *ModTabWidget::getModVersionFromItem(QTreeWidgetItem *item) {
@@ -132,106 +161,84 @@ ContentModVersion *ModTabWidget::getModVersionFromItem(QTreeWidgetItem *item) {
 	return modVersion;
 }
 
-void ModTabWidget::showContextMenu(const QPoint &pos) {
-	QTreeWidgetItem *item = m_modListWidget.itemAt(pos);
-	if (!item) return;
+void ModTabWidget::downloadActionTriggered() {
+	QList<QTreeWidgetItem *> selectedItems = m_modListWidget.selectedItems();
+	if (selectedItems.size() == 1) {
+		ContentModVersion *modVersion = getModVersionFromItem(selectedItems.at(0));
 
-	m_currentItem = item;
+		if (modVersion) {
+			QNetworkReply *reply = m_session.downloadRequest(modVersion->doc());
+			connect(reply, &QNetworkReply::finished, [this, reply]() { unzipFile(reply); });
+			connect(reply, &QNetworkReply::downloadProgress, this, [this, reply](qint64 bytesReceived, qint64 bytesTotal) {
+				updateProgressBar(reply, bytesReceived, bytesTotal);
+			});
 
-	ContentModVersion *modVersion = getModVersionFromItem(m_currentItem);
-	if (modVersion) {
-		QMenu menu{this};
-
-		if (modVersion->state() == ContentModVersion::State::Available) {
-			QAction *downloadAction = new QAction(tr("&Download"), this);
-			downloadAction->setStatusTip(tr("Download mod"));
-			connect(downloadAction, &QAction::triggered, this, &ModTabWidget::downloadActionTriggered);
-			menu.addAction(downloadAction);
+			m_downloads.emplace(reply, selectedItems.at(0));
 		}
-		else if (modVersion->state() == ContentModVersion::State::Downloaded) {
-			QAction *removeAction = new QAction(tr("&Remove"), this);
-			removeAction->setStatusTip(tr("Remove mod from disk"));
-			connect(removeAction, &QAction::triggered, this, &ModTabWidget::removeActionTriggered);
-			menu.addAction(removeAction);
-		}
-
-		menu.exec(m_modListWidget.mapToGlobal(pos));
 	}
 }
 
-void ModTabWidget::downloadActionTriggered() {
-	ContentModVersion *modVersion = getModVersionFromItem(m_currentItem);
-	ContentMod *mod = m_data.getMod(modVersion->modID());
-	if (modVersion) {
-		QString path = PathUtils::getModVersionPath(*mod, *modVersion);
+void ModTabWidget::removeActionTriggered() {
+	QList<QTreeWidgetItem *> selectedItems = m_modListWidget.selectedItems();
+	if (selectedItems.size() == 1) {
+		ContentModVersion *modVersion = getModVersionFromItem(selectedItems.at(0));
 
-		QDir dir;
-		if (!dir.exists(path))
-			dir.mkpath(path);
+		if (modVersion) {
+			QString path = PathUtils::getModVersionPath(modVersion->mod(), *modVersion);
 
-		if (m_session.download(modVersion->doc(), path + "/content.zip")) {
-			QuaZip archive{path + "/content.zip"};
-			if (!archive.open(QuaZip::mdUnzip)) {
-				qDebug() << "ERROR: Failed to open archive at" << path + "/content.zip";
-				return;
-			}
+			QDir dir{path};
+			if (dir.exists())
+				dir.removeRecursively();
 
-			for(bool f = archive.goToFirstFile(); f; f = archive.goToNextFile()) {
-				QString filePath = archive.getCurrentFileName();
-
-				if (filePath.at(filePath.size() - 1) == '/') {
-					QDir dir;
-					dir.mkpath(path + QDir::separator() + filePath);
-				}
-			}
-
-			for(bool f = archive.goToFirstFile(); f; f = archive.goToNextFile()) {
-				QString filePath = archive.getCurrentFileName();
-
-				if (filePath.at(filePath.size() - 1) != '/') {
-					QuaZipFile file(archive.getZipName(), filePath);
-					file.open(QIODevice::ReadOnly);
-
-					QuaZipFileInfo info;
-					file.getFileInfo(&info);
-
-					QByteArray data = file.readAll();
-
-					file.close();
-
-					QFile dstFile(path + QDir::separator() + filePath);
-					dstFile.open(QIODevice::WriteOnly);
-					dstFile.write(data);
-					dstFile.setPermissions(info.getPermissions());
-					dstFile.close();
-				}
-			}
-
-			archive.close();
-
-			QFile file{path + "/content.zip"};
-			file.remove();
-
-			modVersion->setState(ContentModVersion::State::Downloaded);
+			modVersion->setState(ContentModVersion::State::Available);
 
 			update();
 		}
 	}
 }
 
-void ModTabWidget::removeActionTriggered() {
-	ContentModVersion *modVersion = getModVersionFromItem(m_currentItem);
-	ContentMod *mod = m_data.getMod(modVersion->modID());
+void ModTabWidget::updateProgressBar(QNetworkReply *reply, qint64 bytesReceived, qint64 bytesTotal) {
+	QProgressBar *progressBar = (QProgressBar *)m_modListWidget.itemWidget(m_downloads.at(reply), 5);
+	if (progressBar)
+		progressBar->setValue((float)bytesReceived / bytesTotal * 100.f);
+}
+
+void ModTabWidget::unzipFile(QNetworkReply *reply) {
+	ContentModVersion *modVersion = getModVersionFromItem(m_downloads.at(reply));
+
 	if (modVersion) {
-		QString path = PathUtils::getModVersionPath(*mod, *modVersion);
+		QString path = PathUtils::getModVersionPath(modVersion->mod(), *modVersion);
 
-		QDir dir{path};
-		if (dir.exists())
-			dir.removeRecursively();
+		QDir dir;
+		if (!dir.exists(path))
+			dir.mkpath(path);
 
-		modVersion->setState(ContentModVersion::State::Available);
+		if (!m_session.saveFileToDisk(reply, path + "/content.zip")) {
+			qDebug() << "Failed to save" << path + "/content.zip";
+			return;
+		}
+
+		PathUtils::unzipFile(path + "/content.zip", true);
+
+		modVersion->setState(ContentModVersion::State::Downloaded);
 
 		update();
+
+		m_downloads.erase(reply);
+	}
+}
+
+void ModTabWidget::toggleButtons() {
+	QList<QTreeWidgetItem *> selectedItems = m_modListWidget.selectedItems();
+	if (selectedItems.size() == 1) {
+		ContentModVersion *modVersion = getModVersionFromItem(selectedItems.at(0));
+
+		m_installButton->setEnabled(modVersion->state() != ContentModVersion::State::Downloaded);
+		m_removeButton->setEnabled(modVersion->state() == ContentModVersion::State::Downloaded);
+	}
+	else {
+		m_installButton->setEnabled(false);
+		m_removeButton->setEnabled(false);
 	}
 }
 

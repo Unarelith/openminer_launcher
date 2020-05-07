@@ -32,6 +32,10 @@ void DatabaseLoader::update() const {
 	emit updateStarted();
 
 	const auto &repositoryList = m_data.repositoryList();
+	if (repositoryList.empty()) {
+		// TODO: Create default repositories here
+	}
+
 	for (auto &it : repositoryList) {
 		emit updateProgressed(0);
 		emit stateChanged("Loading users from repository '" + it.second.name() + "'...");

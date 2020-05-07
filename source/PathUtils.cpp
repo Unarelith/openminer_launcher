@@ -27,6 +27,8 @@
 #include <QDir>
 #include <QStandardPaths>
 
+#include <quazip/quazipfile.h>
+
 #include "ContentData.hpp"
 #include "PathUtils.hpp"
 #include "Utils.hpp"
@@ -80,6 +82,54 @@ void PathUtils::reinstallInstance(const ContentInstance &instance, ContentData &
 		QString modVersionPath = PathUtils::getModVersionPath(*mod, *data.getModVersion(mod->latestVersionID()));
 
 		Utils::copyDirectory(modVersionPath + "/" + mod->name(), instancePath + "/mods/" + mod->name());
+	}
+}
+
+void PathUtils::unzipFile(const QString &path, bool removeAfterExtraction) {
+	QFileInfo fileInfo{path};
+	QuaZip archive{path};
+	if (!archive.open(QuaZip::mdUnzip)) {
+		qDebug() << "Failed to open archive. Error code:" << archive.getZipError();
+		return;
+	}
+
+	for(bool f = archive.goToFirstFile(); f; f = archive.goToNextFile()) {
+		QString filePath = archive.getCurrentFileName();
+
+		if (filePath.at(filePath.size() - 1) == '/') {
+			QDir dir;
+			dir.mkpath(fileInfo.absolutePath() + QDir::separator() + filePath);
+		}
+		else {
+			QuaZipFile file(archive.getZipName(), filePath);
+			file.open(QIODevice::ReadOnly);
+
+			QuaZipFileInfo info;
+			file.getFileInfo(&info);
+
+			QByteArray data = file.readAll();
+
+			file.close();
+
+			QDir dir;
+			QFileInfo dirInfo{fileInfo.absolutePath() + QDir::separator() + filePath};
+			if (!dir.exists(dirInfo.absolutePath())) {
+				dir.mkpath(dirInfo.absolutePath());
+			}
+
+			QFile dstFile(fileInfo.absolutePath() + QDir::separator() + filePath);
+			dstFile.open(QIODevice::WriteOnly);
+			dstFile.write(data);
+			dstFile.setPermissions(info.getPermissions());
+			dstFile.close();
+		}
+	}
+
+	archive.close();
+
+	if (removeAfterExtraction) {
+		QFile file{path};
+		file.remove();
 	}
 }
 

@@ -41,6 +41,8 @@ namespace PathUtils {
 
 	void renameInstance(const QString &oldName, const QString &newName);
 	void reinstallInstance(const ContentInstance &instance, ContentData &data);
+
+	void unzipFile(const QString &path, bool removeAfterExtraction = false);
 }
 
 #endif // PATHUTILS_HPP_

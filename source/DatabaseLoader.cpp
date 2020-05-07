@@ -33,6 +33,7 @@ void DatabaseLoader::update() const {
 
 	const auto &repositoryList = m_data.repositoryList();
 	for (auto &it : repositoryList) {
+		emit updateProgressed(0);
 		emit stateChanged("Loading users from repository '" + it.second.name() + "'...");
 
 		updateModel<ContentUser>(it.second, "/api/user",

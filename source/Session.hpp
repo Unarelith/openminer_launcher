@@ -39,6 +39,8 @@ class Session : public QObject {
 		QJsonDocument get(const QString &url, const ParameterList &parameters = {}) const;
 
 		bool download(const QUrl &url, const QString &path) const;
+		QNetworkReply *downloadRequest(const QUrl &url) const;
+		bool saveFileToDisk(QNetworkReply *reply, const QString &path) const;
 
 		bool isLoggedIn() const { return m_isLoggedIn; }
 

@@ -26,6 +26,8 @@
 #ifndef ENGINEVERSIONTABWIDGET_HPP_
 #define ENGINEVERSIONTABWIDGET_HPP_
 
+#include <unordered_map>
+
 #include <QTreeWidget>
 
 #include "Session.hpp"
@@ -47,6 +49,9 @@ class EngineVersionTabWidget : public QWidget {
 		void showContextMenu(const QPoint &pos);
 
 		void downloadActionTriggered();
+		void updateProgressBar(QNetworkReply *reply, qint64 bytesReceived, qint64 bytesTotal);
+		void unzipFile(QNetworkReply *reply);
+
 		void removeActionTriggered();
 
 		ContentData &m_data;
@@ -56,6 +61,8 @@ class EngineVersionTabWidget : public QWidget {
 		QTreeWidgetItem *m_currentItem = nullptr;
 
 		Session m_session;
+
+		std::unordered_map<QNetworkReply *, QTreeWidgetItem *> m_downloads;
 };
 
 #endif // ENGINEVERSIONTABWIDGET_HPP_

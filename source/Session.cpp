@@ -109,3 +109,36 @@ bool Session::download(const QUrl &url, const QString &path) const {
 	return false;
 }
 
+QNetworkReply *Session::downloadRequest(const QUrl &url) const {
+	return m_network->get(QNetworkRequest(QUrl(url)));
+}
+
+bool Session::saveFileToDisk(QNetworkReply *reply, const QString &path) const {
+	QVariant statusCodeVariant = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+	int statusCode = statusCodeVariant.toInt();
+
+	if (statusCode != 200) {
+		std::cerr << "Error: Http request failed. Code: " << statusCode << std::endl;
+		emit stateChanged("Request failed. (" + QString::number(statusCode) + ")");
+		emit httpError(statusCode);
+
+		if (statusCode == 401) {
+			QThread::currentThread()->requestInterruption();
+			emit userLoginRequired();
+		}
+	}
+	else {
+		QByteArray data = reply->readAll();
+		QSaveFile file{path};
+		if (file.open(QIODevice::WriteOnly)) {
+			file.write(data);
+			file.commit();
+			return true;
+		}
+		else
+			std::cerr << "Error: Failed to save file: " << path.toStdString() << std::endl;
+	}
+
+	return false;
+}
+

@@ -25,6 +25,8 @@
  */
 #include <QDir>
 #include <QMenu>
+#include <QNetworkReply>
+#include <QProgressBar>
 #include <QVBoxLayout>
 
 #include <quazip/quazipfile.h>
@@ -34,12 +36,13 @@
 #include "PathUtils.hpp"
 
 EngineVersionTabWidget::EngineVersionTabWidget(ContentData &data, QWidget *parent) : QWidget(parent), m_data(data) {
-	m_versionListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Repository"), tr("Creation date")});
+	m_versionListWidget.setHeaderLabels({"", tr("ID"), tr("Name"), tr("Repository"), tr("Creation date"), "", ""});
 	m_versionListWidget.setRootIsDecorated(false);
 	m_versionListWidget.setSortingEnabled(true);
 	m_versionListWidget.setContextMenuPolicy(Qt::CustomContextMenu);
-	m_versionListWidget.sortItems(2, Qt::AscendingOrder);
+	m_versionListWidget.sortItems(2, Qt::DescendingOrder);
 	m_versionListWidget.setColumnWidth(0, 27);
+	m_versionListWidget.setColumnWidth(5, 32);
 	m_versionListWidget.hideColumn(1);
 	m_versionListWidget.setSelectionMode(QAbstractItemView::NoSelection);
 	m_versionListWidget.setFocusPolicy(Qt::NoFocus);
@@ -71,7 +74,14 @@ void EngineVersionTabWidget::update() {
 			item->setText(3, repository->name());
 		else
 			item->setText(3, "N/A");
+
+		auto *progressBar = new QProgressBar;
+		progressBar->setRange(0, 100);
+		m_versionListWidget.setItemWidget(item, 5, progressBar);
 	}
+
+	for (int i = 0 ; i < 5 ; ++i)
+		m_versionListWidget.resizeColumnToContents(i);
 }
 
 void EngineVersionTabWidget::showContextMenu(const QPoint &pos) {
@@ -105,16 +115,41 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 	ContentEngineVersion *engineVersion = m_data.getEngineVersion(m_currentItem->text(1).toUInt());
 
 	if (engineVersion) {
+		QNetworkReply *reply = m_session.downloadRequest(engineVersion->doc());
+		connect(reply, &QNetworkReply::finished, [this, reply]() { unzipFile(reply); });
+		connect(reply, &QNetworkReply::downloadProgress, this, [this, reply](qint64 bytesReceived, qint64 bytesTotal) {
+			updateProgressBar(reply, bytesReceived, bytesTotal);
+		});
+
+		m_downloads.emplace(reply, m_currentItem);
+	}
+}
+
+void EngineVersionTabWidget::updateProgressBar(QNetworkReply *reply, qint64 bytesReceived, qint64 bytesTotal) {
+	QProgressBar *progressBar = (QProgressBar *)m_versionListWidget.itemWidget(m_downloads.at(reply), 5);
+	progressBar->setValue((float)bytesReceived / bytesTotal * 100.f);
+}
+
+void EngineVersionTabWidget::unzipFile(QNetworkReply *reply) {
+	ContentEngineVersion *engineVersion = m_data.getEngineVersion(m_downloads.at(reply)->text(1).toUInt());
+
+	if (engineVersion) {
 		QString path = PathUtils::getEngineVersionPath(*engineVersion);
 
 		QDir dir;
 		if (!dir.exists(path))
 			dir.mkpath(path);
 
-		m_session.download(engineVersion->doc(), path + "/content.zip");
+		if (!m_session.saveFileToDisk(reply, path + "/content.zip")) {
+			qDebug() << "Failed to save" << path + "/content.zip";
+			return;
+		}
 
 		QuaZip archive{path + "/content.zip"};
-		archive.open(QuaZip::mdUnzip);
+		if (!archive.open(QuaZip::mdUnzip)) {
+			qDebug() << "Failed to open archive. Error code:" << archive.getZipError();
+			return;
+		}
 
 		for(bool f = archive.goToFirstFile(); f; f = archive.goToNextFile()) {
 			QString filePath = archive.getCurrentFileName();
@@ -155,6 +190,8 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 		engineVersion->setState(ContentEngineVersion::State::Downloaded);
 
 		update();
+
+		m_downloads.erase(reply);
 	}
 }
 

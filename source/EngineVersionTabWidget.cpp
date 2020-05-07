@@ -117,6 +117,8 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 			});
 
 			m_downloads.emplace(reply, selectedItems.at(0));
+
+			updateProgressBar(reply, 0, 1);
 		}
 	}
 }

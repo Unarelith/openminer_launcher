@@ -174,6 +174,8 @@ void ModTabWidget::downloadActionTriggered() {
 			});
 
 			m_downloads.emplace(reply, selectedItems.at(0));
+
+			updateProgressBar(reply, 0, 1);
 		}
 	}
 }
@@ -198,7 +200,7 @@ void ModTabWidget::removeActionTriggered() {
 }
 
 void ModTabWidget::updateProgressBar(QNetworkReply *reply, qint64 bytesReceived, qint64 bytesTotal) {
-	QProgressBar *progressBar = (QProgressBar *)m_modListWidget.itemWidget(m_downloads.at(reply), 5);
+	QProgressBar *progressBar = (QProgressBar *)m_modListWidget.itemWidget(m_downloads.at(reply), 9);
 	if (progressBar)
 		progressBar->setValue((float)bytesReceived / bytesTotal * 100.f);
 }

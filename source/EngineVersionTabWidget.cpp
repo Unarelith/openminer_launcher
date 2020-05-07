@@ -27,6 +27,7 @@
 #include <QMenu>
 #include <QNetworkReply>
 #include <QProgressBar>
+#include <QTreeWidgetItemIterator>
 #include <QVBoxLayout>
 
 #include <quazip/quazipfile.h>
@@ -54,11 +55,15 @@ EngineVersionTabWidget::EngineVersionTabWidget(ContentData &data, QWidget *paren
 }
 
 void EngineVersionTabWidget::update() {
-	m_versionListWidget.clear();
-
 	auto &versionList = m_data.engineVersionList();
 	for (auto &it : versionList) {
-		auto *item = new QTreeWidgetItem(&m_versionListWidget);
+		auto items = m_versionListWidget.findItems(QString::number(it.second.id()), Qt::MatchExactly, 1);
+		QTreeWidgetItem *item = nullptr;
+		if (items.size() > 0)
+			item = items.at(0);
+		else
+			item = new QTreeWidgetItem(&m_versionListWidget);
+
 		if (it.second.state() == ContentEngineVersion::State::Available)
 			item->setIcon(0, QIcon(":/checkbox_off"));
 		else if (it.second.state() == ContentEngineVersion::State::Downloaded)

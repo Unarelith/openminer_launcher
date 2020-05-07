@@ -33,30 +33,47 @@ void DatabaseLoader::update() const {
 
 	const auto &repositoryList = m_data.repositoryList();
 	for (auto &it : repositoryList) {
+		emit stateChanged("Loading users from repository '" + it.second.name() + "'...");
+
 		updateModel<ContentUser>(it.second, "/api/user",
 				std::bind(&ContentData::getUser, &m_data, _1),
 				std::bind(&ContentData::setUser, &m_data, _1, _2),
 				std::bind(&ContentData::userList, &m_data));
+
+		emit updateProgressed(20);
+		emit stateChanged("Loading news from repository '" + it.second.name() + "'...");
 
 		updateModel<ContentNewsArticle>(it.second, "/api/news",
 				std::bind(&ContentData::getNewsArticle, &m_data, _1),
 				std::bind(&ContentData::setNewsArticle, &m_data, _1, _2),
 				std::bind(&ContentData::newsArticleList, &m_data));
 
+		emit updateProgressed(40);
+		emit stateChanged("Loading engine versions from repository '" + it.second.name() + "'...");
+
 		updateModel<ContentEngineVersion>(it.second, "/api/version",
 				std::bind(&ContentData::getEngineVersion, &m_data, _1),
 				std::bind(&ContentData::setEngineVersion, &m_data, _1, _2),
 				std::bind(&ContentData::engineVersionList, &m_data));
+
+		emit updateProgressed(60);
+		emit stateChanged("Loading mods from repository '" + it.second.name() + "'...");
 
 		updateModel<ContentMod>(it.second, "/api/mod",
 				std::bind(&ContentData::getMod, &m_data, _1),
 				std::bind(&ContentData::setMod, &m_data, _1, _2),
 				std::bind(&ContentData::modList, &m_data));
 
+		emit updateProgressed(80);
+		emit stateChanged("Loading mod versions from repository '" + it.second.name() + "'...");
+
 		updateModel<ContentModVersion>(it.second, "/api/mod/version",
 				std::bind(&ContentData::getModVersion, &m_data, _1),
 				std::bind(&ContentData::setModVersion, &m_data, _1, _2),
 				std::bind(&ContentData::modVersionList, &m_data));
+
+		emit updateProgressed(100);
+		emit stateChanged("Done.");
 	}
 
 	emit updateFinished();

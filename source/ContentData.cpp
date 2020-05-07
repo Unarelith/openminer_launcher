@@ -34,7 +34,6 @@
 
 ContentData::ContentData() : m_database(*this) {
 	connect(&m_database.loader(), &DatabaseLoader::updateFinished, this, &ContentData::update);
-	connect(&m_database.loader(), &DatabaseLoader::updateFinished, this, &ContentData::windowRefeshRequested);
 }
 
 void ContentData::openDatabase(const QString &path) {
@@ -45,6 +44,7 @@ void ContentData::updateDatabase() {
 	stopDatabaseUpdate();
 
 	emit databaseUpdateStarted();
+	emit stateChanged("Updating database...");
 
 	m_databaseThread = new DatabaseThread(&m_database);
 	connect(m_databaseThread, &QThread::finished, this, &ContentData::databaseUpdateFinished);

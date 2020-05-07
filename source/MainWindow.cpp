@@ -31,6 +31,7 @@
 #include <QKeyEvent>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QProgressBar>
 #include <QStandardPaths>
 #include <QStatusBar>
 
@@ -110,9 +111,19 @@ void MainWindow::setupTabs() {
 }
 
 void MainWindow::setupStatusBar() {
-	QStatusBar *statusBar = QMainWindow::statusBar();
+	QProgressBar *dbUpdateBar = new QProgressBar;
+	dbUpdateBar->hide();
+	dbUpdateBar->setRange(0, 100);
+	connect(&m_contentData, &ContentData::databaseUpdateStarted, dbUpdateBar, &QWidget::show);
+	connect(&m_contentData, &ContentData::databaseUpdateStopped, dbUpdateBar, &QWidget::hide);
 
+	QStatusBar *statusBar = QMainWindow::statusBar();
+	statusBar->addPermanentWidget(dbUpdateBar);
+
+	// connect(&m_session, &Session::stateChanged, statusBar, &QStatusBar::showMessage);
 	connect(&m_contentData, &ContentData::stateChanged, statusBar, &QStatusBar::showMessage);
+	connect(&m_contentData.database().loader(), &DatabaseLoader::stateChanged, statusBar, &QStatusBar::showMessage);
+	connect(&m_contentData.database().loader(), &DatabaseLoader::updateProgressed, dbUpdateBar, &QProgressBar::setValue);
 }
 
 void MainWindow::setupMenuBar() {

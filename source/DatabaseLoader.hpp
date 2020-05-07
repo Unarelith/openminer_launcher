@@ -50,6 +50,8 @@ class DatabaseLoader : public QObject {
 		void updateProgressed(int value) const;
 		void updateFinished() const;
 
+		void stateChanged(const QString &state, int timeout = 0) const;
+
 	private:
 		ContentData &m_data;
 

@@ -76,6 +76,9 @@ void InstanceListWidget::update() {
 
 		item->setText(3, modString);
 	}
+
+	for (int i = 0 ; i < 4 ; ++i)
+		resizeColumnToContents(i);
 }
 
 void InstanceListWidget::addInstance() {
@@ -114,10 +117,19 @@ void InstanceListWidget::runInstance() {
 		QStringList args;
 		args << "--working-dir" << instancePath;
 
+		QString cwd = QDir::currentPath();
+		QDir::setCurrent(enginePath + "/openminer");
+
 		QProcess *process = new QProcess{this};
+		process->setProcessChannelMode(QProcess::MergedChannels);
 		process->start(enginePath + "/openminer/openminer", args);
 
+		QDir::setCurrent(cwd);
+
 		connect(this, &QWidget::destroyed, process, &QProcess::close);
+		connect(process, &QProcess::readyRead, [process] () {
+			qDebug(process->readAll());
+		});
 	}
 }
 

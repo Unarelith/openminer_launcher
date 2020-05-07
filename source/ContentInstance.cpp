@@ -56,5 +56,8 @@ void ContentInstance::setMods(const QList<int> &mods) {
 	}
 
 	set("mods", modString);
+
+	updateDatabaseTable();
+	writeToDatabase();
 }
 

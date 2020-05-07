@@ -57,7 +57,21 @@ void Utils::copyDirectory(const QString &src, const QString &dest, bool isVerbos
 	}
 
 	for (const QString &f : dir.entryList(QDir::Files)) {
-		QFile::copy(src + QDir::separator() + f, dest + QDir::separator() + f);
+		QFile file{src + QDir::separator() + f};
+		if (!file.open(QFile::ReadOnly))
+			qDebug() << "Failed to open file:" << file.errorString();
+
+		QFile destFile{dest + QDir::separator() + f};
+		if (destFile.exists())
+			destFile.remove();
+		if (!destFile.open(QFile::OpenModeFlag::WriteOnly))
+			qDebug() << "Failed to open file:" << destFile.errorString();
+
+		destFile.write(file.readAll());
+
+		file.close();
+		destFile.close();
+
 		if (isVerbose)
 			qDebug() << "Copied file from" << src + QDir::separator() + f << "to" << dest + QDir::separator() + f;
 	}

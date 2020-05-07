@@ -120,7 +120,11 @@ void PathUtils::unzipFile(const QString &path, bool removeAfterExtraction) {
 			QFile dstFile(fileInfo.absolutePath() + QDir::separator() + filePath);
 			dstFile.open(QIODevice::WriteOnly);
 			dstFile.write(data);
-			dstFile.setPermissions(info.getPermissions());
+			if (info.getPermissions() != 0)
+				dstFile.setPermissions(info.getPermissions());
+			else
+				dstFile.setPermissions(QFile::Permissions(0x6644));
+
 			dstFile.close();
 		}
 	}

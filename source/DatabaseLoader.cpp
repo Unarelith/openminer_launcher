@@ -33,7 +33,10 @@ void DatabaseLoader::update() const {
 
 	const auto &repositoryList = m_data.repositoryList();
 	if (repositoryList.empty()) {
-		// TODO: Create default repositories here
+		ContentRepository repository(0, "OpenMiner", "https://openminer.app/", "b16cacc8-e0c3-4eff-a18b-15d004062894");
+		repository.updateDatabaseTable();
+		repository.writeToDatabase();
+		m_data.setRepository(m_data.repositoryList().size(), repository);
 	}
 
 	for (auto &it : repositoryList) {

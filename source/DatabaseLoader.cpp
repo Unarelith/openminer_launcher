@@ -37,6 +37,11 @@ void DatabaseLoader::update() const {
 		repository.updateDatabaseTable();
 		repository.writeToDatabase();
 		m_data.setRepository(m_data.repositoryList().size(), repository);
+
+		// ContentRepository repository2(0, "Local", "http://localhost:8000/", "25421e59-1a78-4e9c-a1b5-7490ba4d0b69");
+		// repository2.updateDatabaseTable();
+		// repository2.writeToDatabase();
+		// m_data.setRepository(m_data.repositoryList().size(), repository2);
 	}
 
 	for (auto &it : repositoryList) {

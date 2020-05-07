@@ -23,6 +23,8 @@
  *
  * =====================================================================================
  */
+#include <QSysInfo>
+
 #include "ContentData.hpp"
 #include "ContentEngineVersion.hpp"
 
@@ -33,7 +35,21 @@ void ContentEngineVersion::loadFromJson(const QJsonObject &jsonObject, ContentDa
 	set("rid", jsonObject.value("id").toInt());
 	set("name", jsonObject.value("name").toString());
 	set("date", date);
-	set("doc", jsonObject.value("doc").toString());
+
+	QString windowsUrl = jsonObject.value("windows_url").toString();
+	if (windowsUrl.isEmpty())
+		windowsUrl = jsonObject.value("windows_zip").toString();
+	set("windows_url", windowsUrl);
+
+	QString linuxUrl = jsonObject.value("linux_url").toString();
+	if (linuxUrl.isEmpty())
+		linuxUrl = jsonObject.value("linux_zip").toString();
+	set("linux_url", linuxUrl);
+
+	QString macosUrl = jsonObject.value("macos_url").toString();
+	if (macosUrl.isEmpty())
+		macosUrl = jsonObject.value("macos_zip").toString();
+	set("macos_url", linuxUrl);
 
 	ContentEngineVersion *version = data.getEngineVersion(m_id);
 	if (version)
@@ -42,5 +58,15 @@ void ContentEngineVersion::loadFromJson(const QJsonObject &jsonObject, ContentDa
 		set("state", State::Available);
 
 	m_hasBeenUpdated = true;
+}
+
+QString ContentEngineVersion::fileUrl() const {
+	QString product = QSysInfo::productType() ;
+	if (product == "osx")
+		return macosUrl();
+	else if (product == "winrt" || product == "windows")
+		return windowsUrl();
+	else
+		return linuxUrl();
 }
 

@@ -46,7 +46,7 @@ class ContentModVersion : public ContentItem {
 
 		QString name() const { return get("name").toString(); }
 		QDateTime date() const { return get("date").toDateTime(); }
-		QString doc() const { return get("doc").toString(); }
+		QString fileUrl() const { return get("file_url").toString(); }
 		unsigned int modID() const { return get("mod").toUInt(); }
 
 		const ContentMod &mod() const { return *m_mod; }

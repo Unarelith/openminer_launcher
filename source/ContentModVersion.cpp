@@ -44,8 +44,12 @@ void ContentModVersion::loadFromJson(const QJsonObject &jsonObject, ContentData 
 	set("rid", jsonObject.value("id").toInt());
 	set("name", jsonObject.value("name").toString());
 	set("date", date);
-	set("doc", jsonObject.value("doc").toString());
 	set("mod", m_mod->id());
+
+	QString fileUrl = jsonObject.value("file_url").toString();
+	if (fileUrl.isEmpty())
+		fileUrl = jsonObject.value("file_zip").toString();
+	set("file_url", fileUrl);
 
 	ContentModVersion *version = data.getModVersion(m_id);
 	if (version)

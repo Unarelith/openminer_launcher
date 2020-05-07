@@ -103,6 +103,9 @@ void EngineVersionTabWidget::update() {
 	toggleButtons();
 }
 
+#include <QApplication>
+#include <QMessageBox>
+
 void EngineVersionTabWidget::downloadActionTriggered() {
 	QList<QTreeWidgetItem *> selectedItems = m_versionListWidget.selectedItems();
 	if (selectedItems.size() == 1) {
@@ -110,15 +113,21 @@ void EngineVersionTabWidget::downloadActionTriggered() {
 		ContentEngineVersion *engineVersion = m_data.getEngineVersion(engineVersionID);
 
 		if (engineVersion) {
-			QNetworkReply *reply = m_data.session().downloadRequest(engineVersion->doc());
-			connect(reply, &QNetworkReply::finished, [this, reply]() { unzipFile(reply); });
-			connect(reply, &QNetworkReply::downloadProgress, this, [this, reply](qint64 bytesReceived, qint64 bytesTotal) {
-				updateProgressBar(reply, bytesReceived, bytesTotal);
-			});
+			QString fileUrl = engineVersion->fileUrl();
+			if (!fileUrl.isEmpty()) {
+				QNetworkReply *reply = m_data.session().downloadRequest(fileUrl);
+				connect(reply, &QNetworkReply::finished, [this, reply]() { unzipFile(reply); });
+				connect(reply, &QNetworkReply::downloadProgress, this, [this, reply](qint64 bytesReceived, qint64 bytesTotal) {
+					updateProgressBar(reply, bytesReceived, bytesTotal);
+				});
 
-			m_downloads.emplace(reply, selectedItems.at(0));
+				m_downloads.emplace(reply, selectedItems.at(0));
 
-			updateProgressBar(reply, 0, 1);
+				updateProgressBar(reply, 0, 1);
+			}
+			else {
+				QMessageBox::critical(this, QApplication::applicationDisplayName(), "This version is not available for your system.");
+			}
 		}
 	}
 }

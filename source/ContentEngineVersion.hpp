@@ -46,7 +46,12 @@ class ContentEngineVersion : public ContentItem {
 
 		QString name() const { return get("name").toString(); }
 		QDateTime date() const { return get("date").toDateTime(); }
-		QString doc() const { return get("doc").toString(); }
+
+		QString windowsUrl() const { return get("windows_url").toString(); }
+		QString linuxUrl() const { return get("linux_url").toString(); }
+		QString macosUrl() const { return get("macos_url").toString(); }
+
+		QString fileUrl() const;
 
 		enum State {
 			Available,

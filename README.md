@@ -17,7 +17,7 @@ This is the official launcher for [OpenMiner](https://github.com/Unarelith/OpenM
     - _Linux users: Check your distribution repositories for packages._
 - Run `cmake -B build .`
 - Run `cmake --build build`
-- Run `./build/openminer_launcher.exe`
+- Run `./build/openminer_launcher`
 
 ### Using Windows
 

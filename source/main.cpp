@@ -35,6 +35,8 @@ int main(int argc, char **argv) {
 	QApplication::setApplicationDisplayName("OpenMiner Launcher");
 	QApplication::setApplicationVersion("0.0.1");
 
+	qSetMessagePattern("[%{time hh:mm:ss}] [%{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}] [%{appname}] %{message}");
+
 	QFile style(":/theme-default");
 	style.open(QIODevice::OpenModeFlag::ReadOnly);
 	app.setStyleSheet(style.readAll());

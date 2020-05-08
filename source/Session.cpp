@@ -151,7 +151,7 @@ QNetworkAccessManager &Session::getNetworkAccessManager() {
 	if (it != m_networkManagers.end()) {
 		return *it->second;
 	} else {
-		qDebug() << "Creating new network manager for thread" << thread_address;
+		// qDebug() << "Creating new network manager for thread" << thread_address;
 		m_networkManagers.emplace(thread_address, new QNetworkAccessManager);
 		return *m_networkManagers.at(thread_address);
 	}

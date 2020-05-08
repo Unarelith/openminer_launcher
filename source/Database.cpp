@@ -89,7 +89,7 @@ QSqlDatabase Database::getDatabase() {
 	if (db.isOpen() && db.isValid()) {
 		return db;
 	} else {
-		qDebug() << "Creating new database connection for thread" << thread_address;
+		// qDebug() << "Creating new database connection for thread" << thread_address;
 		db = QSqlDatabase::addDatabase(QString("QSQLITE"), thread_address);
 		db.setDatabaseName(s_path);
 		if (!db.open() || !db.isValid()) {

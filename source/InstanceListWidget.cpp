@@ -23,6 +23,8 @@
  *
  * =====================================================================================
  */
+#include <iostream>
+
 #include <QApplication>
 #include <QMessageBox>
 #include <QDir>
@@ -111,6 +113,8 @@ void InstanceListWidget::runInstance() {
 		unsigned int instanceID = selectedItems.at(0)->text(0).toUInt();
 		ContentInstance *instance = m_data.getInstance(instanceID);
 
+		qDebug().noquote().nospace() << "Running instance '" << instance->name() << "'...";
+
 		QString enginePath = PathUtils::getEngineVersionPath(*m_data.getEngineVersion(instance->engineVersionID()));
 		QString instancePath = PathUtils::getInstancePath(instance->name());
 
@@ -128,7 +132,7 @@ void InstanceListWidget::runInstance() {
 
 		connect(this, &QWidget::destroyed, process, &QProcess::close);
 		connect(process, &QProcess::readyRead, [process] () {
-			qDebug(process->readAll());
+			std::cout << process->readAll().constData();
 		});
 	}
 }

@@ -80,7 +80,7 @@ bool Session::download(const QUrl &url, const QString &path) {
 	QEventLoop waitReply;
 	connect(&network, &QNetworkAccessManager::finished, &waitReply, &QEventLoop::quit);
 
-	QNetworkReply *reply = network.get(QNetworkRequest(QUrl(url)));
+	QNetworkReply *reply = network.get(QNetworkRequest(url));
 
 	waitReply.exec();
 
@@ -113,7 +113,10 @@ bool Session::download(const QUrl &url, const QString &path) {
 }
 
 QNetworkReply *Session::downloadRequest(const QUrl &url) {
-	return getNetworkAccessManager().get(QNetworkRequest(QUrl(url)));
+	QNetworkRequest request(url);
+	request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+
+	return getNetworkAccessManager().get(request);
 }
 
 bool Session::saveFileToDisk(QNetworkReply *reply, const QString &path) const {
